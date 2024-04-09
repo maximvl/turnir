@@ -1,5 +1,5 @@
 import { Button, Grid } from "@mui/material";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { PollResults, pollVote } from "../utils";
 
 type Props = {

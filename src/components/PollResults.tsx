@@ -7,14 +7,14 @@ type Props = {
   pollId: string;
   onItemElimination?: (index: number) => void;
   refetchInterval?: number;
-  style: "big" | "small";
+  big?: boolean;
 };
 
 export default function PollResults({
   pollId,
   onItemElimination,
   refetchInterval,
-  style,
+  big,
 }: Props) {
   const fetchParams = refetchInterval ? { refetchInterval } : {};
 
@@ -63,8 +63,8 @@ export default function PollResults({
 
   const totalVotes = Object.values(votes).reduce((acc, curr) => acc + curr, 0);
 
-  const sideSize = style === "big" ? 2 : 1;
-  const progressSize = style === "big" ? 1 : 2;
+  const sideSize = big ? 2 : 1;
+  const progressSize = big ? 1 : 2;
 
   return (
     <div>

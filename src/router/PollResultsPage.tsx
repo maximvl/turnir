@@ -22,7 +22,7 @@ export default function PollResultsPage() {
   }
   return (
     <QueryClientProvider client={queryClient}>
-      <PollResults pollId={poll.poll_id} style={"big"} />
+      <PollResults pollId={poll.poll_id} big />
     </QueryClientProvider>
   );
 }

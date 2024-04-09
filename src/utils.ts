@@ -1,4 +1,3 @@
-import { QueryFunctionContext } from "react-query";
 import { ItemStatus, Item } from "./types";
 
 export function createItem(content: string = ""): Item {
@@ -13,7 +12,7 @@ const POLL_API_URL =
   "https://qfldcznx8c.execute-api.eu-north-1.amazonaws.com/default";
 
 export async function createPoll(items: Item[]): Promise<CreatePollResponse> {
-  return { poll_id: "zCES" };
+  // return { poll_id: "zCES" };
   const options = items.map((item: Item) => item.title);
   const body = {
     options,

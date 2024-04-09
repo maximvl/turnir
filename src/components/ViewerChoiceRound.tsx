@@ -58,7 +58,6 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
         pollId={pollId}
         onItemElimination={onItemElimination}
         refetchInterval={POLL_FETCH_INTERVAL}
-        style={"small"}
       />
     </div>
   );
