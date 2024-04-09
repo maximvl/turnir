@@ -14,16 +14,16 @@ const root = ReactDOM.createRoot(
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: "/turnir",
     element: <TournirPage />,
   },
   {
-    path: "/poll/:pollId",
+    path: "/turnir/poll/:pollId",
     element: <PollVotingPage />,
     loader: pollVotingLoader,
   },
   {
-    path: "/poll/:pollId/results",
+    path: "/turnir/poll/:pollId/results",
     element: <PollResultsPage />,
     loader: pollResultsLoader,
   },
