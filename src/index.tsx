@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createHashRouter, RouterProvider } from "react-router-dom";
 import PollVotingPage, { pollVotingLoader } from "./router/PollVotingPage";
 import PollResultsPage from "./router/PollResultsPage";
 import { pollResultsLoader } from "./router/PollResultsPage";
@@ -12,18 +12,18 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
-    path: "/turnir",
+    path: "/",
     element: <TournirPage />,
   },
   {
-    path: "/turnir/poll/:pollId",
+    path: "/poll/:pollId",
     element: <PollVotingPage />,
     loader: pollVotingLoader,
   },
   {
-    path: "/turnir/poll/:pollId/results",
+    path: "/poll/:pollId/results",
     element: <PollResultsPage />,
     loader: pollResultsLoader,
   },

@@ -66,6 +66,23 @@ export default function PollResults({
   const sideSize = big ? 2 : 1;
   const progressSize = big ? 1 : 2;
 
+  const itemElement = (index: number, title: string, selected: boolean) => {
+    if (onItemElimination) {
+      const style = selected ? highlightStyle : {};
+      return (
+        <Button
+          variant="outlined"
+          sx={style}
+          onClick={() => onItemClick(index)}
+        >
+          {title}
+        </Button>
+      );
+    }
+    const style = selected ? { color: "red", margin: 0 } : { margin: 0 };
+    return <h2 style={style}>{title}</h2>;
+  };
+
   return (
     <div>
       <Box textAlign="center">
@@ -83,13 +100,7 @@ export default function PollResults({
               columnSpacing={4}
             >
               <Grid item xs={sideSize} textAlign="right">
-                <Button
-                  variant="outlined"
-                  sx={highlight ? highlightStyle : {}}
-                  onClick={() => onItemClick(index)}
-                >
-                  {item}
-                </Button>
+                {itemElement(index, item, highlight)}
               </Grid>
               <Grid item xs={progressSize} alignContent="center">
                 <BorderLinearProgress
