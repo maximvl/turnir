@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import "./App.css";
-import ItemsList from "./components/ItemsList";
+import "../App.css";
+import ItemsList from "../components/ItemsList";
 import Button from "@mui/material/Button";
-import { Item, ItemStatus, RoundType, RoundTypes, TurnirState } from "./types";
+import { Item, ItemStatus, RoundType, RoundTypes, TurnirState } from "../types";
 import { Grid } from "@mui/material";
 import { isEmpty, sample } from "lodash";
-import { createItem } from "./utils";
-import RoundTitle from "./components/RoundTitle";
-import RoundContent from "./components/RoundContent";
+import { createItem } from "../utils";
+import RoundTitle from "../components/RoundTitle";
+import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 const queryClient = new QueryClient();

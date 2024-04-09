@@ -1,10 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import TournirApp from "./TournirApp";
+import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import PollApp, { pollLoader } from "./components/PollApp";
+import PollVotingPage, { pollVotingLoader } from "./router/PollVotingPage";
+import PollResultsPage from "./router/PollResultsPage";
+import { pollResultsLoader } from "./router/PollResultsPage";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -13,12 +15,17 @@ const root = ReactDOM.createRoot(
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <TournirApp />,
+    element: <TournirPage />,
   },
   {
     path: "/poll/:pollId",
-    element: <PollApp />,
-    loader: pollLoader,
+    element: <PollVotingPage />,
+    loader: pollVotingLoader,
+  },
+  {
+    path: "/poll/:pollId/results",
+    element: <PollResultsPage />,
+    loader: pollResultsLoader,
   },
 ]);
 

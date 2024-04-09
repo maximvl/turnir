@@ -1,14 +1,15 @@
-import { Box, Button, Grid } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Box } from "@mui/material";
 import { useQuery } from "react-query";
 import { Item } from "../types";
-import { createPoll, getPollResults } from "../utils";
+import { createPoll } from "../utils";
 import PollResults from "./PollResults";
 
 type Props = {
   items: Item[];
   onItemElimination: (index: number) => void;
 };
+
+const POLL_FETCH_INTERVAL = 3000;
 
 export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const {
@@ -55,8 +56,9 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
       </Box>
       <PollResults
         pollId={pollId}
-        items={items}
         onItemElimination={onItemElimination}
+        refetchInterval={POLL_FETCH_INTERVAL}
+        style={"small"}
       />
     </div>
   );

@@ -1,29 +1,32 @@
-import { Button, Grid } from "@mui/material";
+import { Box, Button, Grid } from "@mui/material";
 import { useQuery } from "react-query";
-import { Item } from "../types";
 import { getPollResults } from "../utils";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
 type Props = {
   pollId: string;
-  items: Item[];
-  onItemElimination: (index: number) => void;
+  onItemElimination?: (index: number) => void;
+  refetchInterval?: number;
+  style: "big" | "small";
 };
-
-const POLL_FETCH_INTERVAL = 3000;
 
 export default function PollResults({
   pollId,
-  items,
   onItemElimination,
+  refetchInterval,
+  style,
 }: Props) {
+  const fetchParams = refetchInterval ? { refetchInterval } : {};
+
   const {
     data: resultsResponse,
     status: resultsStatus,
     error: resultsError,
-  } = useQuery(["get_results", pollId], () => getPollResults(pollId), {
-    refetchInterval: POLL_FETCH_INTERVAL,
-  });
+  } = useQuery(
+    ["get_results", pollId],
+    () => getPollResults(pollId),
+    fetchParams,
+  );
 
   if (resultsStatus === "loading") {
     return <div>Загрузка результатов...</div>;
@@ -45,45 +48,56 @@ export default function PollResults({
     },
   };
 
+  const onItemClick = (index: number) => {
+    if (onItemElimination) {
+      onItemElimination(index);
+    }
+  };
+
   const votes = resultsResponse.votes;
 
+  const items = resultsResponse.options;
   const itemsVotes = items.map((_item, index) => votes[String(index)] || 0);
   const maxVotes = Math.max(...itemsVotes);
   const maxVotesItemId = itemsVotes.indexOf(maxVotes);
 
   const totalVotes = Object.values(votes).reduce((acc, curr) => acc + curr, 0);
 
+  const sideSize = style === "big" ? 2 : 1;
+  const progressSize = style === "big" ? 1 : 2;
+
   return (
     <div>
-      <h2>Результаты голосования ({totalVotes})</h2>
-      <Grid container columns={2} rowGap={1}>
+      <Box textAlign="center">
+        <h2>Результаты голосования ({totalVotes})</h2>
+      </Box>
+      <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
           const highlight = index === maxVotesItemId;
           const currentVotes = votes[index] || 0;
           return (
             <Grid
               container
-              columns={5}
+              columns={sideSize * 2 + progressSize}
               key={index}
-              columnGap={0.5}
-              justifyContent="space-around"
+              columnSpacing={4}
             >
-              <Grid item xs={2}>
+              <Grid item xs={sideSize} textAlign="right">
                 <Button
                   variant="outlined"
                   sx={highlight ? highlightStyle : {}}
-                  onClick={() => onItemElimination(index)}
+                  onClick={() => onItemClick(index)}
                 >
-                  {item.title}
+                  {item}
                 </Button>
               </Grid>
-              <Grid item xs={1} alignContent="center">
+              <Grid item xs={progressSize} alignContent="center">
                 <BorderLinearProgress
                   variant="determinate"
                   value={(currentVotes / totalVotes) * 100}
                 />
               </Grid>
-              <Grid item xs={1} alignContent="center" textAlign={"left"}>
+              <Grid item xs={sideSize} alignContent="center" textAlign={"left"}>
                 {currentVotes}
               </Grid>
             </Grid>

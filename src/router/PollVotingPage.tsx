@@ -1,11 +1,11 @@
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Params, useLoaderData } from "react-router-dom";
 import { getPollResults, PollResults } from "../utils";
-import PollVote from "./PollVote";
+import PollVote from "../components/PollVote";
 
 const queryClient = new QueryClient();
 
-export async function pollLoader({
+export async function pollVotingLoader({
   params,
 }: {
   params: Params<string>;
@@ -14,7 +14,7 @@ export async function pollLoader({
   return { poll };
 }
 
-export default function PollApp() {
+export default function PollVotingPage() {
   const params = useLoaderData() as { poll: PollResults };
   const poll = params.poll;
   if (!poll) {

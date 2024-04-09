@@ -1,9 +1,9 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
-import TournirApp from "./TournirApp";
+import TournirPage from "./router/TournirPage";
 
 test("renders learn react link", () => {
-  render(<TournirApp />);
+  render(<TournirPage />);
   const linkElement = screen.getByText(/learn react/i);
   expect(linkElement).toBeInTheDocument();
 });
