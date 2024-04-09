@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/turnir/static/css/main.f855e6bc.css",
-    "main.js": "/turnir/static/js/main.24d8a6b7.js",
+    "main.js": "/turnir/static/js/main.71340cb5.js",
     "static/js/453.fa29178b.chunk.js": "/turnir/static/js/453.fa29178b.chunk.js",
     "index.html": "/turnir/index.html",
     "main.f855e6bc.css.map": "/turnir/static/css/main.f855e6bc.css.map",
-    "main.24d8a6b7.js.map": "/turnir/static/js/main.24d8a6b7.js.map",
+    "main.71340cb5.js.map": "/turnir/static/js/main.71340cb5.js.map",
     "453.fa29178b.chunk.js.map": "/turnir/static/js/453.fa29178b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f855e6bc.css",
-    "static/js/main.24d8a6b7.js"
+    "static/js/main.71340cb5.js"
   ]
 }
