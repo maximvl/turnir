@@ -1,4 +1,4 @@
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, useTheme } from "@mui/material";
 import { Item } from "../types";
 
 type Props = {
@@ -10,9 +10,11 @@ export default function StreamerChoiceRound({
   items,
   onItemElimination,
 }: Props) {
+  const theme = useTheme();
+
   const highlightStyle = {
     "&:hover": {
-      backgroundColor: "red",
+      backgroundColor: theme.palette.error.light,
       textDecoration: "line-through",
     },
   };

@@ -1,4 +1,4 @@
-import { Button, Grid } from "@mui/material";
+import { Button, Grid, useTheme } from "@mui/material";
 import { useNavigate } from "react-router";
 import { PollResults, pollVote } from "../utils";
 
@@ -8,6 +8,7 @@ type Props = {
 
 export default function PollVote({ poll }: Props) {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const onClick = async (optionId: number) => {
     await pollVote(poll.poll_id, optionId);
@@ -18,7 +19,7 @@ export default function PollVote({ poll }: Props) {
 
   const highlightStyle = {
     "&:hover": {
-      backgroundColor: "red",
+      backgroundColor: theme.palette.error.light,
       textDecoration: "line-through",
     },
   };

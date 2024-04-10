@@ -1,4 +1,4 @@
-import { Box, Grid, TextField } from "@mui/material";
+import { Box, Grid, TextField, useTheme } from "@mui/material";
 import React from "react";
 import { Item, ItemStatus } from "../types";
 
@@ -19,42 +19,66 @@ export default function ItemsList({
     setItem(index, text);
   };
 
+  const theme = useTheme();
+
   return (
     <div>
       <h3 style={{ marginTop: 0 }}>Кандидаты ({activeItems.length})</h3>
       <Grid
         container
         rowGap={1}
-        columns={2}
+        columns={1}
         direction="column"
         alignItems={"flex-start"}
         border={0}
       >
         {items.map((item, index) => {
-          const itemColor = item.status === ItemStatus.Active ? "green" : "red";
+          const itemColor =
+            item.status === ItemStatus.Active
+              ? theme.palette.success.main
+              : theme.palette.error.main;
           return (
-            <Box
-              key={index}
-              display="flex"
-              alignItems="center"
-              width={"inherit"}
-            >
-              <div>{index + 1}.</div>
-              <Box width={10} />
-              {canEditItems ? (
-                <TextField
-                  variant="standard"
-                  value={item.title}
-                  fullWidth
-                  onChange={(event) => handleChange(event.target.value, index)}
-                  disabled={!canEditItems}
-                />
-              ) : (
-                <div style={{ fontSize: 20, color: itemColor }}>
-                  {item.title}
-                </div>
-              )}
-            </Box>
+            <Grid container columns={12}>
+              <Grid item xs={10} width="inherit">
+                <Box
+                  display={"flex"}
+                  alignItems="center"
+                  width={"inherit"}
+                  style={{ paddingRight: 10 }}
+                >
+                  {index + 1}.
+                  <Box width={10} />
+                  {canEditItems ? (
+                    <TextField
+                      variant="standard"
+                      value={item.title}
+                      fullWidth
+                      onChange={(event) =>
+                        handleChange(event.target.value, index)
+                      }
+                      disabled={!canEditItems}
+                    />
+                  ) : (
+                    <div style={{ fontSize: 20, color: itemColor }}>
+                      {item.title}
+                    </div>
+                  )}
+                </Box>
+              </Grid>
+              <Grid item xs={1} alignContent="center">
+                {item.title && (
+                  <div>
+                    <a
+                      href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      КП↗️
+                    </a>
+                  </div>
+                )}
+              </Grid>
+            </Grid>
           );
         })}
       </Grid>

@@ -1,4 +1,4 @@
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, useTheme } from "@mui/material";
 import { useQuery } from "react-query";
 import { getPollResults } from "../utils";
 import { BorderLinearProgress } from "./BorderLinearProgress";
@@ -16,6 +16,8 @@ export default function PollResults({
   refetchInterval,
   big,
 }: Props) {
+  const theme = useTheme();
+
   const fetchParams = refetchInterval ? { refetchInterval } : {};
 
   const {
@@ -41,9 +43,9 @@ export default function PollResults({
   }
 
   const highlightStyle = {
-    backgroundColor: "red",
+    backgroundColor: theme.palette.error.light,
     "&:hover": {
-      backgroundColor: "red",
+      backgroundColor: theme.palette.error.light,
       textDecoration: "line-through",
     },
   };
@@ -79,7 +81,9 @@ export default function PollResults({
         </Button>
       );
     }
-    const style = selected ? { color: "red", margin: 0 } : { margin: 0 };
+    const style = selected
+      ? { color: theme.palette.error.light, margin: 0 }
+      : { margin: 0 };
     return <h2 style={style}>{title}</h2>;
   };
 

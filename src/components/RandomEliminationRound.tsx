@@ -1,4 +1,4 @@
-import { Box, Button, Grid } from "@mui/material";
+import { Box, Button, Grid, useTheme } from "@mui/material";
 import { sample } from "lodash";
 import { useEffect, useReducer, useState } from "react";
 import { Item } from "../types";
@@ -91,8 +91,10 @@ export default function RandomEliminationRound({
   const [progressBar, progressBarDispatch] = useReducer(progressBarReducer, 0);
   const [eliminationStarted, setEliminationStarted] = useState(false);
 
+  const theme = useTheme();
+
   const highlightStyle = {
-    backgroundColor: "red",
+    backgroundColor: theme.palette.error.light,
     textDecoration: "line-through",
   };
 
