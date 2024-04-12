@@ -2,9 +2,22 @@ import React, { useEffect, useState } from "react";
 import "../App.css";
 import ItemsList from "../components/ItemsList";
 import Button from "@mui/material/Button";
-import { Item, ItemStatus, RoundType, RoundTypes, TurnirState } from "../types";
-import { Divider, Grid, useTheme } from "@mui/material";
-import { isEmpty, sample } from "lodash";
+import {
+  Item,
+  ItemStatus,
+  RoundType,
+  RoundTypes,
+  TurnirState,
+  RoundTypeNames,
+} from "../types";
+import {
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Grid,
+  useTheme,
+} from "@mui/material";
+import { isEmpty, sample, filter } from "lodash";
 import { createItem } from "../utils";
 import RoundTitle from "../components/RoundTitle";
 import RoundContent from "../components/RoundContent";
@@ -18,15 +31,23 @@ function TournirApp() {
   const increaseAmount = 10;
   const initialItems = 10;
   const [roundNumber, setRoundNumber] = useState(1);
-  const [roundType, setRoundType] = useState(RoundType.RandomElimination);
+  const [currentRoundType, setCurrentRoundType] = useState(
+    RoundType.RandomElimination,
+  );
 
   const [items, setItems] = useState<Item[]>([]);
   const [turnirState, setTurnirState] = useState<TurnirState>(
     TurnirState.EditCandidates,
   );
 
-  const [activeRoundTypes, setActiveRoundTypes] =
-    useState<RoundType[]>(RoundTypes);
+  const [roundTypes, setRoundTypes] = useState<Map<RoundType, boolean>>(
+    RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
+  );
+
+  const allRounds = Array.from(roundTypes.keys());
+  const activeRounds: RoundType[] = filter(allRounds, (key) =>
+    Boolean(roundTypes.get(key)),
+  );
 
   const theme = useTheme();
 
@@ -66,19 +87,20 @@ function TournirApp() {
   const startTurnir = () => {
     setTurnirState(TurnirState.Start);
     setItems([...nonEmptyItems]);
-    setRoundType(sample(activeRoundTypes) as RoundType);
+    setCurrentRoundType(sample(activeRounds) as RoundType);
   };
 
   const onNextRoundClick = () => {
     setRoundNumber(roundNumber + 1);
-    setRoundType(sample(RoundTypes) as RoundType);
+    setCurrentRoundType(sample(activeRounds) as RoundType);
   };
 
   const onItemElimination = (id: number) => {
     activeItems[id].status = ItemStatus.Eliminated;
     setItems([...items]);
     setRoundNumber(roundNumber + 1);
-    setRoundType(sample(RoundTypes) as RoundType);
+    const nextRound = sample(activeRounds) as RoundType;
+    setCurrentRoundType(nextRound);
   };
 
   const onRestartClick = () => {
@@ -88,6 +110,11 @@ function TournirApp() {
       item.status = ItemStatus.Active;
     });
     setItems([...items]);
+  };
+
+  const onRoundTypeClick = (roundType: RoundType) => {
+    roundTypes.set(roundType, !roundTypes.get(roundType));
+    setRoundTypes(new Map(roundTypes));
   };
 
   const canEditItems = turnirState === TurnirState.EditCandidates;
@@ -128,7 +155,25 @@ function TournirApp() {
         <Divider orientation="vertical" flexItem style={{ marginRight: 20 }} />
         <Grid item xs={2} border={0} paddingRight={0}>
           <Grid container rowGap={2} alignItems="baseline">
-            <Grid item width="inherit">
+            {allRounds.map((roundType, index) => {
+              return (
+                <Grid item key={index}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        disabled={turnirState !== TurnirState.EditCandidates}
+                        checked={roundTypes.get(roundType)}
+                        style={{ paddingTop: 0, paddingBottom: 0 }}
+                        onChange={() => onRoundTypeClick(roundType)}
+                      />
+                    }
+                    label={RoundTypeNames[roundType]}
+                  />
+                </Grid>
+              );
+            })}
+
+            <Grid item>
               <Button
                 variant="contained"
                 onClick={startTurnir}
@@ -152,7 +197,7 @@ function TournirApp() {
                 onClick={onNextRoundClick}
                 endIcon={<SkipNext />}
               >
-                Скипнуть этот раунд
+                Скипнуть раунд
               </Button>
             </Grid>
             <Grid item width="inherit">
@@ -174,11 +219,11 @@ function TournirApp() {
             <div>
               <RoundTitle
                 roundNumber={roundNumber}
-                roundType={roundType}
+                roundType={currentRoundType}
                 itemsLeft={activeItems.length}
               />
               <RoundContent
-                roundType={roundType}
+                roundType={currentRoundType}
                 items={activeItems}
                 onItemElimination={onItemElimination}
               />

@@ -39,7 +39,7 @@ export default function ItemsList({
               ? theme.palette.success.main
               : theme.palette.error.main;
           return (
-            <Grid container columns={12}>
+            <Grid container columns={12} key={index}>
               <Grid item xs={10} width="inherit">
                 <Box
                   display={"flex"}
