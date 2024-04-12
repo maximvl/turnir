@@ -1,7 +1,7 @@
 import { OpenInNewOutlined } from "@mui/icons-material";
 import { Box, Button, Grid, Stack, TextField, useTheme } from "@mui/material";
 import React from "react";
-import { Item, ItemStatus } from "../types";
+import { Item, ItemStatus, RoundTypeNames } from "../types";
 
 type Props = {
   items: Item[];
@@ -38,6 +38,11 @@ export default function ItemsList({
             item.status === ItemStatus.Active
               ? theme.palette.success.main
               : theme.palette.error.main;
+
+          let itemTitle = item.title;
+          // if (item.eliminationType && item.eliminationType) {
+          //   itemTitle = `${itemTitle} [${RoundTypeNames[item.eliminationType]} #${item.eliminationRound}]`;
+          // }
           return (
             <Grid container columns={12} key={index}>
               <Grid item xs={10} width="inherit">
@@ -61,7 +66,7 @@ export default function ItemsList({
                     />
                   ) : (
                     <div style={{ fontSize: 20, color: itemColor }}>
-                      {item.title}
+                      {itemTitle}
                     </div>
                   )}
                 </Box>

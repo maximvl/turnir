@@ -1,6 +1,8 @@
 export type Item = {
   title: string;
   status: ItemStatus;
+  eliminationRound?: number;
+  eliminationType?: RoundType;
 };
 
 export enum ItemStatus {
@@ -18,9 +20,9 @@ export enum TurnirState {
 }
 
 export enum RoundType {
-  RandomElimination,
-  StreamerChoice,
-  ViewerChoice,
+  RandomElimination = "RandomElimination",
+  StreamerChoice = "StreamerChoice",
+  ViewerChoice = "ViewerChoice",
 }
 
 export const RoundTypes = [
