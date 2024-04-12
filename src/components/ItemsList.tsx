@@ -1,4 +1,5 @@
-import { Box, Grid, TextField, useTheme } from "@mui/material";
+import { OpenInNewOutlined } from "@mui/icons-material";
+import { Box, Button, Grid, Stack, TextField, useTheme } from "@mui/material";
 import React from "react";
 import { Item, ItemStatus } from "../types";
 
@@ -65,17 +66,18 @@ export default function ItemsList({
                   )}
                 </Box>
               </Grid>
-              <Grid item xs={1} alignContent="center">
+              <Grid item xs={2} paddingLeft={1}>
                 {item.title && (
-                  <div>
-                    <a
-                      href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      КП↗️
-                    </a>
-                  </div>
+                  <a
+                    href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      КП
+                      <OpenInNewOutlined />
+                    </Stack>
+                  </a>
                 )}
               </Grid>
             </Grid>

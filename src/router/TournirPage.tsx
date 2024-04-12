@@ -3,12 +3,14 @@ import "../App.css";
 import ItemsList from "../components/ItemsList";
 import Button from "@mui/material/Button";
 import { Item, ItemStatus, RoundType, RoundTypes, TurnirState } from "../types";
-import { Grid, useTheme } from "@mui/material";
+import { Divider, Grid, useTheme } from "@mui/material";
 import { isEmpty, sample } from "lodash";
 import { createItem } from "../utils";
 import RoundTitle from "../components/RoundTitle";
 import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
+import StartIcon from "@mui/icons-material/Start";
+import { RestartAlt, SkipNext } from "@mui/icons-material";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +24,9 @@ function TournirApp() {
   const [turnirState, setTurnirState] = useState<TurnirState>(
     TurnirState.EditCandidates,
   );
+
+  const [activeRoundTypes, setActiveRoundTypes] =
+    useState<RoundType[]>(RoundTypes);
 
   const theme = useTheme();
 
@@ -61,7 +66,7 @@ function TournirApp() {
   const startTurnir = () => {
     setTurnirState(TurnirState.Start);
     setItems([...nonEmptyItems]);
-    setRoundType(sample(RoundTypes) as RoundType);
+    setRoundType(sample(activeRoundTypes) as RoundType);
   };
 
   const onNextRoundClick = () => {
@@ -89,8 +94,9 @@ function TournirApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="App">
+      <div className="App" style={{ marginBottom: 20 }}>
         <h1>Турнир</h1>
+        <Divider />
       </div>
       <Grid container columnSpacing={0} border={0} columns={12}>
         <Grid item xs={4} border={0}>
@@ -119,6 +125,7 @@ function TournirApp() {
             )}
           </Grid>
         </Grid>
+        <Divider orientation="vertical" flexItem style={{ marginRight: 20 }} />
         <Grid item xs={2} border={0} paddingRight={0}>
           <Grid container rowGap={2} alignItems="baseline">
             <Grid item width="inherit">
@@ -129,6 +136,7 @@ function TournirApp() {
                   nonEmptyItems.length === 0 ||
                   turnirState !== TurnirState.EditCandidates
                 }
+                endIcon={<StartIcon />}
                 color="success"
               >
                 Запуск
@@ -142,6 +150,7 @@ function TournirApp() {
                   turnirState !== TurnirState.Start
                 }
                 onClick={onNextRoundClick}
+                endIcon={<SkipNext />}
               >
                 Скипнуть этот раунд
               </Button>
@@ -152,12 +161,14 @@ function TournirApp() {
                 color="error"
                 disabled={turnirState === TurnirState.EditCandidates}
                 onClick={onRestartClick}
+                endIcon={<RestartAlt />}
               >
                 Рестарт
               </Button>
             </Grid>
           </Grid>
         </Grid>
+        <Divider orientation="vertical" flexItem />
         <Grid item xs={5} border={0} textAlign="center">
           {turnirState === TurnirState.Start && (
             <div>
