@@ -126,20 +126,13 @@ function TournirApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="App" style={{ marginBottom: 20 }}>
+      <div className="App">
         <h1>Турнир</h1>
         <Divider />
       </div>
       <Grid container columnSpacing={0} border={0} columns={12}>
-        <Grid item xs={4} border={0}>
-          <Grid
-            container
-            columns={1}
-            border={0}
-            rowGap={2}
-            paddingLeft={6}
-            paddingRight={3}
-          >
+        <Grid item xs={4} border={0} paddingTop={2}>
+          <Grid container columns={1} border={0} rowGap={2} paddingLeft={6}>
             <Grid item xs={1} paddingLeft={0}>
               <ItemsList
                 items={items}
@@ -157,12 +150,16 @@ function TournirApp() {
             )}
           </Grid>
         </Grid>
-        <Divider orientation="vertical" flexItem style={{ marginRight: 20 }} />
-        <Grid item xs={2} border={0} paddingRight={0}>
-          <Grid container rowGap={2} alignItems="baseline">
+        <Divider orientation="vertical" flexItem />
+        <Grid item xs={2} border={0} paddingRight={0} paddingTop={2}>
+          <Grid container rowGap={2} alignItems="baseline" columns={1}>
+            <Grid item xs={1} paddingLeft={2}>
+              Раунды
+            </Grid>
+
             {allRounds.map((roundType, index) => {
               return (
-                <Grid item key={index}>
+                <Grid item key={index} xs={1} paddingLeft={2}>
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -178,7 +175,11 @@ function TournirApp() {
               );
             })}
 
-            <Grid item>
+            <Grid item xs={1}>
+              <Divider style={{ width: "inherit" }} />
+            </Grid>
+
+            <Grid item paddingLeft={2}>
               <Button
                 variant="contained"
                 onClick={startTurnir}
@@ -192,7 +193,7 @@ function TournirApp() {
                 Запуск
               </Button>
             </Grid>
-            <Grid item width="inherit">
+            <Grid item paddingLeft={2}>
               <Button
                 variant="contained"
                 disabled={
@@ -205,7 +206,7 @@ function TournirApp() {
                 Скипнуть раунд
               </Button>
             </Grid>
-            <Grid item width="inherit">
+            <Grid item paddingLeft={2}>
               <Button
                 variant="contained"
                 color="error"
