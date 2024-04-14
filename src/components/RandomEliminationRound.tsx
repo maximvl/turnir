@@ -96,6 +96,10 @@ export default function RandomEliminationRound({
   const highlightStyle = {
     backgroundColor: theme.palette.error.light,
     textDecoration: "line-through",
+    "&:hover": {
+      backgroundColor: theme.palette.error.light,
+      textDecoration: "line-through",
+    },
   };
 
   const progressBarFinished = progressBar >= 100;

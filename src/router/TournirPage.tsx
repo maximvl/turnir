@@ -99,7 +99,6 @@ function TournirApp() {
     activeItems[id].status = ItemStatus.Eliminated;
     activeItems[id].eliminationRound = roundNumber;
     activeItems[id].eliminationType = currentRoundType;
-    console.log(activeItems[id]);
     setItems([...items]);
     setRoundNumber(roundNumber + 1);
     const nextRound = sample(activeRounds) as RoundType;
