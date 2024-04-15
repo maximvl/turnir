@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
 import { useQuery } from "react-query";
+import { useHref } from "react-router-dom";
 import { Item } from "../types";
 import { createPoll } from "../utils";
 import PollResults from "./PollResults";
@@ -35,11 +36,6 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   }
 
   const pollId = createResponse.poll_id;
-  let currentUrl = window.location.href;
-  if (!currentUrl.endsWith("/")) {
-    currentUrl += "/";
-  }
-  const pollUrl = `${currentUrl}poll/${pollId}`;
 
   return (
     <div>
@@ -48,11 +44,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
         alignItems="center"
         style={{ marginBottom: 20 }}
       >
-        {pollUrl && (
-          <a href={pollUrl} target="_blank" rel="noreferrer">
-            {pollUrl}
-          </a>
-        )}
+        <PollUrl pollId={pollId} />
       </Box>
       <PollResults
         pollId={pollId}
@@ -60,5 +52,15 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
         refetchInterval={POLL_FETCH_INTERVAL}
       />
     </div>
+  );
+}
+
+function PollUrl({ pollId }: { pollId: string }) {
+  const href = useHref(`/poll/${pollId}`);
+  return (
+    <a href={href} target="_blank" rel="noreferrer">
+      {window.location.href}
+      {href}
+    </a>
   );
 }

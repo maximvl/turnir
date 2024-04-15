@@ -11,8 +11,16 @@ export default function PollVote({ poll }: Props) {
   const theme = useTheme();
 
   const onClick = async (optionId: number) => {
-    await pollVote(poll.poll_id, optionId);
-    navigate(`/poll/${poll.poll_id}/results`);
+    const response = await pollVote(poll.poll_id, optionId);
+    console.log(response);
+    if (response.result === "duplicate") {
+      console.log("duplicate");
+      navigate(`/poll/${poll.poll_id}/results`, {
+        state: { duplicate: 1 },
+      });
+    } else {
+      navigate(`/poll/${poll.poll_id}/results`);
+    }
   };
 
   const options = poll.options;

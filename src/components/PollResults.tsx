@@ -1,5 +1,6 @@
 import { Box, Button, Grid, useTheme } from "@mui/material";
 import { useQuery } from "react-query";
+import { useLocation } from "react-router";
 import { getPollResults } from "../utils";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
@@ -17,6 +18,11 @@ export default function PollResults({
   big,
 }: Props) {
   const theme = useTheme();
+  const location = useLocation();
+
+  const isDuplicateVote = Boolean(
+    location.state && location.state["duplicate"],
+  );
 
   const fetchParams = refetchInterval ? { refetchInterval } : {};
 
@@ -92,6 +98,13 @@ export default function PollResults({
       <Box textAlign="center">
         <h2>Результаты голосования ({totalVotes})</h2>
       </Box>
+      {isDuplicateVote && (
+        <Box textAlign="center">
+          <h3 style={{ color: theme.palette.error.light }}>
+            Вы уже голосовали
+          </h3>
+        </Box>
+      )}
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
           const highlight = index === maxVotesItemId;

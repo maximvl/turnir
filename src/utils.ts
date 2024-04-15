@@ -35,13 +35,17 @@ export async function getPollResults(poll_id: string): Promise<PollResults> {
   return res.json() as unknown as PollResults;
 }
 
+export type PollVoteResponse = {
+  result: "ok" | "duplicate";
+};
+
 export async function pollVote(
   poll_id: string,
   option_id: number,
-): Promise<void> {
-  await fetch(`${POLL_API_URL}/VotePoll?poll_id=${poll_id}`, {
+): Promise<PollVoteResponse> {
+  const res = await fetch(`${POLL_API_URL}/VotePoll?poll_id=${poll_id}`, {
     method: "POST",
     body: JSON.stringify({ option_id }),
   });
-  return;
+  return res.json() as unknown as PollVoteResponse;
 }
