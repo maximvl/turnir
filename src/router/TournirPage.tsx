@@ -178,7 +178,7 @@ function TournirApp() {
               <Divider style={{ width: "inherit" }} />
             </Grid>
 
-            <Grid item paddingLeft={2}>
+            <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
                 onClick={startTurnir}
@@ -192,7 +192,7 @@ function TournirApp() {
                 Запуск
               </Button>
             </Grid>
-            <Grid item paddingLeft={2}>
+            <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
                 disabled={
@@ -205,7 +205,7 @@ function TournirApp() {
                 Скипнуть раунд
               </Button>
             </Grid>
-            <Grid item paddingLeft={2}>
+            <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
                 color="error"
