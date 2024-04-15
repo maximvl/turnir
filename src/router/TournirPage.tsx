@@ -219,7 +219,7 @@ function TournirApp() {
           </Grid>
         </Grid>
         <Divider orientation="vertical" flexItem />
-        <Grid item xs={5} border={0} textAlign="center">
+        <Grid item xs={5} border={0} paddingTop={2} textAlign="center">
           {turnirState === TurnirState.Start && (
             <div>
               <RoundTitle
