@@ -115,17 +115,18 @@ export default function PollResults({
               columns={sideSize * 2 + progressSize}
               key={index}
               columnSpacing={4}
+              alignItems="center"
             >
               <Grid item xs={sideSize} textAlign="right">
                 {itemElement(index, item, highlight)}
               </Grid>
-              <Grid item xs={progressSize} alignContent="center">
+              <Grid item xs={progressSize}>
                 <BorderLinearProgress
                   variant="determinate"
                   value={(currentVotes / totalVotes) * 100}
                 />
               </Grid>
-              <Grid item xs={sideSize} alignContent="center" textAlign={"left"}>
+              <Grid item xs={sideSize} textAlign={"left"}>
                 {currentVotes}
               </Grid>
             </Grid>
