@@ -3,6 +3,7 @@ export type Item = {
   status: ItemStatus;
   eliminationRound?: number;
   eliminationType?: RoundType;
+  id: string;
 };
 
 export enum ItemStatus {

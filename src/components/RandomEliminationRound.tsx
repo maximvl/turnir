@@ -6,7 +6,7 @@ import { BorderLinearProgress } from "./BorderLinearProgress";
 
 type Props = {
   items: Item[];
-  onItemElimination: (index: number) => void;
+  onItemElimination: (index: string) => void;
 };
 
 enum SelectionTaskState {
@@ -107,7 +107,7 @@ export default function RandomEliminationRound({
   if (progressBarFinished && !eliminationStarted) {
     setEliminationStarted(true);
     setTimeout(() => {
-      onItemElimination(selectionState.selectedItemId);
+      onItemElimination(items[selectionState.selectedItemId].id);
     }, FINAL_TIMEOUT);
   }
 

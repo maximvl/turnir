@@ -3,7 +3,7 @@ import { Item } from "../types";
 
 type Props = {
   items: Item[];
-  onItemElimination: (index: number) => void;
+  onItemElimination: (index: string) => void;
 };
 
 export default function StreamerChoiceRound({
@@ -26,7 +26,7 @@ export default function StreamerChoiceRound({
             <Button
               variant="outlined"
               sx={highlightStyle}
-              onClick={() => onItemElimination(index)}
+              onClick={() => onItemElimination(item.id)}
             >
               {item.title}
             </Button>

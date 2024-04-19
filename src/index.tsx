@@ -4,9 +4,6 @@ import "./index.css";
 import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
 import { createHashRouter, RouterProvider } from "react-router-dom";
-import PollVotingPage, { pollVotingLoader } from "./router/PollVotingPage";
-import PollResultsPage from "./router/PollResultsPage";
-import { pollResultsLoader } from "./router/PollResultsPage";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -16,16 +13,6 @@ const router = createHashRouter([
   {
     path: "/",
     element: <TournirPage />,
-  },
-  {
-    path: "/poll/:pollId",
-    element: <PollVotingPage />,
-    loader: pollVotingLoader,
-  },
-  {
-    path: "/poll/:pollId/results",
-    element: <PollResultsPage />,
-    loader: pollResultsLoader,
   },
 ]);
 

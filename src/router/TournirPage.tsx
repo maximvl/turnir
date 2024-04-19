@@ -17,7 +17,7 @@ import {
   Grid,
   useTheme,
 } from "@mui/material";
-import { isEmpty, sample, filter } from "lodash";
+import { isEmpty, sample, filter, toString } from "lodash";
 import { createItem } from "../utils";
 import RoundTitle from "../components/RoundTitle";
 import RoundContent from "../components/RoundContent";
@@ -55,7 +55,7 @@ function TournirApp() {
     setItems(
       Array(initialItems)
         .fill(0)
-        .map(() => createItem()),
+        .map((_, index) => createItem(toString(index + 1))),
     );
   }, []);
 
@@ -71,11 +71,12 @@ function TournirApp() {
   }, [activeItems.length, turnirState]);
 
   const addMoreItems = () => {
+    const nextIndex = items.length;
     setItems([
       ...items,
       ...Array(increaseAmount)
         .fill(0)
-        .map(() => createItem()),
+        .map((_, index) => createItem(toString(index + nextIndex + 1))),
     ]);
   };
 
@@ -95,14 +96,17 @@ function TournirApp() {
     setCurrentRoundType(sample(activeRounds) as RoundType);
   };
 
-  const onItemElimination = (id: number) => {
-    activeItems[id].status = ItemStatus.Eliminated;
-    activeItems[id].eliminationRound = roundNumber;
-    activeItems[id].eliminationType = currentRoundType;
-    setItems([...items]);
-    setRoundNumber(roundNumber + 1);
-    const nextRound = sample(activeRounds) as RoundType;
-    setCurrentRoundType(nextRound);
+  const onItemElimination = (id: string) => {
+    const item = activeItems.find((item) => item.id === id);
+    if (item) {
+      item.status = ItemStatus.Eliminated;
+      item.eliminationRound = roundNumber;
+      item.eliminationType = currentRoundType;
+      setItems([...items]);
+      setRoundNumber(roundNumber + 1);
+      const nextRound = sample(activeRounds) as RoundType;
+      setCurrentRoundType(nextRound);
+    }
   };
 
   const onRestartClick = () => {

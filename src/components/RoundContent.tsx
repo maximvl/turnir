@@ -6,7 +6,7 @@ import ViewerChoiceRound from "./ViewerChoiceRound";
 type Props = {
   roundType: RoundType;
   items: Item[];
-  onItemElimination: (id: number) => void;
+  onItemElimination: (id: string) => void;
 };
 
 export default function RoundContent({
