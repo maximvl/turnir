@@ -1,5 +1,4 @@
-import { Box, Button, Chip, Grid, useTheme } from "@mui/material";
-import { isEmpty } from "lodash";
+import { Box, Chip, Grid, useTheme } from "@mui/material";
 import { Item } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
