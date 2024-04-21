@@ -64,12 +64,6 @@ function TournirApp() {
     (item) => item.status === ItemStatus.Active,
   );
 
-  useEffect(() => {
-    if (activeItems.length === 1 && turnirState === TurnirState.Start) {
-      setTurnirState(TurnirState.Victory);
-    }
-  }, [activeItems.length, turnirState]);
-
   const addMoreItems = () => {
     const nextIndex = items.length;
     setItems([
@@ -106,6 +100,10 @@ function TournirApp() {
       setRoundNumber(roundNumber + 1);
       const nextRound = sample(activeRounds) as RoundType;
       setCurrentRoundType(nextRound);
+
+      if (activeItems.length === 2 && turnirState === TurnirState.Start) {
+        setTurnirState(TurnirState.Victory);
+      }
     }
   };
 
@@ -230,6 +228,7 @@ function TournirApp() {
                 roundNumber={roundNumber}
                 roundType={currentRoundType}
                 itemsLeft={activeItems.length}
+                totalRounds={nonEmptyItems.length - 1}
               />
               <RoundContent
                 roundType={currentRoundType}

@@ -1,4 +1,4 @@
-import { Box, Chip, Grid, useTheme } from "@mui/material";
+import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { Item } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
@@ -40,12 +40,13 @@ export default function PollResults({
   const totalVotes = Object.values(votes).reduce((acc, curr) => acc + curr, 0);
 
   const itemElement = (item: Item, selected: boolean) => {
-    const color = selected ? "error" : "primary";
+    const color = selected ? "error" : "info";
     const onClick = selected ? onItemClick : () => {};
     const style = selected ? highlightStyle : {};
     return (
       <Chip
-        label={`${item.id}. ${item.title}`}
+        avatar={<Avatar>{item.id}</Avatar>}
+        label={item.title}
         color={color}
         sx={style}
         onClick={() => onClick(item.id)}
@@ -57,6 +58,7 @@ export default function PollResults({
     <div>
       <Box textAlign="center">
         <h2>Результаты голосования ({totalVotes})</h2>
+        <p>Голосуйте номером варианта в чате</p>
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
