@@ -19,6 +19,7 @@ export default function RoundTitle({
     return (
       <div>
         <h1 style={{ marginTop: 0 }}>Финал</h1>
+        <p>{RoundTypeNames[roundType]}</p>
       </div>
     );
   }
