@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Item } from "../types";
 import PollResults from "./PollResults";
 import { useQuery } from "react-query";
@@ -13,6 +13,8 @@ type Props = {
 type VotesDict = {
   [key: string]: number;
 };
+
+const VOTES_REFETCH_INTERVAL = 3000;
 
 function initVotesMap(items: Item[]): VotesDict {
   return items.reduce((acc: VotesDict, item) => {
@@ -28,12 +30,18 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     data: votes,
     error,
     isLoading,
-  } = useQuery(["votes", items.length], fetchVotes);
+  } = useQuery(["votes", items.length], fetchVotes, {
+    refetchInterval: VOTES_REFETCH_INTERVAL,
+  });
 
-  useQuery(["reset", items.length], resetVotes);
+  useEffect(() => {
+    resetVotes();
+    setVotesMap(initVotesMap(items));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   if (error) {
-    return <div>Ошибка: {error as string}</div>;
+    return <div>Ошибка: {error.toString()}</div>;
   }
 
   if (isLoading) {
@@ -41,13 +49,17 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   }
 
   if (votes?.poll_votes) {
-    for (const optionId in Object.keys(votes.poll_votes)) {
+    let changed = false;
+    for (const optionId in votes.poll_votes) {
       const votesAmount = votes.poll_votes[optionId];
-      if (optionId in votesMap) {
+      if (optionId in votesMap && votesMap[optionId] !== votesAmount) {
         votesMap[optionId] = votesAmount;
+        changed = true;
       }
     }
-    setVotesMap({ ...votesMap });
+    if (changed) {
+      setVotesMap({ ...votesMap });
+    }
   }
 
   return (
