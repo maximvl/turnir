@@ -15,6 +15,9 @@ export async function fetchVotes(): Promise<PollVotes> {
 export async function resetVotes(options: string[]): Promise<number> {
   return fetch("/turnir-api/votes/reset", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ vote_options: options }),
   }).then((res) => res.status);
 }

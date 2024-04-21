@@ -40,6 +40,12 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
+  useEffect(() => {
+    resetVotes(items.map((item) => item.id));
+    setVotesMap(initVotesMap(items));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (error) {
     return <div>Ошибка: {error.toString()}</div>;
   }
