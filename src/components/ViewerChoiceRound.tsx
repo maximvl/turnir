@@ -35,7 +35,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   });
 
   useEffect(() => {
-    resetVotes();
+    resetVotes(items.map((item) => item.id));
     setVotesMap(initVotesMap(items));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);

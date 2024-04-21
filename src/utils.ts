@@ -12,6 +12,9 @@ export async function fetchVotes(): Promise<PollVotes> {
   return fetch("/turnir-api/votes").then((res) => res.json());
 }
 
-export async function resetVotes(): Promise<number> {
-  return fetch("/turnir-api/votes/reset").then((res) => res.status);
+export async function resetVotes(options: string[]): Promise<number> {
+  return fetch("/turnir-api/votes/reset", {
+    method: "POST",
+    body: JSON.stringify({ vote_options: options }),
+  }).then((res) => res.status);
 }
