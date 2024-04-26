@@ -14,9 +14,18 @@ enum SelectionTaskState {
   Idle = "Idle",
 }
 
-const SELECTION_TIMEOUT = 1000;
+const SELECTION_TIMEOUT_MIN = 800;
+const SELECTION_TIMEOUT_MAX = 1500;
+
 const PROGRESS_BAR_TIMEOUT = 400;
 const FINAL_TIMEOUT = 1000;
+
+function randomTimeout() {
+  return (
+    Math.random() * (SELECTION_TIMEOUT_MAX - SELECTION_TIMEOUT_MIN) +
+    SELECTION_TIMEOUT_MIN
+  );
+}
 
 enum SelectionActionType {
   ChoseItem,
@@ -93,23 +102,26 @@ export default function RandomEliminationRound({
 
   const theme = useTheme();
 
-  const highlightStyle = {
-    backgroundColor: theme.palette.error.light,
-    textDecoration: "line-through",
-    "&:hover": {
-      backgroundColor: theme.palette.error.light,
-      textDecoration: "line-through",
-    },
-  };
-
   const progressBarFinished = progressBar >= 100;
 
-  if (progressBarFinished && !eliminationStarted) {
-    setEliminationStarted(true);
-    setTimeout(() => {
-      onItemElimination(items[selectionState.selectedItemId].id);
-    }, FINAL_TIMEOUT);
-  }
+  const [selectedItemId, setSelectedItemId] = useState(-1);
+  useEffect(() => {
+    if (!progressBarFinished) {
+      setSelectedItemId(selectionState.selectedItemId);
+    }
+  }, [selectionState.selectedItemId, progressBarFinished]);
+
+  useEffect(() => {
+    if (progressBarFinished && !eliminationStarted) {
+      setEliminationStarted(true);
+      const itemId = items[selectedItemId].id;
+      setTimeout(() => {
+        onItemElimination(itemId);
+        setEliminationStarted(false);
+      }, FINAL_TIMEOUT);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progressBarFinished]);
 
   useEffect(() => {
     if (!progressBarFinished) {
@@ -144,11 +156,20 @@ export default function RandomEliminationRound({
             type: SelectionActionType.ChoseItem,
             itemsCount: items.length,
           });
-        }, SELECTION_TIMEOUT);
+        }, randomTimeout());
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectionTaskState]);
+
+  const highlightStyle = {
+    backgroundColor: theme.palette.error.light,
+    textDecoration: "line-through",
+    "&:hover": {
+      backgroundColor: theme.palette.error.light,
+      textDecoration: "line-through",
+    },
+  };
 
   return (
     <div>
@@ -162,8 +183,7 @@ export default function RandomEliminationRound({
       </Box>
       <Grid container columns={1} rowGap={1}>
         {items.map((item, index) => {
-          const style =
-            index === selectionState.selectedItemId ? highlightStyle : {};
+          const style = index === selectedItemId ? highlightStyle : {};
           return (
             <Grid item xs={1} key={index}>
               <Button variant="outlined" sx={style}>
