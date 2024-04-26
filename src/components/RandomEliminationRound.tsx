@@ -113,9 +113,10 @@ export default function RandomEliminationRound({
 
   useEffect(() => {
     if (!progressBarFinished) {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         progressBarDispatch(progressBar + 5);
       }, PROGRESS_BAR_TIMEOUT);
+      return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progressBarFinished, progressBar]);

@@ -23,8 +23,11 @@ function initVotesMap(items: Item[]): VotesDict {
   }, {});
 }
 
+type ResetState = "started" | "finished";
+
 export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const [votesMap, setVotesMap] = useState(initVotesMap(items));
+  const [resetState, setResetState] = useState<ResetState>("started");
 
   const {
     data: votes,
@@ -34,15 +37,20 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     refetchInterval: VOTES_REFETCH_INTERVAL,
   });
 
-  useEffect(() => {
-    resetVotes(items.map((item) => item.id));
+  const resetPoll = async () => {
+    setResetState("started");
+    await resetVotes(items.map((item) => item.id));
     setVotesMap(initVotesMap(items));
+    setResetState("finished");
+  };
+
+  useEffect(() => {
+    resetPoll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
   useEffect(() => {
-    resetVotes(items.map((item) => item.id));
-    setVotesMap(initVotesMap(items));
+    resetPoll();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -54,7 +62,10 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     return <div>Загрузка...</div>;
   }
 
-  if (votes?.poll_votes) {
+  if (
+    votes?.poll_votes &&
+    Object.keys(votes.poll_votes).length === Object.keys(votesMap).length
+  ) {
     let changed = false;
     for (const optionId in votes.poll_votes) {
       const votesAmount = votes.poll_votes[optionId];
@@ -66,6 +77,10 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     if (changed) {
       setVotesMap({ ...votesMap });
     }
+  }
+
+  if (resetState === "started") {
+    return <div>Сброс голосов...</div>;
   }
 
   return (

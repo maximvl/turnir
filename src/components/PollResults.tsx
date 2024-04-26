@@ -1,4 +1,5 @@
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
+import { useEffect, useState } from "react";
 import { Item } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
@@ -14,6 +15,21 @@ export default function PollResults({
   onItemElimination,
 }: Props) {
   const theme = useTheme();
+
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(time + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [time]);
+
+  const seconds = time % 60;
+  const minutes = Math.floor(time / 60);
+  const secondsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
+  const minutesString = minutes < 10 ? `0${minutes}` : `${minutes}`;
+  const timePassed = `${minutesString}:${secondsString}`;
 
   const highlightStyle = {
     "&:hover": {
@@ -57,7 +73,9 @@ export default function PollResults({
   return (
     <div>
       <Box textAlign="center">
-        <h2>Результаты голосования ({totalVotes})</h2>
+        <h2>
+          Результаты голосования ({totalVotes}) {timePassed}
+        </h2>
         <p>Голосуйте номером варианта в чате</p>
       </Box>
       <Grid container columns={4} rowGap={1}>
