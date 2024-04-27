@@ -31,16 +31,29 @@ export default function ItemsList({
 type EditableItemProps = {
   item: Item;
   index: number;
-  handleChange: (text: string, index: number) => void;
+  handleChange: (text: string) => void;
+  handlePaste: (lines: string[]) => void;
 };
 
-function EditableItem({ item, handleChange, index }: EditableItemProps) {
+function EditableItem({
+  item,
+  handleChange,
+  handlePaste,
+  index,
+}: EditableItemProps) {
   return (
     <TextField
       variant="standard"
       value={item.title}
       fullWidth
-      onChange={(event) => handleChange(event.target.value, index)}
+      onPaste={(event) => {
+        event.preventDefault();
+        const text = event.clipboardData.getData("text");
+        const textLines = text.split("\n").filter((line) => !isEmpty(line));
+        console.log(textLines);
+        handlePaste(textLines);
+      }}
+      onChange={(event) => handleChange(event.target.value)}
     />
   );
 }
@@ -83,6 +96,11 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
                   <EditableItem
                     item={item}
                     handleChange={(text) => handleChange(index, text)}
+                    handlePaste={(lines) => {
+                      for (let i = 0; i < lines.length; i++) {
+                        handleChange(index + i, lines[i]);
+                      }
+                    }}
                     index={index}
                   />
                 </Box>
