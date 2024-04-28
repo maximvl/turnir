@@ -6,7 +6,7 @@ import { BorderLinearProgress } from "./BorderLinearProgress";
 type Props = {
   items: Item[];
   onItemElimination?: (index: string) => void;
-  votes: { [key: string]: number };
+  votes: { [key: string]: string };
 };
 
 export default function PollResults({
@@ -43,17 +43,29 @@ export default function PollResults({
     }
   };
 
-  const noVotes = Object.values(votes).every((v) => v === 0);
-  const maxVotes = Object.values(votes).reduce(
+  const votesByOption = items.reduce(
+    (acc, curr) => {
+      acc[curr.id] = 0;
+      return acc;
+    },
+    {} as { [key: string]: number },
+  );
+
+  for (const vote in votes) {
+    const option = votes[vote];
+    votesByOption[option] += 1;
+  }
+
+  const maxVotes = Object.values(votesByOption).reduce(
     (acc, curr) => Math.max(acc, curr),
     0,
   );
 
-  const itemIdsWithMaxVotes = Object.keys(votes).filter(
-    (key) => votes[key] === maxVotes,
+  const itemIdsWithMaxVotes = Object.keys(votesByOption).filter(
+    (key) => votesByOption[key] === maxVotes,
   );
 
-  const totalVotes = Object.values(votes).reduce((acc, curr) => acc + curr, 0);
+  const totalVotes = Object.values(votes).length;
 
   const itemElement = (item: Item, selected: boolean) => {
     const color = selected ? "error" : "info";
@@ -80,8 +92,9 @@ export default function PollResults({
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
-          const highlight = !noVotes && itemIdsWithMaxVotes.includes(item.id);
-          const currentVotes = votes[item.id] || 0;
+          const highlight =
+            totalVotes > 0 && itemIdsWithMaxVotes.includes(item.id);
+          const currentVotes = votesByOption[item.id] || 0;
           return (
             <Grid
               container

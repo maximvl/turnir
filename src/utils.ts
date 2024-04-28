@@ -4,8 +4,14 @@ export function createItem(index: string): Item {
   return { title: "", status: ItemStatus.Active, id: index };
 }
 
+export type PollVote = {
+  username: string;
+  user_id: number;
+  message: string;
+};
+
 export type PollVotes = {
-  poll_votes: null | { [key: string]: number };
+  poll_votes: null | PollVote[];
 };
 
 export async function fetchVotes(): Promise<PollVotes> {
