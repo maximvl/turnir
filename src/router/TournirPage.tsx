@@ -149,12 +149,11 @@ function TournirApp() {
           style={{
             fontWeight: "bold",
             fontSize: "2em",
-            margin: 0,
+            margin: 20,
           }}
         >
           Турнир
         </Box>
-
         <Divider />
       </div>
       <Grid container columnSpacing={0} border={0} columns={12}>
