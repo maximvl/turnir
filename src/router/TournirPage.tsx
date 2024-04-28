@@ -25,7 +25,7 @@ import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
 import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext } from "@mui/icons-material";
-import fireworks from "../fireworks.gif";
+import fireworks from "../images/fireworks.gif";
 
 const queryClient = new QueryClient();
 
