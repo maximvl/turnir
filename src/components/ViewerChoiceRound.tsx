@@ -34,7 +34,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
 
   const resetPoll = async () => {
     setResetState("started");
-    // await resetVotes(items.map((item) => item.id));
+    await resetVotes(items.map((item) => item.id));
     setVotesMap({});
     setVoterIds(new Set<number>());
     setResetState("finished");
