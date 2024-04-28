@@ -18,13 +18,13 @@ const SELECTION_TIMEOUT_MIN = 800;
 const SELECTION_TIMEOUT_MAX = 1500;
 
 const PROGRESS_BAR_TIMEOUT = 400;
-const FINAL_TIMEOUT = 1000;
 
 function randomTimeout() {
-  return (
+  const value =
     Math.random() * (SELECTION_TIMEOUT_MAX - SELECTION_TIMEOUT_MIN) +
-    SELECTION_TIMEOUT_MIN
-  );
+    SELECTION_TIMEOUT_MIN;
+  console.log("timeout", value);
+  return Math.floor(value);
 }
 
 enum SelectionActionType {
@@ -98,7 +98,6 @@ export default function RandomEliminationRound({
   );
 
   const [progressBar, progressBarDispatch] = useReducer(progressBarReducer, 0);
-  const [eliminationStarted, setEliminationStarted] = useState(false);
 
   const theme = useTheme();
 
@@ -110,18 +109,6 @@ export default function RandomEliminationRound({
       setSelectedItemId(selectionState.selectedItemId);
     }
   }, [selectionState.selectedItemId, progressBarFinished]);
-
-  useEffect(() => {
-    if (progressBarFinished && !eliminationStarted) {
-      setEliminationStarted(true);
-      const itemId = items[selectedItemId].id;
-      setTimeout(() => {
-        onItemElimination(itemId);
-        setEliminationStarted(false);
-      }, FINAL_TIMEOUT);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progressBarFinished]);
 
   useEffect(() => {
     if (!progressBarFinished) {
@@ -141,7 +128,6 @@ export default function RandomEliminationRound({
       });
       selectionTaskDispatch(SelectionTaskState.StartNext);
       progressBarDispatch(0);
-      setEliminationStarted(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
@@ -184,9 +170,14 @@ export default function RandomEliminationRound({
       <Grid container columns={1} rowGap={1}>
         {items.map((item, index) => {
           const style = index === selectedItemId ? highlightStyle : {};
+          const onClick = () => {
+            if (index === selectedItemId) {
+              onItemElimination(item.id);
+            }
+          };
           return (
             <Grid item xs={1} key={index}>
-              <Button variant="outlined" sx={style}>
+              <Button variant="outlined" sx={style} onClick={onClick}>
                 {item.title}
               </Button>
             </Grid>

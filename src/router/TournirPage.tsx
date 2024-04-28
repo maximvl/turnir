@@ -11,6 +11,7 @@ import {
   RoundTypeNames,
 } from "../types";
 import {
+  Box,
   Checkbox,
   Divider,
   FormControlLabel,
@@ -24,6 +25,7 @@ import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
 import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext } from "@mui/icons-material";
+import fireworks from "../fireworks.gif";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ function TournirApp() {
   const [turnirState, setTurnirState] = useState<TurnirState>(
     TurnirState.EditCandidates,
   );
+
+  const [noRoundRepeat, setNoRoundRepeat] = useState(true);
 
   const [roundTypes, setRoundTypes] = useState<Map<RoundType, boolean>>(
     RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
@@ -79,15 +83,26 @@ function TournirApp() {
     setItems([...items]);
   };
 
+  const setNextRoundType = () => {
+    if (noRoundRepeat) {
+      const remainingRounds = activeRounds.filter(
+        (round) => round !== currentRoundType,
+      );
+      setCurrentRoundType(sample(remainingRounds) as RoundType);
+    } else {
+      setCurrentRoundType(sample(activeRounds) as RoundType);
+    }
+  };
+
   const startTurnir = () => {
     setTurnirState(TurnirState.Start);
     setItems([...nonEmptyItems]);
-    setCurrentRoundType(sample(activeRounds) as RoundType);
+    setNextRoundType();
   };
 
   const onNextRoundClick = () => {
     setRoundNumber(roundNumber + 1);
-    setCurrentRoundType(sample(activeRounds) as RoundType);
+    setNextRoundType();
   };
 
   const onItemElimination = (id: string) => {
@@ -98,8 +113,7 @@ function TournirApp() {
       item.eliminationType = currentRoundType;
       setItems([...items]);
       setRoundNumber(roundNumber + 1);
-      const nextRound = sample(activeRounds) as RoundType;
-      setCurrentRoundType(nextRound);
+      setNextRoundType();
 
       if (activeItems.length === 2 && turnirState === TurnirState.Start) {
         setTurnirState(TurnirState.Victory);
@@ -127,8 +141,20 @@ function TournirApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="App">
-        <h1>Турнир</h1>
+      <div className="app">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          style={{
+            fontWeight: "bold",
+            fontSize: "2em",
+            margin: 0,
+          }}
+        >
+          Турнир
+        </Box>
+
         <Divider />
       </div>
       <Grid container columnSpacing={0} border={0} columns={12}>
@@ -154,6 +180,19 @@ function TournirApp() {
         <Divider orientation="vertical" flexItem />
         <Grid item xs={2} border={0} paddingRight={0} paddingTop={2}>
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
+            <Grid item xs={1} paddingLeft={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    disabled={turnirState !== TurnirState.EditCandidates}
+                    checked={noRoundRepeat}
+                    style={{ paddingTop: 0, paddingBottom: 0 }}
+                    onChange={() => setNoRoundRepeat(!noRoundRepeat)}
+                  />
+                }
+                label={"Антиповтор раундов"}
+              />
+            </Grid>
             <Grid item xs={1} paddingLeft={2}>
               Раунды
             </Grid>
@@ -243,6 +282,7 @@ function TournirApp() {
               <h2 style={{ color: theme.palette.primary.dark }}>
                 {activeItems[0].title.toLocaleUpperCase()}
               </h2>
+              <img src={fireworks} alt="" />
             </div>
           )}
         </Grid>

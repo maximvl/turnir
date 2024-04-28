@@ -73,6 +73,8 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
   return (
     <div>
       <h3 style={{ marginTop: 0 }}>Кандидаты ({activeItems.length})</h3>
+      <p style={{ paddingBottom: 2 }}>можно вставлять несколько строк</p>
+
       <Grid
         container
         rowGap={1}
