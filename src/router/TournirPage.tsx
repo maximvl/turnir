@@ -209,7 +209,7 @@ function TournirApp() {
         columnSpacing={0}
         border={0}
         columns={12}
-        sx={{ borderTop: 0.5, borderBottom: 0.5 }}
+        sx={{ borderTop: 0.5, borderBottom: 0.5, borderColor: "grey.700" }}
       >
         <Grid
           item
@@ -250,7 +250,12 @@ function TournirApp() {
           border={0}
           paddingRight={0}
           paddingTop={2}
-          sx={{ borderLeft: 0.5, borderRight: 0.5, paddingBottom: 2 }}
+          sx={{
+            borderLeft: 0.5,
+            borderRight: 0.5,
+            paddingBottom: 2,
+            borderColor: "grey.700",
+          }}
         >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
             <Grid item xs={1} paddingLeft={2}>
