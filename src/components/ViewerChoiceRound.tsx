@@ -94,7 +94,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
       <Box
         display="inline-block"
         alignItems="center"
-        style={{ paddingLeft: 16 }}
+        style={{ paddingLeft: 16, width: "100%" }}
       >
         <PollResults
           items={items}

@@ -203,10 +203,21 @@ function TournirApp() {
         >
           Турнир
         </Box>
-        <Divider />
       </div>
-      <Grid container columnSpacing={0} border={0} columns={12}>
-        <Grid item xs={4} border={0} paddingTop={2}>
+      <Grid
+        container
+        columnSpacing={0}
+        border={0}
+        columns={12}
+        sx={{ borderTop: 0.5, borderBottom: 0.5 }}
+      >
+        <Grid
+          item
+          xs={4}
+          border={0}
+          paddingTop={2}
+          sx={{ width: "100%", paddingBottom: 2 }}
+        >
           <Grid
             container
             columns={1}
@@ -232,8 +243,15 @@ function TournirApp() {
             )}
           </Grid>
         </Grid>
-        <Divider orientation="vertical" flexItem />
-        <Grid item xs={2} border={0} paddingRight={0} paddingTop={2}>
+
+        <Grid
+          item
+          xs={2}
+          border={0}
+          paddingRight={0}
+          paddingTop={2}
+          sx={{ borderLeft: 0.5, borderRight: 0.5, paddingBottom: 2 }}
+        >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
             <Grid item xs={1} paddingLeft={2}>
               <Tooltip title="Один и тот же раунд не будет повторяться подряд">
@@ -316,8 +334,15 @@ function TournirApp() {
             </Grid>
           </Grid>
         </Grid>
-        <Divider orientation="vertical" flexItem />
-        <Grid item xs={5} border={0} paddingTop={2} textAlign="center">
+
+        <Grid
+          item
+          xs={6}
+          border={0}
+          paddingTop={2}
+          paddingRight={6}
+          textAlign="center"
+        >
           {turnirState === TurnirState.Start && (
             <div>
               <RoundTitle
