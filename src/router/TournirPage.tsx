@@ -207,7 +207,14 @@ function TournirApp() {
       </div>
       <Grid container columnSpacing={0} border={0} columns={12}>
         <Grid item xs={4} border={0} paddingTop={2}>
-          <Grid container columns={1} border={0} rowGap={2} paddingLeft={6}>
+          <Grid
+            container
+            columns={1}
+            border={0}
+            rowGap={2}
+            paddingLeft={6}
+            paddingRight={2}
+          >
             <Grid item xs={1} paddingLeft={0}>
               <ItemsList
                 items={items}

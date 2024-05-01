@@ -1,5 +1,14 @@
 import { OpenInNewOutlined } from "@mui/icons-material";
-import { Box, Grid, Stack, TextField, useTheme } from "@mui/material";
+import {
+  Box,
+  Button,
+  Grid,
+  Link,
+  Stack,
+  TextField,
+  Tooltip,
+  useTheme,
+} from "@mui/material";
 import { isEmpty, trim } from "lodash";
 import React from "react";
 import { Item, ItemStatus } from "../types";
@@ -201,15 +210,19 @@ type KPLinkProps = {
 
 function KPLink({ item }: KPLinkProps) {
   return (
-    <a
-      href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
+    <Link
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
+      href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
-        КП
-        <OpenInNewOutlined />
-      </Stack>
-    </a>
+      <Tooltip title="Найти на Кинопоиске">
+        <Button variant="outlined" size="small">
+          <Stack direction="row" spacing={1} alignItems="center">
+            КП
+            <OpenInNewOutlined />
+          </Stack>
+        </Button>
+      </Tooltip>
+    </Link>
   );
 }
