@@ -4,6 +4,7 @@ import "./index.css";
 import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
 import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createTheme, GlobalStyles, ThemeProvider } from "@mui/material";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -16,9 +17,24 @@ const router = createHashRouter([
   },
 ]);
 
+const darkTheme = createTheme({
+  palette: {
+    // mode: "dark",
+    background: {
+      default: "#222222",
+    },
+    text: {
+      primary: "#ffffff",
+    },
+  },
+});
+
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={darkTheme}>
+      <GlobalStyles styles={{ body: { backgroundColor: "#EEEDE7" } }} />
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>,
 );
 

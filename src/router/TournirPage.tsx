@@ -9,6 +9,8 @@ import {
   RoundTypes,
   TurnirState,
   RoundTypeNames,
+  MusicType,
+  MusicTypeIds,
 } from "../types";
 import {
   Box,
@@ -49,6 +51,42 @@ function TournirApp() {
     RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
   );
 
+  const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(
+    undefined,
+  );
+
+  const wheelMusic = document.getElementById(
+    MusicTypeIds[MusicType.WheelMusic],
+  ) as HTMLAudioElement | null;
+
+  if (wheelMusic) {
+    console.log("have wheel music");
+    if (musicPlaying === MusicType.WheelMusic) {
+      console.log("starting play");
+      wheelMusic.play();
+    } else {
+      console.log("stopping play");
+      wheelMusic.pause();
+      wheelMusic.currentTime = 0;
+    }
+  }
+
+  const victoryMusic = document.getElementById(
+    MusicTypeIds[MusicType.VictoryMusic],
+  ) as HTMLAudioElement | null;
+
+  if (victoryMusic) {
+    console.log("have victory music");
+    if (musicPlaying === MusicType.VictoryMusic) {
+      console.log("starting play");
+      victoryMusic.play();
+    } else {
+      console.log("stopping play");
+      victoryMusic.pause();
+      victoryMusic.currentTime = 0;
+    }
+  }
+
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) =>
     Boolean(roundTypes.get(key)),
@@ -85,14 +123,22 @@ function TournirApp() {
   };
 
   const setNextRoundType = () => {
+    let nextRoundType = null;
     if (noRoundRepeat) {
       const remainingRounds = activeRounds.filter(
         (round) => round !== currentRoundType,
       );
-      setCurrentRoundType(sample(remainingRounds) as RoundType);
+      nextRoundType = sample(remainingRounds) as RoundType;
     } else {
-      setCurrentRoundType(sample(activeRounds) as RoundType);
+      nextRoundType = sample(activeRounds) as RoundType;
     }
+    if (nextRoundType === RoundType.RandomElimination) {
+      console.log("starting music");
+      setMusicPlaying(MusicType.WheelMusic);
+    } else {
+      setMusicPlaying(undefined);
+    }
+    setCurrentRoundType(nextRoundType);
   };
 
   const startTurnir = () => {
@@ -118,6 +164,7 @@ function TournirApp() {
 
       if (activeItems.length === 2 && turnirState === TurnirState.Start) {
         setTurnirState(TurnirState.Victory);
+        setMusicPlaying(MusicType.VictoryMusic);
       }
     }
   };
@@ -131,6 +178,7 @@ function TournirApp() {
       item.eliminationType = undefined;
     });
     setItems([...items]);
+    setMusicPlaying(undefined);
   };
 
   const onRoundTypeClick = (roundType: RoundType) => {

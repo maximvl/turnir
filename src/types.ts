@@ -37,3 +37,13 @@ export const RoundTypeNames = {
   [RoundType.StreamerChoice]: "Выбор стримера",
   [RoundType.ViewerChoice]: "Выбор зрителей",
 };
+
+export const enum MusicType {
+  WheelMusic = "WheelMusic",
+  VictoryMusic = "VictoryMusic",
+}
+
+export const MusicTypeIds = {
+  [MusicType.WheelMusic]: "wheel-music",
+  [MusicType.VictoryMusic]: "victory-music",
+};
