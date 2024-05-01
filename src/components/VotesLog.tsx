@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Item } from "../types";
 import { PollVote } from "../utils";
 
@@ -10,12 +10,28 @@ type Props = {
 
 export default function VotesLog({ votes, items }: Props) {
   // console.log("votes", votes);
-  const [scrollAtBottom, setScrollAtBottom] = useState(true);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollableRef = useRef<HTMLDivElement>(null);
 
-  if (bottomRef && bottomRef.current && scrollAtBottom) {
-    bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }
+  useLayoutEffect(() => {
+    const scrollableElement = scrollableRef?.current;
+    if (scrollableElement) {
+      let isScrollAtBottom = false;
+
+      const margin = 50;
+      if (
+        scrollableElement.scrollTop + margin >
+        scrollableElement.scrollHeight - scrollableElement.offsetHeight
+      ) {
+        isScrollAtBottom = true;
+      } else {
+        isScrollAtBottom = false;
+      }
+
+      if (isScrollAtBottom) {
+        scrollableElement.scrollTop = scrollableElement.scrollHeight;
+      }
+    }
+  }, [scrollableRef, votes.length]);
 
   const itemNameMap = items.reduce(
     (acc, item) => {
@@ -38,16 +54,7 @@ export default function VotesLog({ votes, items }: Props) {
       Лог голосования
       <Box
         sx={{ border: "1px solid", m: 1, overflow: "auto", height: "300px" }}
-        onScroll={(e) => {
-          e.stopPropagation();
-          const obj = e.target as HTMLDivElement;
-          const margin = 50;
-          if (obj.scrollTop + margin > obj.scrollHeight - obj.offsetHeight) {
-            setScrollAtBottom(true);
-          } else {
-            setScrollAtBottom(false);
-          }
-        }}
+        ref={scrollableRef}
       >
         {votes.map((vote, index) => (
           <Box
@@ -63,7 +70,6 @@ export default function VotesLog({ votes, items }: Props) {
             {vote.message} ({itemNameMap[vote.message]})
           </Box>
         ))}
-        <div ref={bottomRef} />
       </Box>
     </div>
   );
