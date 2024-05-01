@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Item } from "../types";
 import PollResults from "./PollResults";
 import { useQuery } from "react-query";
-import { fetchVotes, resetVotes } from "../utils";
-import { isFinite } from "lodash";
+import { fetchVotes, PollVote, resetVotes } from "../utils";
+import VotesLog from "./VotesLog";
 
 type Props = {
   items: Item[];
@@ -23,12 +23,16 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({});
   const [voterIds, setVoterIds] = useState(new Set<number>());
   const [resetState, setResetState] = useState<ResetState>("started");
+  const [voteMessages, setVoteMessages] = useState<PollVote[]>([]);
+  const [startTs, setStartTs] = useState<number>(() =>
+    Math.floor(Date.now() / 1000),
+  );
 
   const {
     data: votes,
     error,
     isLoading,
-  } = useQuery(["votes", items.length], fetchVotes, {
+  } = useQuery(["votes", items.length, startTs], fetchVotes, {
     refetchInterval: VOTES_REFETCH_INTERVAL,
   });
 
@@ -37,6 +41,8 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     await resetVotes(items.map((item) => item.id));
     setVotesMap({});
     setVoterIds(new Set<number>());
+    setVoteMessages([]);
+    setStartTs(Math.floor(Date.now() / 1000));
     setResetState("finished");
   };
 
@@ -72,8 +78,12 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
 
       votesMap[vote.username] = voteOption;
       setVotesMap({ ...votesMap });
+      voteMessages.push(vote);
+      setVoteMessages([...voteMessages]);
     }
   }
+
+  // console.log("messages", voteMessages);
 
   if (resetState === "started") {
     return <div>Сброс голосов...</div>;
@@ -91,6 +101,9 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
           votes={votesMap}
           onItemElimination={onItemElimination}
         />
+        <div style={{ marginTop: 20 }}>
+          <VotesLog votes={voteMessages} items={items} />
+        </div>
       </Box>
     </div>
   );
