@@ -59,8 +59,8 @@ export default function VotesLog({ votes, items }: Props) {
               m: 1,
             }}
           >
-            {formatTime(vote.ts)}: {vote.username} голосует за {vote.message} (
-            {itemNameMap[vote.message]})
+            {formatTime(vote.ts)}: {vote.username} голосует против{" "}
+            {vote.message} ({itemNameMap[vote.message]})
           </Box>
         ))}
         <div ref={bottomRef} />
