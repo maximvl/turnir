@@ -16,6 +16,7 @@ import {
   Divider,
   FormControlLabel,
   Grid,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import { isEmpty, sample, filter, toString } from "lodash";
@@ -170,7 +171,7 @@ function TournirApp() {
             {canEditItems && (
               <Grid item xs={1}>
                 <Button variant="contained" onClick={addMoreItems}>
-                  Добавить
+                  Добавить слотов
                 </Button>
               </Grid>
             )}
@@ -180,17 +181,19 @@ function TournirApp() {
         <Grid item xs={2} border={0} paddingRight={0} paddingTop={2}>
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
             <Grid item xs={1} paddingLeft={2}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    disabled={turnirState !== TurnirState.EditCandidates}
-                    checked={noRoundRepeat}
-                    style={{ paddingTop: 0, paddingBottom: 0 }}
-                    onChange={() => setNoRoundRepeat(!noRoundRepeat)}
-                  />
-                }
-                label={"Антиповтор раундов"}
-              />
+              <Tooltip title="Один и тот же раунд не будет повторяться подряд">
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={turnirState !== TurnirState.EditCandidates}
+                      checked={noRoundRepeat}
+                      style={{ paddingTop: 0, paddingBottom: 0 }}
+                      onChange={() => setNoRoundRepeat(!noRoundRepeat)}
+                    />
+                  }
+                  label={"Антиповтор раундов"}
+                />
+              </Tooltip>
             </Grid>
             <Grid item xs={1} paddingLeft={2}>
               Раунды

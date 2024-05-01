@@ -1,6 +1,6 @@
 import { OpenInNewOutlined } from "@mui/icons-material";
 import { Box, Grid, Stack, TextField, useTheme } from "@mui/material";
-import { isEmpty } from "lodash";
+import { isEmpty, trim } from "lodash";
 import React from "react";
 import { Item, ItemStatus } from "../types";
 
@@ -30,17 +30,11 @@ export default function ItemsList({
 
 type EditableItemProps = {
   item: Item;
-  index: number;
   handleChange: (text: string) => void;
   handlePaste: (lines: string[]) => void;
 };
 
-function EditableItem({
-  item,
-  handleChange,
-  handlePaste,
-  index,
-}: EditableItemProps) {
+function EditableItem({ item, handleChange, handlePaste }: EditableItemProps) {
   return (
     <TextField
       variant="standard"
@@ -49,7 +43,10 @@ function EditableItem({
       onPaste={(event) => {
         event.preventDefault();
         const text = event.clipboardData.getData("text");
-        const textLines = text.split("\n").filter((line) => !isEmpty(line));
+        const textLines = text
+          .split("\n")
+          .map((line) => trim(line))
+          .filter((line) => !isEmpty(line));
         console.log(textLines);
         handlePaste(textLines);
       }}
@@ -103,7 +100,6 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
                         handleChange(index + i, lines[i]);
                       }
                     }}
-                    index={index}
                   />
                 </Box>
               </Grid>
