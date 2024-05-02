@@ -26,8 +26,8 @@ import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
 import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
-import fireworks from "../images/fireworks.gif";
 import { MusicContext } from "../contexts/MusicContext";
+import Victory from "../components/Victory";
 
 const queryClient = new QueryClient();
 
@@ -342,32 +342,7 @@ function TournirApp() {
             </div>
           )}
           {turnirState === TurnirState.Victory && (
-            <Box>
-              <h1>Победитель</h1>
-              <Box paddingLeft={6} paddingRight={6}>
-                <Box
-                  display="flex"
-                  justifyContent={"center"}
-                  sx={{ backgroundColor: "black" }}
-                  width={"100%"}
-                >
-                  <div
-                    className="neon"
-                    style={{ backgroundColor: "black", textAlign: "left" }}
-                  >
-                    <span
-                      className="text"
-                      data-text={activeItems[0].title.toLocaleUpperCase()}
-                    >
-                      {activeItems[0].title.toLocaleUpperCase()}
-                    </span>
-                    <span className="gradient"></span>
-                    <span className="spotlight"></span>
-                  </div>
-                </Box>
-                <img src={fireworks} alt="" width={"100%"} />
-              </Box>
-            </Box>
+            <Victory winner={activeItems[0]} />
           )}
         </Grid>
       </Grid>
