@@ -56,34 +56,37 @@ function TournirApp() {
   );
 
   const wheelMusic = document.getElementById(
-    MusicTypeIds[MusicType.WheelMusic],
+    MusicTypeIds[MusicType.Wheel],
   ) as HTMLAudioElement | null;
-
-  if (wheelMusic) {
-    console.log("have wheel music");
-    if (musicPlaying === MusicType.WheelMusic) {
-      console.log("starting play");
-      wheelMusic.play();
-    } else {
-      console.log("stopping play");
-      wheelMusic.pause();
-      wheelMusic.currentTime = 0;
-    }
-  }
 
   const victoryMusic = document.getElementById(
-    MusicTypeIds[MusicType.VictoryMusic],
+    MusicTypeIds[MusicType.Victory],
   ) as HTMLAudioElement | null;
 
-  if (victoryMusic) {
-    console.log("have victory music");
-    if (musicPlaying === MusicType.VictoryMusic) {
-      console.log("starting play");
-      victoryMusic.play();
-    } else {
-      console.log("stopping play");
-      victoryMusic.pause();
-      victoryMusic.currentTime = 0;
+  const thinkingMusic = document.getElementById(
+    MusicTypeIds[MusicType.Thinking],
+  ) as HTMLAudioElement | null;
+
+  const rickRollMusic = document.getElementById(
+    MusicTypeIds[MusicType.RickRoll],
+  ) as HTMLAudioElement | null;
+
+  const musicMap = {
+    [MusicType.Wheel]: wheelMusic,
+    [MusicType.Victory]: victoryMusic,
+    [MusicType.Thinking]: thinkingMusic,
+    [MusicType.RickRoll]: rickRollMusic,
+  };
+
+  const currentMusic = musicPlaying && musicMap[musicPlaying];
+  if (currentMusic) {
+    currentMusic.play();
+  }
+
+  for (const music of Object.values(musicMap)) {
+    if (music && music !== currentMusic) {
+      music.pause();
+      music.currentTime = 0;
     }
   }
 
@@ -132,11 +135,19 @@ function TournirApp() {
     } else {
       nextRoundType = sample(activeRounds) as RoundType;
     }
-    if (nextRoundType === RoundType.RandomElimination) {
-      console.log("starting music");
-      setMusicPlaying(MusicType.WheelMusic);
-    } else {
-      setMusicPlaying(undefined);
+    switch (nextRoundType) {
+      case RoundType.RandomElimination:
+        setMusicPlaying(MusicType.Wheel);
+        break;
+      case RoundType.StreamerChoice:
+        setMusicPlaying(MusicType.Thinking);
+        break;
+      case RoundType.ViewerChoice:
+        setMusicPlaying(MusicType.RickRoll);
+        break;
+      default:
+        setMusicPlaying(undefined);
+        break;
     }
     setCurrentRoundType(nextRoundType);
   };
@@ -164,7 +175,7 @@ function TournirApp() {
 
       if (activeItems.length === 2 && turnirState === TurnirState.Start) {
         setTurnirState(TurnirState.Victory);
-        setMusicPlaying(MusicType.VictoryMusic);
+        setMusicPlaying(MusicType.Victory);
       }
     }
   };
@@ -250,10 +261,10 @@ function TournirApp() {
           border={0}
           paddingRight={0}
           paddingTop={2}
+          paddingBottom={2}
           sx={{
             borderLeft: 0.5,
             borderRight: 0.5,
-            paddingBottom: 2,
             borderColor: "grey.700",
           }}
         >
@@ -346,6 +357,7 @@ function TournirApp() {
           border={0}
           paddingTop={2}
           paddingRight={6}
+          paddingBottom={2}
           textAlign="center"
         >
           {turnirState === TurnirState.Start && (
@@ -364,13 +376,32 @@ function TournirApp() {
             </div>
           )}
           {turnirState === TurnirState.Victory && (
-            <div>
+            <Box>
               <h1>Победитель</h1>
-              <h2 style={{ color: theme.palette.primary.dark }}>
-                {activeItems[0].title.toLocaleUpperCase()}
-              </h2>
-              <img src={fireworks} alt="" />
-            </div>
+              <Box paddingLeft={6} paddingRight={6}>
+                <Box
+                  display="flex"
+                  justifyContent={"center"}
+                  sx={{ backgroundColor: "black" }}
+                  width={"100%"}
+                >
+                  <div
+                    className="neon"
+                    style={{ backgroundColor: "black", textAlign: "left" }}
+                  >
+                    <span
+                      className="text"
+                      data-text={activeItems[0].title.toLocaleUpperCase()}
+                    >
+                      {activeItems[0].title.toLocaleUpperCase()}
+                    </span>
+                    <span className="gradient"></span>
+                    <span className="spotlight"></span>
+                  </div>
+                </Box>
+                <img src={fireworks} alt="" width={"100%"} />
+              </Box>
+            </Box>
           )}
         </Grid>
       </Grid>

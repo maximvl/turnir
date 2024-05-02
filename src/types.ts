@@ -39,11 +39,15 @@ export const RoundTypeNames = {
 };
 
 export const enum MusicType {
-  WheelMusic = "WheelMusic",
-  VictoryMusic = "VictoryMusic",
+  Wheel = "Wheel",
+  Victory = "Victory",
+  Thinking = "Thinking",
+  RickRoll = "RickRoll",
 }
 
 export const MusicTypeIds = {
-  [MusicType.WheelMusic]: "wheel-music",
-  [MusicType.VictoryMusic]: "victory-music",
+  [MusicType.Wheel]: "wheel-music",
+  [MusicType.Victory]: "victory-music",
+  [MusicType.Thinking]: "thinking-music",
+  [MusicType.RickRoll]: "rickroll-music",
 };

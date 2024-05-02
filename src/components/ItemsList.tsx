@@ -211,12 +211,13 @@ type KPLinkProps = {
 function KPLink({ item }: KPLinkProps) {
   return (
     <Link
+      tabIndex={-1}
       target="_blank"
       rel="noopener noreferrer"
       href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
     >
       <Tooltip title="Найти на Кинопоиске">
-        <Button variant="outlined" size="small">
+        <Button variant="outlined" size="small" tabIndex={-1}>
           <Stack direction="row" spacing={1} alignItems="center">
             КП
             <OpenInNewOutlined />
