@@ -1,6 +1,7 @@
 import { Box, Button, Grid, useTheme } from "@mui/material";
 import { sample } from "lodash";
-import { useEffect, useReducer, useState } from "react";
+import { useContext, useEffect, useReducer, useState } from "react";
+import { MusicContext } from "../contexts/MusicContext";
 import { Item } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
@@ -98,10 +99,14 @@ export default function RandomEliminationRound({
   );
 
   const [progressBar, progressBarDispatch] = useReducer(progressBarReducer, 0);
+  const { setMusicPlaying } = useContext(MusicContext);
 
   const theme = useTheme();
 
   const progressBarFinished = progressBar >= 100;
+  if (progressBarFinished) {
+    setMusicPlaying(undefined);
+  }
 
   const [selectedItemId, setSelectedItemId] = useState(-1);
   useEffect(() => {

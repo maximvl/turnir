@@ -5,6 +5,7 @@ import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
 import { createHashRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
+import MusicContextProvider from "./contexts/MusicContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
@@ -33,7 +34,9 @@ root.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      <MusicContextProvider>
+        <RouterProvider router={router} />
+      </MusicContextProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );

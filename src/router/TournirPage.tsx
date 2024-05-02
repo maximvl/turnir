@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../App.css";
 import ItemsList from "../components/ItemsList";
 import Button from "@mui/material/Button";
@@ -10,7 +10,6 @@ import {
   TurnirState,
   RoundTypeNames,
   MusicType,
-  MusicTypeIds,
 } from "../types";
 import {
   Box,
@@ -19,7 +18,6 @@ import {
   FormControlLabel,
   Grid,
   Tooltip,
-  useTheme,
 } from "@mui/material";
 import { isEmpty, sample, filter, toString } from "lodash";
 import { createItem } from "../utils";
@@ -29,6 +27,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext } from "@mui/icons-material";
 import fireworks from "../images/fireworks.gif";
+import { MusicContext } from "../contexts/MusicContext";
 
 const queryClient = new QueryClient();
 
@@ -51,51 +50,10 @@ function TournirApp() {
     RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
   );
 
-  const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(
-    undefined,
-  );
-
-  const wheelMusic = document.getElementById(
-    MusicTypeIds[MusicType.Wheel],
-  ) as HTMLAudioElement | null;
-
-  const victoryMusic = document.getElementById(
-    MusicTypeIds[MusicType.Victory],
-  ) as HTMLAudioElement | null;
-
-  const thinkingMusic = document.getElementById(
-    MusicTypeIds[MusicType.Thinking],
-  ) as HTMLAudioElement | null;
-
-  const rickRollMusic = document.getElementById(
-    MusicTypeIds[MusicType.RickRoll],
-  ) as HTMLAudioElement | null;
-
-  const musicMap = {
-    [MusicType.Wheel]: wheelMusic,
-    [MusicType.Victory]: victoryMusic,
-    [MusicType.Thinking]: thinkingMusic,
-    [MusicType.RickRoll]: rickRollMusic,
-  };
-
-  const currentMusic = musicPlaying && musicMap[musicPlaying];
-  if (currentMusic) {
-    currentMusic.play();
-  }
-
-  for (const music of Object.values(musicMap)) {
-    if (music && music !== currentMusic) {
-      music.pause();
-      music.currentTime = 0;
-    }
-  }
-
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) =>
     Boolean(roundTypes.get(key)),
   );
-
-  const theme = useTheme();
 
   useEffect(() => {
     setItems(
@@ -104,6 +62,8 @@ function TournirApp() {
         .map((_, index) => createItem(toString(index + 1))),
     );
   }, []);
+
+  const { setMusicPlaying } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter(
@@ -170,12 +130,13 @@ function TournirApp() {
       item.eliminationRound = roundNumber;
       item.eliminationType = currentRoundType;
       setItems([...items]);
-      setRoundNumber(roundNumber + 1);
-      setNextRoundType();
 
       if (activeItems.length === 2 && turnirState === TurnirState.Start) {
         setTurnirState(TurnirState.Victory);
         setMusicPlaying(MusicType.Victory);
+      } else {
+        setRoundNumber(roundNumber + 1);
+        setNextRoundType();
       }
     }
   };
