@@ -4,11 +4,15 @@ import { MusicType, MusicTypeIds } from "../types";
 export type MusicContextType = {
   musicPlaying?: MusicType;
   setMusicPlaying: (music?: MusicType) => void;
+  isMuted: boolean;
+  setIsMuted: (isMuted: boolean) => void;
 };
 
 export const MusicContext = createContext<MusicContextType>({
   musicPlaying: undefined,
   setMusicPlaying: (_1?: MusicType) => {},
+  isMuted: false,
+  setIsMuted: (_1: boolean) => {},
 });
 
 export default function MusicContextProvider({
@@ -19,6 +23,8 @@ export default function MusicContextProvider({
   const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(
     undefined,
   );
+
+  const [isMuted, setIsMuted] = useState(false);
 
   const wheelMusic = document.getElementById(
     MusicTypeIds[MusicType.Wheel],
@@ -60,9 +66,24 @@ export default function MusicContextProvider({
     }
   };
 
+  const setMuted = (muted: boolean) => {
+    setIsMuted(muted);
+    if (musicPlaying) {
+      const currentMusic = musicMap[musicPlaying];
+      if (currentMusic) {
+        currentMusic.muted = muted;
+      }
+    }
+  };
+
   return (
     <MusicContext.Provider
-      value={{ musicPlaying, setMusicPlaying: startMusic }}
+      value={{
+        musicPlaying,
+        setMusicPlaying: startMusic,
+        isMuted,
+        setIsMuted: setMuted,
+      }}
     >
       {children}
     </MusicContext.Provider>

@@ -25,7 +25,7 @@ import RoundTitle from "../components/RoundTitle";
 import RoundContent from "../components/RoundContent";
 import { QueryClient, QueryClientProvider } from "react-query";
 import StartIcon from "@mui/icons-material/Start";
-import { RestartAlt, SkipNext } from "@mui/icons-material";
+import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
 import fireworks from "../images/fireworks.gif";
 import { MusicContext } from "../contexts/MusicContext";
 
@@ -63,7 +63,7 @@ function TournirApp() {
     );
   }, []);
 
-  const { setMusicPlaying } = useContext(MusicContext);
+  const { setMusicPlaying, isMuted, setIsMuted } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter(
@@ -230,6 +230,11 @@ function TournirApp() {
           }}
         >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
+            <Grid item xs={1} paddingLeft={2}>
+              <Button variant="outlined" onClick={() => setIsMuted(!isMuted)}>
+                {isMuted ? <VolumeOff /> : <VolumeUp />}
+              </Button>
+            </Grid>
             <Grid item xs={1} paddingLeft={2}>
               <Tooltip title="Один и тот же раунд не будет повторяться подряд">
                 <FormControlLabel
