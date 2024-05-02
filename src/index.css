@@ -13,7 +13,7 @@ code {
 }
 
 .neon {
-    width: min-content;
+    /* width: fit-content; */
     position: relative;
     overflow: hidden;
     filter: brightness(200%);
@@ -26,7 +26,7 @@ code {
     font-weight: bold;
     font-family: sans-serif;
     text-transform: uppercase;
-    position: relative;
+    /* position: relative; */
     user-select: none;
 }
 
@@ -36,6 +36,7 @@ code {
     color: white;
     filter: blur(0.02em);
     mix-blend-mode: difference;
+    left: 0;
 }
 
 .gradient {

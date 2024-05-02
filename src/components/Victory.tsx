@@ -19,7 +19,7 @@ export default function Victory({ winner }: Props) {
         >
           <div
             className="neon"
-            style={{ backgroundColor: "black", textAlign: "left" }}
+            style={{ textAlign: "center", backgroundColor: "black" }}
           >
             <span className="text" data-text={winner.title.toLocaleUpperCase()}>
               {winner.title.toLocaleUpperCase()}
