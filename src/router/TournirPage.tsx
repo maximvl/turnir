@@ -28,6 +28,7 @@ import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
 import { MusicContext } from "../contexts/MusicContext";
 import Victory from "../components/Victory";
+import Wheel from "../components/Wheel";
 
 const queryClient = new QueryClient();
 
@@ -96,9 +97,6 @@ function TournirApp() {
       nextRoundType = sample(activeRounds) as RoundType;
     }
     switch (nextRoundType) {
-      case RoundType.RandomElimination:
-        setMusicPlaying(MusicType.Wheel);
-        break;
       case RoundType.StreamerChoice:
         setMusicPlaying(MusicType.Thinking);
         break;

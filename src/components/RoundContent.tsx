@@ -2,6 +2,7 @@ import RandomEliminationRound from "./RandomEliminationRound";
 import { Item, RoundType } from "../types";
 import StreamerChoiceRound from "./StreamerChoiceRound";
 import ViewerChoiceRound from "./ViewerChoiceRound";
+import Wheel from "./Wheel";
 
 type Props = {
   roundType: RoundType;
@@ -16,12 +17,7 @@ export default function RoundContent({
 }: Props) {
   switch (roundType) {
     case RoundType.RandomElimination: {
-      return (
-        <RandomEliminationRound
-          items={items}
-          onItemElimination={onItemElimination}
-        />
-      );
+      return <Wheel items={items} onItemElimination={onItemElimination} />;
     }
     case RoundType.StreamerChoice: {
       return (
