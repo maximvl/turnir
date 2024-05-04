@@ -1,4 +1,4 @@
-import { OpenInNewOutlined } from "@mui/icons-material";
+import { Shield } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -130,7 +130,9 @@ type NonEditableItemsListProps = {
 function NonEditableItemsList({ items }: NonEditableItemsListProps) {
   const theme = useTheme();
 
-  const activeItems = items.filter((item) => item.status === ItemStatus.Active);
+  const activeItems = items.filter(
+    (item) => item.status !== ItemStatus.Eliminated,
+  );
   const eliminatedItems = items.filter(
     (item) => item.status === ItemStatus.Eliminated,
   );
@@ -151,6 +153,7 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
           // if (item.eliminationType && item.eliminationType) {
           //   itemTitle = `${itemTitle} [${RoundTypeNames[item.eliminationType]} #${item.eliminationRound}]`;
           // }
+          const isProtected = item.status === ItemStatus.Protected;
           return (
             <Grid container columns={12} key={item.id}>
               <Grid item xs={10} width="inherit">
@@ -162,7 +165,10 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
                 >
                   {item.id}.
                   <Box width={10} />
-                  <Box color={theme.palette.success.main}>{itemTitle}</Box>
+                  <Box color={theme.palette.success.main} display="flex">
+                    {itemTitle}
+                    {isProtected && <Shield />}
+                  </Box>
                 </Box>
               </Grid>
               <Grid item xs={2} paddingLeft={1}>

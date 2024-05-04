@@ -10,6 +10,9 @@ import {
   TurnirState,
   RoundTypeNames,
   MusicType,
+  ClassicRoundTypes,
+  NewRoundTypes,
+  RoundTypeTooltip,
 } from "../types";
 import {
   Box,
@@ -28,7 +31,6 @@ import StartIcon from "@mui/icons-material/Start";
 import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
 import { MusicContext } from "../contexts/MusicContext";
 import Victory from "../components/Victory";
-import Wheel from "../components/Wheel";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ function TournirApp() {
   const [currentRoundType, setCurrentRoundType] = useState(
     RoundType.RandomElimination,
   );
+
+  const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
 
   const [items, setItems] = useState<Item[]>([]);
   const [turnirState, setTurnirState] = useState<TurnirState>(
@@ -56,19 +60,25 @@ function TournirApp() {
     Boolean(roundTypes.get(key)),
   );
 
+  const classicRounds = allRounds.filter((round) =>
+    ClassicRoundTypes.includes(round),
+  );
+  const newRounds = allRounds.filter((round) => NewRoundTypes.includes(round));
+
   useEffect(() => {
     setItems(
       Array(initialItems)
         .fill(0)
         .map((_, index) => createItem(toString(index + 1))),
     );
+    // eslint-disable-next-line
   }, []);
 
   const { setMusicPlaying, isMuted, setIsMuted } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter(
-    (item) => item.status === ItemStatus.Active,
+    (item) => item.status !== ItemStatus.Eliminated,
   );
 
   const addMoreItems = () => {
@@ -87,15 +97,17 @@ function TournirApp() {
   };
 
   const setNextRoundType = () => {
-    let nextRoundType = null;
-    if (noRoundRepeat && activeRounds.length > 1) {
-      const remainingRounds = activeRounds.filter(
-        (round) => round !== currentRoundType,
+    let roundOptions = activeRounds;
+    if (!protectionRoundEnabled) {
+      roundOptions = roundOptions.filter(
+        (round) => round !== RoundType.Protection,
       );
-      nextRoundType = sample(remainingRounds) as RoundType;
-    } else {
-      nextRoundType = sample(activeRounds) as RoundType;
     }
+    if (noRoundRepeat && roundOptions.length > 1) {
+      roundOptions = roundOptions.filter((round) => round !== currentRoundType);
+    }
+    const nextRoundType = sample(roundOptions) as RoundType;
+
     switch (nextRoundType) {
       case RoundType.StreamerChoice:
         setMusicPlaying(MusicType.Thinking);
@@ -117,25 +129,38 @@ function TournirApp() {
   };
 
   const onNextRoundClick = () => {
-    setRoundNumber(roundNumber + 1);
     setNextRoundType();
   };
 
   const onItemElimination = (id: string) => {
     const item = activeItems.find((item) => item.id === id);
     if (item) {
-      item.status = ItemStatus.Eliminated;
-      item.eliminationRound = roundNumber;
-      item.eliminationType = currentRoundType;
-      setItems([...items]);
-
-      if (activeItems.length === 2 && turnirState === TurnirState.Start) {
-        setTurnirState(TurnirState.Victory);
-        setMusicPlaying(MusicType.Victory);
-      } else {
-        setRoundNumber(roundNumber + 1);
+      if (item.status === ItemStatus.Protected) {
+        item.status = ItemStatus.Active;
         setNextRoundType();
+      } else {
+        item.status = ItemStatus.Eliminated;
+        item.eliminationRound = roundNumber;
+        item.eliminationType = currentRoundType;
+        setRoundNumber(roundNumber + 1);
+        if (activeItems.length === 2 && turnirState === TurnirState.Start) {
+          setTurnirState(TurnirState.Victory);
+          setMusicPlaying(MusicType.Victory);
+        } else {
+          setNextRoundType();
+        }
       }
+      setItems([...items]);
+    }
+  };
+
+  const onItemProtection = (id: string) => {
+    const item = activeItems.find((item) => item.id === id);
+    if (item) {
+      item.status = ItemStatus.Protected;
+      setProtectionRoundEnabled(false);
+      setItems([...items]);
+      setNextRoundType();
     }
   };
 
@@ -149,6 +174,7 @@ function TournirApp() {
     });
     setItems([...items]);
     setMusicPlaying(undefined);
+    setProtectionRoundEnabled(true);
   };
 
   const onRoundTypeClick = (roundType: RoundType) => {
@@ -249,10 +275,10 @@ function TournirApp() {
               </Tooltip>
             </Grid>
             <Grid item xs={1} paddingLeft={2}>
-              Раунды
+              Классические раунды
             </Grid>
 
-            {allRounds.map((roundType, index) => {
+            {classicRounds.map((roundType, index) => {
               return (
                 <Grid item key={index} xs={1} paddingLeft={2}>
                   <FormControlLabel
@@ -266,6 +292,30 @@ function TournirApp() {
                     }
                     label={RoundTypeNames[roundType]}
                   />
+                </Grid>
+              );
+            })}
+
+            <Grid item xs={1} paddingLeft={2}>
+              Новые раунды
+            </Grid>
+
+            {newRounds.map((roundType, index) => {
+              return (
+                <Grid item key={index} xs={1} paddingLeft={2}>
+                  <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          disabled={turnirState !== TurnirState.EditCandidates}
+                          checked={roundTypes.get(roundType)}
+                          style={{ paddingTop: 0, paddingBottom: 0 }}
+                          onChange={() => onRoundTypeClick(roundType)}
+                        />
+                      }
+                      label={RoundTypeNames[roundType]}
+                    />
+                  </Tooltip>
                 </Grid>
               );
             })}
@@ -336,6 +386,7 @@ function TournirApp() {
                 roundType={currentRoundType}
                 items={activeItems}
                 onItemElimination={onItemElimination}
+                onItemProtection={onItemProtection}
               />
             </div>
           )}

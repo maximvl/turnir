@@ -24,10 +24,15 @@ enum WheelState {
 
 type Props = {
   items: Item[];
-  onItemElimination: (index: string) => void;
+  onItemWinning: (index: string) => void;
+  winningButtonText?: string;
 };
 
-export default function Wheel({ items, onItemElimination }: Props) {
+export default function Wheel({
+  items,
+  onItemWinning,
+  winningButtonText = "Удалить",
+}: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
   const rotationRef = useRef<number>(0);
@@ -239,9 +244,9 @@ export default function Wheel({ items, onItemElimination }: Props) {
           sx={{ margin: 1 }}
           color="error"
           variant="outlined"
-          onClick={() => onItemElimination(currentItem.id)}
+          onClick={() => onItemWinning(currentItem.id)}
         >
-          Удалить
+          {winningButtonText}
         </Button>
       )}
       <div style={{ width: "100%", justifyContent: "center", display: "flex" }}>

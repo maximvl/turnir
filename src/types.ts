@@ -9,6 +9,7 @@ export type Item = {
 export enum ItemStatus {
   Active,
   Eliminated,
+  Protected,
 }
 
 export enum TurnirState {
@@ -24,18 +25,32 @@ export enum RoundType {
   RandomElimination = "RandomElimination",
   StreamerChoice = "StreamerChoice",
   ViewerChoice = "ViewerChoice",
+  Protection = "Protection",
+  StreamerVsRandom = "StreamerVsRandom",
 }
 
-export const RoundTypes = [
+export const ClassicRoundTypes = [
   RoundType.RandomElimination,
   RoundType.StreamerChoice,
   RoundType.ViewerChoice,
 ];
 
+export const NewRoundTypes = [RoundType.Protection, RoundType.StreamerVsRandom];
+
+export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
+
 export const RoundTypeNames = {
   [RoundType.RandomElimination]: "Случайное устранение",
   [RoundType.StreamerChoice]: "Выбор стримера",
   [RoundType.ViewerChoice]: "Выбор зрителей",
+  [RoundType.Protection]: "Защита кандидата",
+  [RoundType.StreamerVsRandom]: "Стример против рандома",
+};
+
+export const RoundTypeTooltip: { [key: string]: string } = {
+  [RoundType.Protection]:
+    "Случайный кандидат получает защиту от вылета на 1 раз",
+  [RoundType.StreamerVsRandom]: "Стример выбирает кто вылетит не видя варианты",
 };
 
 export const enum MusicType {
