@@ -88,7 +88,7 @@ function TournirApp() {
 
   const setNextRoundType = () => {
     let nextRoundType = null;
-    if (noRoundRepeat) {
+    if (noRoundRepeat && activeRounds.length > 1) {
       const remainingRounds = activeRounds.filter(
         (round) => round !== currentRoundType,
       );
