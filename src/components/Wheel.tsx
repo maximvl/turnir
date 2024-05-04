@@ -161,7 +161,8 @@ export default function Wheel({ items, onItemElimination }: Props) {
             speedRef.current += acceleration;
             if (speedRef.current >= fastestSpeed) {
               wheelState.current = WheelState.ConstantSpeed;
-              const randomTime = Math.random() * 3000 + 2000;
+              const randomTime =
+                Math.random() * 2000 + Math.random() * 2000 + 3000;
               setTimeout(() => {
                 wheelState.current = WheelState.Deceleration;
               }, randomTime);
