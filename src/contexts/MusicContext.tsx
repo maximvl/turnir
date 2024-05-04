@@ -68,10 +68,9 @@ export default function MusicContextProvider({
 
   const setMuted = (muted: boolean) => {
     setIsMuted(muted);
-    if (musicPlaying) {
-      const currentMusic = musicMap[musicPlaying];
-      if (currentMusic) {
-        currentMusic.muted = muted;
+    for (const music of Object.values(musicMap)) {
+      if (music) {
+        music.muted = muted;
       }
     }
   };
