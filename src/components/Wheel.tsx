@@ -66,7 +66,8 @@ export default function Wheel({ items, onItemElimination }: Props) {
   const amountOfItems = items.length;
 
   const size = 400;
-  const diameter = size;
+  const sizeOffset = 10;
+  const diameter = size - sizeOffset;
   const radius = diameter / 2;
   const centerX = diameter / 2;
   const centerY = diameter / 2;
@@ -109,6 +110,7 @@ export default function Wheel({ items, onItemElimination }: Props) {
     // console.log(canvas, context, rotation);
     if (context) {
       context.save();
+      context.translate(sizeOffset / 2, sizeOffset / 2);
       context.translate(centerX, centerY);
       context.rotate(rotation);
 
@@ -118,8 +120,10 @@ export default function Wheel({ items, onItemElimination }: Props) {
         const color = colors[i % colors.length];
 
         context.fillStyle = color;
-        context.strokeStyle = color;
         context.fill(piece);
+        context.strokeStyle = "white";
+        context.lineWidth = 2;
+        context.stroke(piece);
 
         context.save();
         context.rotate(angleHalf);
