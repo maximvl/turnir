@@ -18,7 +18,9 @@ export default function RoundTitle({
   if (roundType === RoundType.Protection) {
     return (
       <div>
-        <h3 style={{ marginTop: 0 }}>Раунд {RoundTypeNames[roundType]}</h3>
+        <h3 style={{ marginTop: 0 }}>
+          Бонусный раунд {RoundTypeNames[roundType]}
+        </h3>
       </div>
     );
   }
