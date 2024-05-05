@@ -5,6 +5,7 @@ import PollResults from "./PollResults";
 import { useQuery } from "react-query";
 import { fetchVotes, PollVote, resetVotes } from "../utils";
 import VotesLog from "./VotesLog";
+import { isEmpty } from "lodash";
 
 type Props = {
   items: Item[];
@@ -21,7 +22,6 @@ type ResetState = "started" | "finished";
 
 export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({});
-  const [voterIds, setVoterIds] = useState(new Set<number>());
   const [resetState, setResetState] = useState<ResetState>("started");
   const [voteMessages, setVoteMessages] = useState<PollVote[]>([]);
   const [startTs, setStartTs] = useState<number>(() =>
@@ -40,7 +40,6 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     setResetState("started");
     await resetVotes(items.map((item) => item.id));
     setVotesMap({});
-    setVoterIds(new Set<number>());
     setVoteMessages([]);
     setStartTs(Math.floor(Date.now() / 1000));
     setResetState("finished");
@@ -64,19 +63,18 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     return <div>Загрузка...</div>;
   }
 
-  if (votes?.poll_votes) {
+  if (!isEmpty(votes?.poll_votes) && votes?.poll_votes) {
     for (const vote of votes.poll_votes) {
-      if (voterIds.has(vote.user_id)) {
-        continue;
-      }
       const voteOption = vote.message;
       if (items.every((item) => item.id !== voteOption)) {
         continue;
       }
-      voterIds.add(vote.user_id);
-      setVoterIds(new Set(voterIds));
 
-      votesMap[vote.username] = voteOption;
+      if (votesMap[vote.user_id] === voteOption) {
+        continue;
+      }
+
+      votesMap[vote.user_id] = voteOption;
       setVotesMap({ ...votesMap });
       voteMessages.push(vote);
       setVoteMessages([...voteMessages]);
@@ -98,7 +96,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
       >
         <PollResults
           items={items}
-          votes={votesMap}
+          votes={Object.values(votesMap)}
           onItemElimination={onItemElimination}
         />
         <div style={{ marginTop: 20 }}>

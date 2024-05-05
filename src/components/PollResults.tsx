@@ -7,7 +7,7 @@ import { BorderLinearProgress } from "./BorderLinearProgress";
 type Props = {
   items: Item[];
   onItemElimination?: (index: string) => void;
-  votes: { [key: string]: string };
+  votes: string[];
 };
 
 export default function PollResults({
@@ -52,8 +52,7 @@ export default function PollResults({
     {} as { [key: string]: number },
   );
 
-  for (const vote in votes) {
-    const option = votes[vote];
+  for (const option of votes) {
     votesByOption[option] += 1;
   }
 
@@ -66,7 +65,7 @@ export default function PollResults({
     (key) => votesByOption[key] === maxVotes,
   );
 
-  const totalVotes = Object.values(votes).length;
+  const totalVotes = votes.length;
 
   const itemElement = (item: Item, selected: boolean) => {
     const color = selected ? "error" : "default";
@@ -96,6 +95,9 @@ export default function PollResults({
           Результаты голосования ({totalVotes}) {timePassed}
         </h2>
         <p>Голосуйте номером варианта в чате</p>
+        <p>
+          <u>Вы можете менять голос</u>, засчитывается самый последний
+        </p>
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
