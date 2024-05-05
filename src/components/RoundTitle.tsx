@@ -15,6 +15,14 @@ export default function RoundTitle({
 }: Props) {
   const isFinals = itemsLeft === 2;
 
+  if (roundType === RoundType.Protection) {
+    return (
+      <div>
+        <h3 style={{ marginTop: 0 }}>Раунд {RoundTypeNames[roundType]}</h3>
+      </div>
+    );
+  }
+
   if (isFinals) {
     return (
       <div>
