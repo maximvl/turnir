@@ -23,16 +23,20 @@ enum WheelState {
   Stop,
 }
 
+export type ButtonProps = React.ComponentProps<typeof Button> & {
+  selectedItemId: string;
+};
+
 type Props = {
   items: Item[];
   onItemWinning: (index: string) => void;
-  winningButtonText?: string;
+  ButtonComponent?: React.ComponentType<ButtonProps>;
 };
 
 export default function Wheel({
   items,
   onItemWinning,
-  winningButtonText = "Удалить",
+  ButtonComponent,
 }: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
@@ -84,7 +88,6 @@ export default function Wheel({
   );
 
   useEffect(() => {
-    // console.log("trigger 1");
     rotationRef.current = 0;
     speedRef.current = 0;
     wheelState.current = WheelState.Start;
@@ -92,7 +95,7 @@ export default function Wheel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
-  const currentItem = items[currentItemIndex];
+  const currentItem: Item | undefined = items[currentItemIndex];
 
   const piece = new Path2D();
   piece.moveTo(0, 0);
@@ -186,7 +189,7 @@ export default function Wheel({
             }
             speedRef.current -= deceleration;
             if (speedRef.current <= slowestSpeed) {
-              console.log(speedRef.current, slowestSpeed, deceleration);
+              // console.log(speedRef.current, slowestSpeed, deceleration);
               setIsFinished(true);
               speedRef.current = 0;
               wheelState.current = WheelState.Stop;
@@ -203,12 +206,14 @@ export default function Wheel({
         timeRef.current = time;
         const newSelectedIndex = getSelectedItemId(rotationRef.current);
         setCurrentItemIndex((old: number) => {
+          // console.log("new index", newSelectedIndex);
           if (newSelectedIndex !== old) {
             //console.log(rotationPiece % pieces);
             // console.log("setting new index", newSelectedIndex, old);
             return newSelectedIndex;
           }
           return old;
+          // return newSelectedIndex;
         });
       }
     } else {
@@ -245,7 +250,27 @@ export default function Wheel({
     onItemWinning(currentItem.id);
   };
 
-  const currentItemProtected = currentItem.status === ItemStatus.Protected;
+  // if (currentItem === undefined) {
+  //   console.log("undefined!", currentItemIndex);
+  //   console.log(items);
+  // }
+  const currentItemProtected = currentItem?.status === ItemStatus.Protected;
+
+  const defaultButtonProps: ButtonProps = {
+    sx: { margin: 1 },
+    color: "error",
+    variant: "outlined",
+    onClick: onClick,
+    selectedItemId: currentItem?.id || "0",
+  };
+
+  const DefaultButton = ({ selectedItemId, ...props }: ButtonProps) => (
+    <Button {...props}>
+      {currentItemProtected ? "Снять защиту" : "Удалить"}
+    </Button>
+  );
+
+  const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
 
   return (
     <Box justifyContent={"center"}>
@@ -255,16 +280,7 @@ export default function Wheel({
           {currentItemProtected && <Shield sx={{ marginLeft: 1 }} />}
         </Box>
       ) : null}
-      {isFinished && (
-        <Button
-          sx={{ margin: 1 }}
-          color="error"
-          variant="outlined"
-          onClick={onClick}
-        >
-          {winningButtonText}
-        </Button>
-      )}
+      {isFinished && <FinalButton {...defaultButtonProps} />}
       <div style={{ width: "100%", justifyContent: "center", display: "flex" }}>
         <div
           style={{
