@@ -35,7 +35,10 @@ export const ClassicRoundTypes = [
   RoundType.ViewerChoice,
 ];
 
-export const NewRoundTypes = [RoundType.Protection, RoundType.StreamerVsRandom];
+export const NewRoundTypes = [
+  RoundType.Protection,
+  // RoundType.StreamerVsRandom
+];
 
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
 

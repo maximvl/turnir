@@ -1,4 +1,4 @@
-import { Shield } from "@mui/icons-material";
+import { OpenInNewOutlined, Shield } from "@mui/icons-material";
 import {
   Box,
   Button,
