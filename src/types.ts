@@ -52,7 +52,7 @@ export const RoundTypeNames = {
 
 export const RoundTypeTooltip: { [key: string]: string } = {
   [RoundType.Protection]:
-    "Случайный вариант получает защиту от вылета на 1 раз",
+    "Один раз за турнир случайный вариант получает разовую защиту от вылета",
   [RoundType.StreamerVsRandom]: "Стример выбирает кто вылетит не видя варианты",
   [RoundType.RandomElimination]: "Выбывает случайный вариант",
   [RoundType.StreamerChoice]: "Стример выбирает кто вылетит",
