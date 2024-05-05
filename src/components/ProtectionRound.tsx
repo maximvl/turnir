@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { Shield } from "@mui/icons-material";
 import { Item } from "../types";
-import Wheel, { ButtonProps } from "./Wheel";
+import Wheel from "./Wheel";
 
 type Props = {
   items: Item[];
@@ -10,19 +10,11 @@ type Props = {
 
 export default function ProtectionRound({ items, onItemProtection }: Props) {
   const ProtectButton = ({
-    selectedItemId,
-    onClick,
     children,
     ...props
-  }: ButtonProps) => {
-    const onClickWrapper = (evt: React.MouseEvent<HTMLButtonElement>) => {
-      onClick?.(evt);
-      if (selectedItemId) {
-        onItemProtection(selectedItemId);
-      }
-    };
+  }: React.ComponentProps<typeof Button>): React.ReactElement => {
     return (
-      <Button {...props} color="success" onClick={onClickWrapper}>
+      <Button {...props} color="success">
         Защитить <Shield sx={{ marginLeft: 1 }} />
       </Button>
     );

@@ -37,7 +37,7 @@ const queryClient = new QueryClient();
 function TournirApp() {
   const increaseAmount = 10;
   const initialItems = 10;
-  const [roundNumber, setRoundNumber] = useState(1);
+  const [roundNumber, setRoundNumber] = useState(0);
   const [currentRoundType, setCurrentRoundType] = useState(
     RoundType.RandomElimination,
   );
@@ -103,7 +103,7 @@ function TournirApp() {
         (round) => round !== RoundType.Protection,
       );
     }
-    if (noRoundRepeat && roundOptions.length > 1) {
+    if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
     }
     const nextRoundType = sample(roundOptions) as RoundType;
@@ -125,6 +125,7 @@ function TournirApp() {
   const startTurnir = () => {
     setTurnirState(TurnirState.Start);
     setItems([...nonEmptyItems]);
+    setRoundNumber(1);
     setNextRoundType();
   };
 

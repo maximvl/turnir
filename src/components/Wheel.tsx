@@ -23,14 +23,10 @@ enum WheelState {
   Stop,
 }
 
-export type ButtonProps = React.ComponentProps<typeof Button> & {
-  selectedItemId: string;
-};
-
 type Props = {
   items: Item[];
   onItemWinning: (index: string) => void;
-  ButtonComponent?: React.ComponentType<ButtonProps>;
+  ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element;
 };
 
 export default function Wheel({
@@ -256,15 +252,14 @@ export default function Wheel({
   // }
   const currentItemProtected = currentItem?.status === ItemStatus.Protected;
 
-  const defaultButtonProps: ButtonProps = {
+  const defaultButtonProps: React.ComponentProps<typeof Button> = {
     sx: { margin: 1 },
     color: "error",
     variant: "outlined",
     onClick: onClick,
-    selectedItemId: currentItem?.id || "0",
   };
 
-  const DefaultButton = ({ selectedItemId, ...props }: ButtonProps) => (
+  const DefaultButton = (props: React.ComponentProps<typeof Button>) => (
     <Button {...props}>
       {currentItemProtected ? "Снять защиту" : "Удалить"}
     </Button>
