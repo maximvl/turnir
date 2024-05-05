@@ -1,3 +1,4 @@
+import { Shield } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import {
   blue,
@@ -12,7 +13,7 @@ import {
 } from "@mui/material/colors";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MusicContext } from "../contexts/MusicContext";
-import { Item, MusicType } from "../types";
+import { Item, ItemStatus, MusicType } from "../types";
 
 enum WheelState {
   Start,
@@ -48,13 +49,6 @@ export default function Wheel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFinished]);
 
-  useEffect(() => {
-    rotationRef.current = 0;
-    speedRef.current = 0;
-    wheelState.current = WheelState.Start;
-    setIsFinished(false);
-  }, [items.length]);
-
   const { setMusicPlaying } = useContext(MusicContext);
 
   const slowestSpeed = 0.00009;
@@ -88,6 +82,15 @@ export default function Wheel({
   const [currentItemIndex, setCurrentItemIndex] = useState<number>(() =>
     getSelectedItemId(rotationRef.current),
   );
+
+  useEffect(() => {
+    // console.log("trigger 1");
+    rotationRef.current = 0;
+    speedRef.current = 0;
+    wheelState.current = WheelState.Start;
+    setIsFinished(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   const currentItem = items[currentItemIndex];
 
@@ -167,7 +170,7 @@ export default function Wheel({
             if (speedRef.current >= fastestSpeed) {
               wheelState.current = WheelState.ConstantSpeed;
               const randomTime =
-                Math.random() * 2000 + Math.random() * 2000 + 3000;
+                Math.random() * 2000 + Math.random() * 1000 + 2500;
               setTimeout(() => {
                 wheelState.current = WheelState.Deceleration;
               }, randomTime);
@@ -234,17 +237,30 @@ export default function Wheel({
     }
   };
 
+  const onClick = () => {
+    setIsFinished(false);
+    rotationRef.current = 0;
+    speedRef.current = 0;
+    wheelState.current = WheelState.Start;
+    onItemWinning(currentItem.id);
+  };
+
+  const currentItemProtected = currentItem.status === ItemStatus.Protected;
+
   return (
     <Box justifyContent={"center"}>
       {currentItem ? (
-        <h2 style={{ marginBottom: 0 }}>{currentItem.title}</h2>
+        <Box alignItems={"center"} display="flex" justifyContent={"center"}>
+          <h2 style={{ margin: 0 }}>{currentItem.title}</h2>
+          {currentItemProtected && <Shield sx={{ marginLeft: 1 }} />}
+        </Box>
       ) : null}
       {isFinished && (
         <Button
           sx={{ margin: 1 }}
           color="error"
           variant="outlined"
-          onClick={() => onItemWinning(currentItem.id)}
+          onClick={onClick}
         >
           {winningButtonText}
         </Button>

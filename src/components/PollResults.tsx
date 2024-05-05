@@ -1,6 +1,7 @@
+import { Shield } from "@mui/icons-material";
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Item } from "../types";
+import { Item, ItemStatus } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
 type Props = {
@@ -68,13 +69,19 @@ export default function PollResults({
   const totalVotes = Object.values(votes).length;
 
   const itemElement = (item: Item, selected: boolean) => {
-    const color = selected ? "error" : "info";
+    const color = selected ? "error" : "default";
     const onClick = selected ? onItemClick : () => {};
     const style = selected ? highlightStyle : {};
+    const isProtected = item.status === ItemStatus.Protected;
     return (
       <Chip
         avatar={<Avatar>{item.id}</Avatar>}
-        label={item.title}
+        label={
+          <Box display="flex" alignItems={"center"}>
+            {item.title}
+            {isProtected && <Shield sx={{ marginLeft: 1 }} />}
+          </Box>
+        }
         color={color}
         sx={style}
         onClick={() => onClick(item.id)}

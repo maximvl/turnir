@@ -274,6 +274,11 @@ function TournirApp() {
                 />
               </Tooltip>
             </Grid>
+
+            <Grid item xs={1}>
+              <Divider style={{ width: "inherit" }} />
+            </Grid>
+
             <Grid item xs={1} paddingLeft={2}>
               Классические раунды
             </Grid>
@@ -281,20 +286,26 @@ function TournirApp() {
             {classicRounds.map((roundType, index) => {
               return (
                 <Grid item key={index} xs={1} paddingLeft={2}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        disabled={turnirState !== TurnirState.EditCandidates}
-                        checked={roundTypes.get(roundType)}
-                        style={{ paddingTop: 0, paddingBottom: 0 }}
-                        onChange={() => onRoundTypeClick(roundType)}
-                      />
-                    }
-                    label={RoundTypeNames[roundType]}
-                  />
+                  <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          disabled={turnirState !== TurnirState.EditCandidates}
+                          checked={roundTypes.get(roundType)}
+                          style={{ paddingTop: 0, paddingBottom: 0 }}
+                          onChange={() => onRoundTypeClick(roundType)}
+                        />
+                      }
+                      label={RoundTypeNames[roundType]}
+                    />
+                  </Tooltip>
                 </Grid>
               );
             })}
+
+            <Grid item xs={1}>
+              <Divider style={{ width: "inherit" }} />
+            </Grid>
 
             <Grid item xs={1} paddingLeft={2}>
               Новые раунды

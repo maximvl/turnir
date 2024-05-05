@@ -46,14 +46,17 @@ export const RoundTypeNames = {
   [RoundType.RandomElimination]: "Случайное устранение",
   [RoundType.StreamerChoice]: "Выбор стримера",
   [RoundType.ViewerChoice]: "Выбор зрителей",
-  [RoundType.Protection]: "Защита кандидата",
+  [RoundType.Protection]: "Защитный",
   [RoundType.StreamerVsRandom]: "Стример против рандома",
 };
 
 export const RoundTypeTooltip: { [key: string]: string } = {
   [RoundType.Protection]:
-    "Случайный кандидат получает защиту от вылета на 1 раз",
+    "Случайный вариант получает защиту от вылета на 1 раз",
   [RoundType.StreamerVsRandom]: "Стример выбирает кто вылетит не видя варианты",
+  [RoundType.RandomElimination]: "Выбывает случайный вариант",
+  [RoundType.StreamerChoice]: "Стример выбирает кто вылетит",
+  [RoundType.ViewerChoice]: "Зрители выбирают кто вылетит",
 };
 
 export const enum MusicType {

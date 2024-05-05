@@ -167,7 +167,7 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
                   <Box width={10} />
                   <Box color={theme.palette.success.main} display="flex">
                     {itemTitle}
-                    {isProtected && <Shield />}
+                    {isProtected && <Shield sx={{ marginLeft: 1 }} />}
                   </Box>
                 </Box>
               </Grid>

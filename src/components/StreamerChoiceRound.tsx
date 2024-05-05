@@ -1,5 +1,5 @@
 import { Shield } from "@mui/icons-material";
-import { Avatar, Box, Button, Chip, Grid, useTheme } from "@mui/material";
+import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { Item, ItemStatus } from "../types";
 
 type Props = {
@@ -28,7 +28,7 @@ export default function StreamerChoiceRound({
         label={
           <Box display="flex" alignItems={"center"}>
             {item.title}
-            {isProtected && <Shield />}
+            {isProtected && <Shield sx={{ marginLeft: 1 }} />}
           </Box>
         }
         sx={highlightStyle}
