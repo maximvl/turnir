@@ -1,5 +1,6 @@
 import { Shield } from "@mui/icons-material";
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
+import { teal } from "@mui/material/colors";
 import { useEffect, useState } from "react";
 import { Item, ItemStatus } from "../types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
@@ -31,12 +32,6 @@ export default function PollResults({
   const secondsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
   const minutesString = minutes < 10 ? `0${minutes}` : `${minutes}`;
   const timePassed = `${minutesString}:${secondsString}`;
-
-  const highlightStyle = {
-    "&:hover": {
-      textDecoration: "line-through",
-    },
-  };
 
   const onItemClick = (index: string) => {
     if (onItemElimination) {
@@ -70,11 +65,10 @@ export default function PollResults({
   const itemElement = (item: Item, selected: boolean) => {
     const color = selected ? "error" : "default";
     const onClick = selected ? onItemClick : () => {};
-    const style = selected ? highlightStyle : {};
     const isProtected = item.status === ItemStatus.Protected;
     return (
       <Chip
-        avatar={<Avatar>{item.id}</Avatar>}
+        avatar={<Avatar sx={{ backgroundColor: teal[700] }}>{item.id}</Avatar>}
         label={
           <Box display="flex" alignItems={"center"}>
             {item.title}
@@ -82,7 +76,6 @@ export default function PollResults({
           </Box>
         }
         color={color}
-        sx={style}
         onClick={() => onClick(item.id)}
       />
     );

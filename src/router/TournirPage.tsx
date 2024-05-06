@@ -277,8 +277,7 @@ function TournirApp() {
                 min={0}
                 max={1}
                 step={0.01}
-                onChange={(evt, value) => {
-                  console.log(value);
+                onChange={(_evt, value) => {
                   setVolume(value as number);
                 }}
                 sx={{ marginRight: 2 }}

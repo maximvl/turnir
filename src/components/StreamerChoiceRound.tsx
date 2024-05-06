@@ -1,10 +1,24 @@
 import { Shield } from "@mui/icons-material";
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
-import { Item, ItemStatus } from "../types";
+import { teal } from "@mui/material/colors";
+import { isNull } from "lodash";
+import { useContext, useEffect, useReducer, useState } from "react";
+import { MusicContext } from "../contexts/MusicContext";
+import { Item, ItemStatus, MusicType } from "../types";
 
 type Props = {
   items: Item[];
   onItemElimination: (index: string) => void;
+};
+
+const selectionReducer = (
+  state: string | null,
+  value: string | null,
+): string | null => {
+  if (!isNull(state) && !isNull(value)) {
+    return state;
+  }
+  return value;
 };
 
 export default function StreamerChoiceRound({
@@ -12,27 +26,74 @@ export default function StreamerChoiceRound({
   onItemElimination,
 }: Props) {
   const theme = useTheme();
+  const { setMusicPlaying } = useContext(MusicContext);
+
+  const [selectedItemId, selectionDispatch] = useReducer(
+    selectionReducer,
+    null,
+  );
+
+  const [blinking, setBlinking] = useState(false);
+
+  useEffect(() => {
+    if (selectedItemId) {
+      const failureEvent = Math.random() > 0.0;
+      if (failureEvent) {
+        setBlinking(true);
+        setMusicPlaying(MusicType.WrongAnswer);
+        setTimeout(() => {
+          selectionDispatch(null);
+          setBlinking(false);
+          onItemElimination(selectedItemId);
+        }, 2000);
+      } else {
+        selectionDispatch(null);
+        onItemElimination(selectedItemId);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedItemId]);
 
   const highlightStyle = {
     "&:hover": {
       backgroundColor: theme.palette.error.light,
-      textDecoration: "line-through",
+      //textDecoration: "line-through",
     },
+  };
+
+  const selectedHighlight = {
+    backgroundColor: theme.palette.error.light,
+    "&:hover": {
+      backgroundColor: theme.palette.error.light,
+    },
+  };
+
+  const onSelectItem = (id: string) => {
+    selectionDispatch(id);
   };
 
   const itemElement = (item: Item) => {
     const isProtected = item.status === ItemStatus.Protected;
+    const isSelected = selectedItemId === item.id;
+    let style = {};
+    if (isSelected) {
+      style = selectedHighlight;
+    } else if (isNull(selectedItemId)) {
+      style = highlightStyle;
+    }
+
     return (
       <Chip
-        avatar={<Avatar>{item.id}</Avatar>}
+        avatar={<Avatar sx={{ backgroundColor: teal[700] }}>{item.id}</Avatar>}
         label={
           <Box display="flex" alignItems={"center"}>
             {item.title}
             {isProtected && <Shield sx={{ marginLeft: 1 }} />}
           </Box>
         }
-        sx={highlightStyle}
-        onClick={() => onItemElimination(item.id)}
+        sx={style}
+        className={blinking && isSelected ? "blinking" : ""}
+        onClick={() => onSelectItem(item.id)}
       />
     );
   };
