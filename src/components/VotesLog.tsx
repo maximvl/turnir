@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { Item } from "../types";
 import { PollVote } from "../utils";
 
@@ -11,25 +11,36 @@ type Props = {
 export default function VotesLog({ votes, items }: Props) {
   // console.log("votes", votes);
   const scrollableRef = useRef<HTMLDivElement>(null);
+  const automaticScroll = useRef(true);
+  const lastScrollTime = useRef<number>(new Date().getTime());
 
-  useLayoutEffect(() => {
+  const scrollToBottom = () => {
     const scrollableElement = scrollableRef?.current;
     if (scrollableElement) {
-      let isScrollAtBottom = false;
+      scrollableElement.scrollTop = scrollableElement.scrollHeight;
+    }
+  };
 
-      const margin = 50;
-      if (
-        scrollableElement.scrollTop + margin >
-        scrollableElement.scrollHeight - scrollableElement.offsetHeight
-      ) {
-        isScrollAtBottom = true;
-      } else {
-        isScrollAtBottom = false;
-      }
+  useEffect(() => {
+    const time = new Date().getTime();
+    if (automaticScroll.current || time - lastScrollTime.current > 6000) {
+      automaticScroll.current = true;
+      scrollToBottom();
+    }
+  }, [votes.length]);
 
-      if (isScrollAtBottom) {
-        scrollableElement.scrollTop = scrollableElement.scrollHeight;
-      }
+  const onScroll = (event: React.UIEvent) => {
+    const time = new Date().getTime();
+    const timeDiff = time - lastScrollTime.current;
+    if (timeDiff < 1000) {
+      automaticScroll.current = false;
+    }
+    lastScrollTime.current = time;
+  };
+
+  useLayoutEffect(() => {
+    if (automaticScroll.current) {
+      scrollToBottom();
     }
   }, [scrollableRef, votes.length]);
 
@@ -46,15 +57,17 @@ export default function VotesLog({ votes, items }: Props) {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
-    return `${hours}:${minutes}:${seconds}`;
+    const pad = (num: number) => (num < 10 ? `0${num}` : num);
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   };
 
   return (
     <div>
       Лог голосования
       <Box
-        sx={{ border: "1px solid", m: 1, overflow: "auto", height: "300px" }}
+        sx={{ border: "1px solid", m: 1, overflow: "scroll", height: "300px" }}
         ref={scrollableRef}
+        onScroll={onScroll}
       >
         {votes.map((vote, index) => (
           <Box
