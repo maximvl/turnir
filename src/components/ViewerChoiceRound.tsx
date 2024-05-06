@@ -16,7 +16,7 @@ type VotesDict = {
   [key: string]: string;
 };
 
-const VOTES_REFETCH_INTERVAL = 3000;
+const VOTES_REFETCH_INTERVAL = 2000;
 
 type ResetState = "started" | "finished";
 
