@@ -47,11 +47,16 @@ export default function MusicContextProvider({
     MusicTypeIds[MusicType.RickRoll],
   ) as HTMLAudioElement | null;
 
+  const wrongAnswerMusic = document.getElementById(
+    MusicTypeIds[MusicType.WrongAnswer],
+  ) as HTMLAudioElement | null;
+
   const musicMap = {
     [MusicType.Wheel]: wheelMusic,
     [MusicType.Victory]: victoryMusic,
     [MusicType.Thinking]: thinkingMusic,
     [MusicType.RickRoll]: rickRollMusic,
+    [MusicType.WrongAnswer]: wrongAnswerMusic,
   };
 
   const startMusic = (music?: MusicType) => {

@@ -64,6 +64,7 @@ export const enum MusicType {
   Victory = "Victory",
   Thinking = "Thinking",
   RickRoll = "RickRoll",
+  WrongAnswer = "WrongAnswer",
 }
 
 export const MusicTypeIds = {
@@ -71,4 +72,5 @@ export const MusicTypeIds = {
   [MusicType.Victory]: "victory-music",
   [MusicType.Thinking]: "thinking-music",
   [MusicType.RickRoll]: "rickroll-music",
+  [MusicType.WrongAnswer]: "wrong-answer-music",
 };
