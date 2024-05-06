@@ -37,7 +37,7 @@ export default function StreamerChoiceRound({
 
   useEffect(() => {
     if (selectedItemId) {
-      const failureEvent = Math.random() > 0.0;
+      const failureEvent = Math.random() > 0.7;
       if (failureEvent) {
         setBlinking(true);
         setMusicPlaying(MusicType.WrongAnswer);
