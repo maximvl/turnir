@@ -1,36 +1,37 @@
-import React, { useContext, useEffect, useState } from "react";
-import "../App.css";
-import ItemsList from "../components/ItemsList";
-import Button from "@mui/material/Button";
-import {
-  Item,
-  ItemStatus,
-  RoundType,
-  RoundTypes,
-  TurnirState,
-  RoundTypeNames,
-  MusicType,
-  ClassicRoundTypes,
-  NewRoundTypes,
-  RoundTypeTooltip,
-} from "../types";
+import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
+import StartIcon from "@mui/icons-material/Start";
 import {
   Box,
   Checkbox,
   Divider,
   FormControlLabel,
   Grid,
+  Slider,
   Tooltip,
 } from "@mui/material";
-import { isEmpty, sample, filter, toString } from "lodash";
-import { createItem } from "../utils";
-import RoundTitle from "../components/RoundTitle";
-import RoundContent from "../components/RoundContent";
+import Button from "@mui/material/Button";
+import { filter, isEmpty, sample, toString } from "lodash";
+import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import StartIcon from "@mui/icons-material/Start";
-import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
-import { MusicContext } from "../contexts/MusicContext";
+import "../App.css";
+import ItemsList from "../components/ItemsList";
+import RoundContent from "../components/RoundContent";
+import RoundTitle from "../components/RoundTitle";
 import Victory from "../components/Victory";
+import { MusicContext } from "../contexts/MusicContext";
+import {
+  ClassicRoundTypes,
+  Item,
+  ItemStatus,
+  MusicType,
+  NewRoundTypes,
+  RoundType,
+  RoundTypeNames,
+  RoundTypes,
+  RoundTypeTooltip,
+  TurnirState,
+} from "../types";
+import { createItem } from "../utils";
 
 const queryClient = new QueryClient();
 
@@ -74,7 +75,8 @@ function TournirApp() {
     // eslint-disable-next-line
   }, []);
 
-  const { setMusicPlaying, isMuted, setIsMuted } = useContext(MusicContext);
+  const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } =
+    useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter(
@@ -255,10 +257,32 @@ function TournirApp() {
           }}
         >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
-            <Grid item xs={1} paddingLeft={2}>
-              <Button variant="outlined" onClick={() => setIsMuted(!isMuted)}>
+            <Grid
+              item
+              xs={1}
+              paddingLeft={2}
+              display="flex"
+              alignItems={"center"}
+            >
+              <Button
+                variant="outlined"
+                onClick={() => setIsMuted(!isMuted)}
+                sx={{ marginRight: 2 }}
+              >
                 {isMuted ? <VolumeOff /> : <VolumeUp />}
               </Button>
+              <Slider
+                aria-label="Volume"
+                value={volume}
+                min={0}
+                max={1}
+                step={0.01}
+                onChange={(evt, value) => {
+                  console.log(value);
+                  setVolume(value as number);
+                }}
+                sx={{ marginRight: 2 }}
+              />
             </Grid>
             <Grid item xs={1} paddingLeft={2}>
               <Tooltip title="Один и тот же раунд не будет повторяться подряд">
