@@ -36,6 +36,8 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     refetchInterval: VOTES_REFETCH_INTERVAL,
   });
 
+  // console.log("votes", votes);
+
   const resetPoll = async () => {
     setResetState("started");
     await resetVotes(items.map((item) => item.id));
@@ -64,20 +66,34 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   }
 
   if (!isEmpty(votes?.poll_votes) && votes?.poll_votes) {
-    for (const vote of votes.poll_votes) {
-      const voteOption = vote.message;
-      if (items.every((item) => item.id !== voteOption)) {
+    // todo remove duplicates votes for same user id
+    // use only the latest one
+    const votesSorted = votes.poll_votes.sort((a, b) => {
+      return a.ts - b.ts;
+    });
+    const votesPerUser: { [key: number]: PollVote } = {};
+
+    const itemIds = new Set(items.map((item) => item.id));
+    for (const vote of votesSorted) {
+      if (!itemIds.has(vote.message)) {
         continue;
       }
+      votesPerUser[vote.user_id] = vote;
+    }
 
-      if (votesMap[vote.user_id] === voteOption) {
-        continue;
-      }
+    const newVotes = Object.values(votesPerUser).filter((vote) => {
+      return vote.message !== votesMap[vote.user_id];
+    });
 
-      votesMap[vote.user_id] = voteOption;
-      setVotesMap({ ...votesMap });
-      voteMessages.push(vote);
-      setVoteMessages([...voteMessages]);
+    // console.log("update:", newVotes);
+    if (!isEmpty(newVotes)) {
+      const newVotesMap = newVotes.reduce((acc, vote) => {
+        acc[vote.user_id] = vote.message;
+        return acc;
+      }, {} as VotesDict);
+
+      setVotesMap({ ...votesMap, ...newVotesMap });
+      setVoteMessages([...voteMessages, ...newVotes]);
     }
   }
 
