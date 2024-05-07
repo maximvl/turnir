@@ -1,4 +1,5 @@
-import { createContext, useState } from "react";
+import { isEmpty, isNil } from "lodash";
+import { createContext, useEffect, useState } from "react";
 import { MusicType, MusicTypeIds } from "../types";
 
 export type MusicContextType = {
@@ -29,7 +30,17 @@ export default function MusicContextProvider({
   );
 
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(1);
+
+  const volumeKey = "volume";
+  const getStoredVolume = () => {
+    const storedVolume = localStorage.getItem(volumeKey);
+    if (!isNil(storedVolume)) {
+      return parseFloat(storedVolume) || 1;
+    }
+    return 1;
+  };
+
+  const [volume, setVolume] = useState(getStoredVolume());
 
   const wheelMusic = document.getElementById(
     MusicTypeIds[MusicType.Wheel],
@@ -87,6 +98,7 @@ export default function MusicContextProvider({
 
   const updateVolume = (newVolume: number) => {
     setVolume(newVolume);
+    localStorage.setItem(volumeKey, newVolume.toString());
     for (const music of Object.values(musicMap)) {
       if (music) {
         music.volume = newVolume;
