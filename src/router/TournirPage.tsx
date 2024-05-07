@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import "../App.css";
 import ItemsList from "../components/ItemsList";
+import ReleaseNotes from "../components/ReleaseNotes";
 import RoundContent from "../components/RoundContent";
 import RoundTitle from "../components/RoundTitle";
 import Victory from "../components/Victory";
@@ -191,6 +192,17 @@ function TournirApp() {
     <QueryClientProvider client={queryClient}>
       <div className="app">
         <Box
+          sx={{
+            textAlign: "left",
+            float: "left",
+            position: "absolute",
+            paddingLeft: 6,
+            paddingTop: 3,
+          }}
+        >
+          <ReleaseNotes />
+        </Box>
+        <Box
           display="flex"
           justifyContent="center"
           alignItems="center"
@@ -198,9 +210,10 @@ function TournirApp() {
             fontWeight: "bold",
             fontSize: "2em",
             margin: 20,
+            textAlign: "center",
           }}
         >
-          Турнир
+          <Box>Турнир</Box>
         </Box>
       </div>
       <Grid
