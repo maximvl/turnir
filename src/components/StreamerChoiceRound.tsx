@@ -45,7 +45,7 @@ export default function StreamerChoiceRound({
           selectionDispatch(null);
           setBlinking(false);
           onItemElimination(selectedItemId);
-        }, 2000);
+        }, 2500);
       } else {
         selectionDispatch(null);
         onItemElimination(selectedItemId);
