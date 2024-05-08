@@ -19,11 +19,9 @@ const releaseNotesData: ReleaseNote[] = [
     version: "1.1",
     date: "2024-03-07",
     changes: [
-      "Пофикшен редкий краш голосования пользователей",
+      "Пофикшен редкий краш голосования чата",
       "Выровнен уровень громкости музыки",
       "Добавлен слайдер громкости",
-      "Добавлена музыка случайных событий",
-      "Улучшено отображение вариантов голосования",
       "Улучшена автопрокрутка лога голосования",
     ],
   },
@@ -31,7 +29,8 @@ const releaseNotesData: ReleaseNote[] = [
     version: "1.0",
     date: "2024-03-01",
     changes: [
-      "Добавлено колесов рандома",
+      "Темная тема по-умолчанию",
+      "Добавлено колесо рандома",
       "Добавлена музыка для разных раундов",
       "Улучшено голосование зрителей",
       "Новый экран победы",
@@ -68,7 +67,7 @@ export default function ReleaseNotes() {
         fullWidth
       >
         <DialogTitle>Что нового</DialogTitle>
-        <DialogContent>
+        <DialogContent dividers>
           {releaseNotesData.map((releaseNote) => {
             return (
               <div key={releaseNote.version}>
