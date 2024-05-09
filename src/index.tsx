@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import TournirPage from "./router/TournirPage";
 import reportWebVitals from "./reportWebVitals";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import MusicContextProvider from "./contexts/MusicContext";
 
@@ -11,9 +11,15 @@ const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
 
-const router = createHashRouter([
+const baseURL = process.env.PUBLIC_URL || "/turnir";
+
+const router = createBrowserRouter([
   {
-    path: "/",
+    path: `${baseURL}/`,
+    element: <TournirPage />,
+  },
+  {
+    path: `${baseURL}/:id`,
     element: <TournirPage />,
   },
 ]);

@@ -1,5 +1,5 @@
-import { isEmpty, isNil } from "lodash";
-import { createContext, useEffect, useState } from "react";
+import { isNil } from "lodash";
+import { createContext, useState } from "react";
 import { MusicType, MusicTypeIds } from "../types";
 
 export type MusicContextType = {

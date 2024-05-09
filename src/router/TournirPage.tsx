@@ -13,11 +13,13 @@ import Button from "@mui/material/Button";
 import { filter, isEmpty, sample, toString } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { useParams } from "react-router";
 import "../App.css";
 import ItemsList from "../components/ItemsList";
 import ReleaseNotes from "../components/ReleaseNotes";
 import RoundContent from "../components/RoundContent";
 import RoundTitle from "../components/RoundTitle";
+import SavePreset from "../components/SavePreset";
 import Victory from "../components/Victory";
 import { MusicContext } from "../contexts/MusicContext";
 import {
@@ -32,7 +34,7 @@ import {
   RoundTypeTooltip,
   TurnirState,
 } from "../types";
-import { createItem } from "../utils";
+import { createItem, fetchPreset } from "../utils";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,23 @@ function TournirApp() {
   const [currentRoundType, setCurrentRoundType] = useState(
     RoundType.RandomElimination,
   );
+
+  const [title, setTitle] = useState("");
+
+  const { id: presetId } = useParams();
+  const loadPreset = async (presetId: string) => {
+    const preset = await fetchPreset(presetId);
+    if ("error" in preset) {
+      setTitle("Error loading preset");
+      return;
+    }
+    setItems(
+      preset.options.map((title, index) =>
+        createItem((index + 1).toString(), title),
+      ),
+    );
+    setTitle(preset.title);
+  };
 
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
 
@@ -68,13 +87,17 @@ function TournirApp() {
   const newRounds = allRounds.filter((round) => NewRoundTypes.includes(round));
 
   useEffect(() => {
-    setItems(
-      Array(initialItems)
-        .fill(0)
-        .map((_, index) => createItem(toString(index + 1))),
-    );
+    if (presetId) {
+      loadPreset(presetId);
+    } else {
+      setItems(
+        Array(initialItems)
+          .fill(0)
+          .map((_, index) => createItem(toString(index + 1))),
+      );
+    }
     // eslint-disable-next-line
-  }, []);
+  }, [presetId]);
 
   const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } =
     useContext(MusicContext);
@@ -213,7 +236,7 @@ function TournirApp() {
             textAlign: "center",
           }}
         >
-          <Box>Турнир</Box>
+          <Box>{title ? `Турнир: ${title}` : "Турнир"}</Box>
         </Box>
       </div>
       <Grid
@@ -251,6 +274,9 @@ function TournirApp() {
                 <Button variant="contained" onClick={addMoreItems}>
                   Добавить слотов
                 </Button>
+                <Box component="span" sx={{ marginLeft: 2 }}>
+                  <SavePreset items={activeItems} title={title} />
+                </Box>
               </Grid>
             )}
           </Grid>

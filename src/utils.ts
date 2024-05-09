@@ -1,8 +1,8 @@
 import { random } from "lodash";
 import { ItemStatus, Item } from "./types";
 
-export function createItem(index: string): Item {
-  return { title: "", status: ItemStatus.Active, id: index };
+export function createItem(index: string, title: string = ""): Item {
+  return { title, status: ItemStatus.Active, id: index };
 }
 
 export type PollVote = {
@@ -46,4 +46,48 @@ export async function resetVotes(options: string[]): Promise<number> {
     },
     body: JSON.stringify({ vote_options: options }),
   }).then((res) => res.status);
+}
+
+export type Preset = {
+  id: string;
+  title: string;
+  options: string[];
+};
+
+export type ErrorResponse = {
+  error: string;
+  error_code?: string;
+};
+
+export async function savePreset(
+  title: string,
+  options: string[],
+): Promise<Preset | ErrorResponse> {
+  // return { id: "test", options, title };
+  return fetch("/turnir-api/presets", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ options, title }),
+  }).then((res) => res.json());
+}
+
+export async function updatePreset(
+  id: string,
+  title: string,
+  options: string[],
+): Promise<Preset | ErrorResponse> {
+  return fetch(`/turnir-api/presets/${id}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ options, title }),
+  }).then((res) => res.json());
+}
+
+export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
+  // return { id, options: ["a", "b", "c"], title: "test" };
+  return fetch(`/turnir-api/presets/${id}`).then((res) => res.json());
 }
