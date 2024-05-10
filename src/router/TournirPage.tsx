@@ -50,9 +50,13 @@ function TournirApp() {
 
   const { id: presetId } = useParams();
   const loadPreset = async (presetId: string) => {
-    const preset = await fetchPreset(presetId);
+    const preset = await fetchPreset(presetId).catch((e) => ({
+      error: "Error loading preset",
+      exception: e,
+    }));
     if ("error" in preset) {
       setTitle("Error loading preset");
+      console.log(preset);
       return;
     }
     setItems(
