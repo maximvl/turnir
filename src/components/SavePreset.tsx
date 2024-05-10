@@ -97,12 +97,11 @@ export default function SavePreset({ items, title: currentTitle }: Props) {
           {error && <Box>Ошибка: {error.toString()}</Box>}
           {saved && (
             <Box>
-              Успешно сохранено, ссылка:
+              <div>Успешно сохранено, ссылка:</div>
               <MuiLink
                 target="_blank"
                 rel="noopener noreferrer"
                 href={`/turnir/${presetId}`}
-                sx={{ marginLeft: 1 }}
               >
                 {window.location.href}
               </MuiLink>
