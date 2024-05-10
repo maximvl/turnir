@@ -13,6 +13,7 @@ import Button from "@mui/material/Button";
 import { filter, isEmpty, sample, toString } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { useLocation } from "react-router";
 import { useParams } from "react-router";
 import "../App.css";
 import ItemsList from "../components/ItemsList";
@@ -47,6 +48,7 @@ function TournirApp() {
   );
 
   const [title, setTitle] = useState("");
+  const location = useLocation();
 
   const { id: presetId } = useParams();
   const loadPreset = async (presetId: string) => {
@@ -101,7 +103,7 @@ function TournirApp() {
       );
     }
     // eslint-disable-next-line
-  }, [presetId]);
+  }, [location]);
 
   const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } =
     useContext(MusicContext);
