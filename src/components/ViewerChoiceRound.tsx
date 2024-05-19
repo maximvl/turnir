@@ -24,7 +24,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({});
   const [resetState, setResetState] = useState<ResetState>("started");
   const [voteMessages, setVoteMessages] = useState<PollVote[]>([]);
-  const [startTs, setStartTs] = useState<number>(() =>
+  const [lastTs, setLastTs] = useState<number>(() =>
     Math.floor(Date.now() / 1000),
   );
 
@@ -32,7 +32,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     data: votes,
     error,
     isLoading,
-  } = useQuery(["votes", items.length, startTs], fetchVotes, {
+  } = useQuery(["votes", items.length, lastTs], fetchVotes, {
     refetchInterval: VOTES_REFETCH_INTERVAL,
   });
 
@@ -43,7 +43,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     await resetVotes(items.map((item) => item.id));
     setVotesMap({});
     setVoteMessages([]);
-    setStartTs(Math.floor(Date.now() / 1000));
+    setLastTs(Math.floor(Date.now() / 1000));
     setResetState("finished");
   };
 
@@ -91,9 +91,12 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
         acc[vote.user_id] = vote.message;
         return acc;
       }, {} as VotesDict);
+      const tsSorted = newVotes.map((vote) => vote.ts).sort();
+      const lastVoteTs = tsSorted[tsSorted.length - 1];
 
       setVotesMap({ ...votesMap, ...newVotesMap });
       setVoteMessages([...voteMessages, ...newVotes]);
+      setLastTs(lastVoteTs);
     }
   }
 

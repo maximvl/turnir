@@ -16,8 +16,13 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: "1.2",
+    date: "2024-05-14",
+    changes: ["Добавлено сохранение пресетов"],
+  },
+  {
     version: "1.1",
-    date: "2024-03-07",
+    date: "2024-05-07",
     changes: [
       "Пофикшен редкий краш голосования чата",
       "Выровнен уровень громкости музыки",
@@ -27,7 +32,7 @@ const releaseNotesData: ReleaseNote[] = [
   },
   {
     version: "1.0",
-    date: "2024-03-01",
+    date: "2024-05-01",
     changes: [
       "Темная тема по-умолчанию",
       "Добавлено колесо рандома",
