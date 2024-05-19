@@ -5,6 +5,8 @@ export function createItem(index: string, title: string = ""): Item {
   return { title, status: ItemStatus.Active, id: index };
 }
 
+const URL_PREFIX = "/v2";
+
 export type PollVote = {
   id: number;
   ts: number;
@@ -35,11 +37,13 @@ export async function fetchVotes({
   //   },
   // ];
   // return { poll_votes: messages };
-  return fetch(`/turnir-api/votes?ts=${ts}`).then((res) => res.json());
+  return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) =>
+    res.json(),
+  );
 }
 
 export async function resetVotes(options: string[]): Promise<number> {
-  return fetch("/turnir-api/votes/reset", {
+  return fetch(`${URL_PREFIX}/turnir-api/votes/reset`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +68,7 @@ export async function savePreset(
   options: string[],
 ): Promise<Preset | ErrorResponse> {
   // return { id: "test", options, title };
-  return fetch("/turnir-api/presets", {
+  return fetch(`${URL_PREFIX}/turnir-api/presets`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -78,7 +82,8 @@ export async function updatePreset(
   title: string,
   options: string[],
 ): Promise<Preset | ErrorResponse> {
-  return fetch(`/turnir-api/presets/${id}`, {
+  // return { id, options, title };
+  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -88,6 +93,8 @@ export async function updatePreset(
 }
 
 export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
-  // return { id, options: ["a", "b", "c"], title: "test" };
-  return fetch(`/turnir-api/presets/${id}`).then((res) => res.json());
+  // return { id, options: ["a", "b", "c"], title: `test ${random(1, 1000)}` };
+  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`).then((res) =>
+    res.json(),
+  );
 }

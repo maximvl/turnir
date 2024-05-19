@@ -61,7 +61,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     return <div>Ошибка: {error.toString()}</div>;
   }
 
-  if (isLoading) {
+  if (isEmpty(votesMap) && isLoading) {
     return <div>Загрузка...</div>;
   }
 
