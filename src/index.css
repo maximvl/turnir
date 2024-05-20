@@ -20,14 +20,15 @@ code {
 }
 
 .text {
-    background-color: black;
+    /* background-color: black; */
+
     color: white;
     font-size: 50px;
     font-weight: bold;
     font-family: sans-serif;
     text-transform: uppercase;
     /* position: relative; */
-    user-select: none;
+    /* user-select: none; */
 }
 
 .text::before {
@@ -75,5 +76,19 @@ code {
 @keyframes blinker {
     50% {
         opacity: 0;
+    }
+}
+
+.raising {
+    position: relative;
+    animation: raising_animation 8s linear;
+}
+
+@keyframes raising_animation {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0%);
     }
 }
