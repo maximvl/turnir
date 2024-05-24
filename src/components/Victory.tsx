@@ -10,7 +10,7 @@ type Props = {
 export default function Victory({ winner }: Props) {
   const [show, setShow] = useState(false);
   useEffect(() => {
-    setTimeout(() => setShow(true), 50);
+    setTimeout(() => setShow(true), 500);
   }, []);
   return (
     <Box>
