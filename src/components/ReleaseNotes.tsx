@@ -77,7 +77,13 @@ export default function ReleaseNotes() {
               <div key={releaseNote.version} style={{ alignItems: "center" }}>
                 {/* <Typography variant="h6">Версия {releaseNote.version}</Typography> */}
                 <Box display={"flex"} alignItems={"center"}>
-                  <Typography variant="h6">{releaseNote.date}</Typography>
+                  <Typography variant="h6">
+                    {new Date(releaseNote.date).toLocaleDateString(undefined, {
+                      year: "2-digit",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </Typography>
                   {highlight && <NewReleases color="primary" style={{ marginLeft: 2 }} />}
                 </Box>
 
