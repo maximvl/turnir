@@ -1,16 +1,6 @@
 import { Shield } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
-import {
-  blue,
-  blueGrey,
-  brown,
-  green,
-  indigo,
-  orange,
-  pink,
-  purple,
-  teal,
-} from "@mui/material/colors";
+import { blue, blueGrey, brown, green, indigo, orange, pink, purple, teal } from "@mui/material/colors";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MusicContext } from "../contexts/MusicContext";
 import { Item, ItemStatus, MusicType } from "../types";
@@ -29,11 +19,7 @@ type Props = {
   ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element;
 };
 
-export default function Wheel({
-  items,
-  onItemWinning,
-  ButtonComponent,
-}: Props) {
+export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
   const rotationRef = useRef<number>(0);
@@ -52,17 +38,18 @@ export default function Wheel({
   const { setMusicPlaying } = useContext(MusicContext);
 
   const slowestSpeed = 0.00009;
-  const fastestSpeed = 0.09;
-  const acceleration = 0.0003;
+  const fastestSpeed = 0.2;
+  const acceleration = 0.0004;
 
   const decelerationSteps = [
-    [0.01, 0.0002],
-    [0.001, 0.00005],
-    [0.0001, 0.00001],
-    [0, 0.000002],
+    [0.01, 0.00009],
+    [0.001, 0.00003],
+    [0.0001, 0.000004],
+    [0, 0.0000004],
   ];
 
   const amountOfItems = items.length;
+  const x = 2;
 
   const size = 400;
   const sizeOffset = 10;
@@ -79,9 +66,7 @@ export default function Wheel({
     return amountOfItems - 1 - (initialIndex % amountOfItems);
   };
 
-  const [currentItemIndex, setCurrentItemIndex] = useState<number>(() =>
-    getSelectedItemId(rotationRef.current),
-  );
+  const [currentItemIndex, setCurrentItemIndex] = useState<number>(() => getSelectedItemId(rotationRef.current));
 
   useEffect(() => {
     rotationRef.current = 0;
@@ -168,8 +153,7 @@ export default function Wheel({
             speedRef.current += acceleration;
             if (speedRef.current >= fastestSpeed) {
               wheelState.current = WheelState.ConstantSpeed;
-              const randomTime =
-                Math.random() * 2000 + Math.random() * 1000 + 2500;
+              const randomTime = Math.random() * 2000 + Math.random() * 1000 + 2000;
               setTimeout(() => {
                 wheelState.current = WheelState.Deceleration;
               }, randomTime);
@@ -255,14 +239,12 @@ export default function Wheel({
   const defaultButtonProps: React.ComponentProps<typeof Button> = {
     sx: { margin: 1 },
     color: "error",
-    variant: "outlined",
+    variant: "contained",
     onClick: onClick,
   };
 
   const DefaultButton = (props: React.ComponentProps<typeof Button>) => (
-    <Button {...props}>
-      {currentItemProtected ? "Снять защиту" : "Удалить"}
-    </Button>
+    <Button {...props}>{currentItemProtected ? "Снять защиту" : "Удалить"}</Button>
   );
 
   const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
@@ -287,12 +269,7 @@ export default function Wheel({
           }}
         />
       </div>
-      <canvas
-        ref={onRefChange}
-        width={size}
-        height={size}
-        onClick={startSpinning}
-      />
+      <canvas ref={onRefChange} width={size} height={size} onClick={startSpinning} />
     </Box>
   );
 }

@@ -9,22 +9,13 @@ type Props = {
 };
 
 export default function ProtectionRound({ items, onItemProtection }: Props) {
-  const ProtectButton = ({
-    children,
-    ...props
-  }: React.ComponentProps<typeof Button>): React.ReactElement => {
+  const ProtectButton = ({ children, ...props }: React.ComponentProps<typeof Button>): React.ReactElement => {
     return (
       <Button {...props} color="success">
-        Защитить <Shield sx={{ marginLeft: 1 }} />
+        Защитить <Shield sx={{ marginLeft: 1 }} color={"action"} />
       </Button>
     );
   };
 
-  return (
-    <Wheel
-      items={items}
-      onItemWinning={onItemProtection}
-      ButtonComponent={ProtectButton}
-    />
-  );
+  return <Wheel items={items} onItemWinning={onItemProtection} ButtonComponent={ProtectButton} />;
 }

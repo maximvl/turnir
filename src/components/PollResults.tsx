@@ -1,5 +1,5 @@
 import { Shield } from "@mui/icons-material";
-import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
+import { Avatar, Box, Chip, Grid, Paper, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
 import { useEffect, useState } from "react";
 import { Item, ItemStatus } from "../types";
@@ -11,11 +11,7 @@ type Props = {
   votes: string[];
 };
 
-export default function PollResults({
-  items,
-  votes,
-  onItemElimination,
-}: Props) {
+export default function PollResults({ items, votes, onItemElimination }: Props) {
   const theme = useTheme();
 
   const [time, setTime] = useState(0);
@@ -51,14 +47,9 @@ export default function PollResults({
     votesByOption[option] += 1;
   }
 
-  const maxVotes = Object.values(votesByOption).reduce(
-    (acc, curr) => Math.max(acc, curr),
-    0,
-  );
+  const maxVotes = Object.values(votesByOption).reduce((acc, curr) => Math.max(acc, curr), 0);
 
-  const itemIdsWithMaxVotes = Object.keys(votesByOption).filter(
-    (key) => votesByOption[key] === maxVotes,
-  );
+  const itemIdsWithMaxVotes = Object.keys(votesByOption).filter((key) => votesByOption[key] === maxVotes);
 
   const totalVotes = votes.length;
 
@@ -83,39 +74,45 @@ export default function PollResults({
 
   return (
     <div>
-      <Box textAlign="center">
-        <h2>
+      <Box textAlign="center" display="grid" justifyContent={"center"}>
+        <h2 style={{ margin: 0 }}>
           Результаты голосования ({totalVotes}) {timePassed}
         </h2>
-        <p>
-          Голосуйте номером варианта в чате: '5' а не '555' или '5 5 5' и тд
-        </p>
-        <p>
-          <u>Вы можете менять голос</u>, засчитывается самый последний
-        </p>
+        <Paper
+          elevation={12}
+          sx={{
+            ...theme.typography.body2,
+            color: theme.palette.text.secondary,
+            paddingTop: 0.5,
+            paddingBottom: 0.5,
+            paddingLeft: 2,
+            paddingRight: 2,
+            margin: 1,
+            width: "max-content",
+            border: 1,
+            borderColor: theme.palette.info.main,
+          }}
+        >
+          <p style={{ whiteSpace: "pre-wrap" }}>
+            Голосуйте номером варианта в чате: '5' а не '555' или '5 5 5' и тд
+            {"\n"}
+            <u>МОЖНО МЕНЯТЬ ГОЛОС</u>, засчитывается самый последний
+          </p>
+        </Paper>
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
-          const highlight =
-            totalVotes > 0 && itemIdsWithMaxVotes.includes(item.id);
+          const highlight = totalVotes > 0 && itemIdsWithMaxVotes.includes(item.id);
           const currentVotes = votesByOption[item.id] || 0;
           return (
-            <Grid
-              container
-              columns={12}
-              key={index}
-              columnSpacing={4}
-              alignItems="center"
-            >
+            <Grid container columns={12} key={index} columnSpacing={4} alignItems="center">
               <Grid item xs={5} textAlign="right">
                 {itemElement(item, highlight)}
               </Grid>
               <Grid item xs={4}>
                 <BorderLinearProgress
                   sx={{
-                    backgroundColor: highlight
-                      ? theme.palette.error.light
-                      : null,
+                    backgroundColor: highlight ? theme.palette.error.light : null,
                   }}
                   variant="determinate"
                   value={(currentVotes / totalVotes) * 100}

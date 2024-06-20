@@ -11,6 +11,11 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: "1.4",
+    date: "2024-06-19",
+    changes: ["Улучшено отображение инструкций голосования"],
+  },
+  {
     version: "1.3",
     date: "2024-05-21",
     changes: ["Бекенд полностью переписан с Python на Crystal"],
