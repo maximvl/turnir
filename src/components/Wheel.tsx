@@ -27,6 +27,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const speedRef = useRef<number>(0);
   const wheelState = useRef<WheelState>(WheelState.Start);
   const [isFinished, setIsFinished] = useState<boolean>(false);
+  const [hasBacktrack, setHasBacktrack] = useState<boolean>(() => Math.random() > 0.5);
 
   useEffect(() => {
     if (isFinished) {
@@ -36,20 +37,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   }, [isFinished]);
 
   const { setMusicPlaying } = useContext(MusicContext);
-
-  const slowestSpeed = 0.00009;
-  const fastestSpeed = 0.2;
-  const acceleration = 0.0004;
-
-  const decelerationSteps = [
-    [0.01, 0.00009],
-    [0.001, 0.00003],
-    [0.0001, 0.000004],
-    [0, 0.0000004],
-  ];
-
   const amountOfItems = items.length;
-  const x = 2;
 
   const size = 400;
   const sizeOffset = 10;
@@ -73,6 +61,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     speedRef.current = 0;
     wheelState.current = WheelState.Start;
     setIsFinished(false);
+    setHasBacktrack(Math.random() > 0.5);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
@@ -107,7 +96,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
       context.rotate(rotation);
 
       context.font = "15px Arial";
-      const textOffset = 40;
+      const textOffsetFromCenter = 40;
       for (let i = 0; i < amountOfItems; i++) {
         const color = colors[i % colors.length];
 
@@ -123,17 +112,24 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
         const textWidth = context.measureText(text).width;
         // console.log("radius", radius);
         // console.log("text", text, textWidth);
-        if (textWidth + textOffset > radius) {
+        if (textWidth + textOffsetFromCenter > radius) {
           // console.log("replacing", text);
-          text = text.slice(0, 15) + "...";
+          text = text.slice(0, 18) + "...";
         }
 
         context.fillStyle = "white";
-        context.fillText(text, textOffset, 5);
+        context.fillText(text, textOffsetFromCenter, 5);
         context.restore();
 
         context.rotate(pieceAngle);
       }
+      context.fillStyle = "white";
+      context.beginPath();
+      context.arc(0, 0, 20, 0, 2 * Math.PI);
+      context.fill();
+      context.lineWidth = 2;
+      context.strokeStyle = "white";
+      context.stroke();
       context.restore();
     }
   };
@@ -141,6 +137,22 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const onRefChange = (canvas: HTMLCanvasElement | null) => {
     canvasRef.current = canvas;
   };
+
+  const startSpeed = 0.00009;
+  const slowestSpeed = 0.0006;
+  const fastestSpeed = 0.2;
+  const acceleration = 0.0005;
+
+  const decelerationSteps: Array<Array<number>> = [];
+  const decelerationPercent = 20;
+  let currentStep = fastestSpeed;
+  while (currentStep > slowestSpeed) {
+    currentStep = (currentStep / 100) * (100 - decelerationPercent);
+    decelerationSteps.push([currentStep, 500]);
+  }
+
+  const backtrackSpeed = -0.001;
+  const backtrackTime = 2000 + 1000 * Math.random();
 
   const animate = (time: number) => {
     if (timeRef.current) {
@@ -153,26 +165,42 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
             speedRef.current += acceleration;
             if (speedRef.current >= fastestSpeed) {
               wheelState.current = WheelState.ConstantSpeed;
-              const randomTime = Math.random() * 2000 + Math.random() * 1000 + 2000;
+              const randomTime = Math.random() * 1500 + Math.random() * 1000 + 1500;
               setTimeout(() => {
                 wheelState.current = WheelState.Deceleration;
               }, randomTime);
             }
             break;
           case WheelState.Deceleration:
-            let deceleration = 0;
-            for (const step of decelerationSteps) {
-              if (speedRef.current >= step[0]) {
-                deceleration = step[1];
+            let timer = 0;
+            for (const item of decelerationSteps) {
+              if (speedRef.current > item[0]) {
+                speedRef.current = item[0];
+                timer = item[1];
                 break;
               }
             }
-            speedRef.current -= deceleration;
             if (speedRef.current <= slowestSpeed) {
-              // console.log(speedRef.current, slowestSpeed, deceleration);
-              setIsFinished(true);
-              speedRef.current = 0;
-              wheelState.current = WheelState.Stop;
+              if (hasBacktrack) {
+                speedRef.current = backtrackSpeed;
+                wheelState.current = WheelState.ConstantSpeed;
+                // console.log("start backtracking", speedRef.current);
+                setTimeout(() => {
+                  setIsFinished(true);
+                  speedRef.current = 0;
+                  wheelState.current = WheelState.Stop;
+                }, backtrackTime);
+              } else {
+                setIsFinished(true);
+                speedRef.current = 0;
+                wheelState.current = WheelState.Stop;
+              }
+            } else {
+              setTimeout(() => {
+                wheelState.current = WheelState.Deceleration;
+              }, timer);
+              // console.log("setting timer", timer, "for speed", speedRef.current);
+              wheelState.current = WheelState.ConstantSpeed;
             }
             break;
           default:
@@ -218,7 +246,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     if (wheelState.current === WheelState.Start) {
       setMusicPlaying(MusicType.Wheel);
       wheelState.current = WheelState.Acceleration;
-      speedRef.current = slowestSpeed;
+      speedRef.current = startSpeed;
     }
   };
 
@@ -230,10 +258,6 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     onItemWinning(currentItem.id);
   };
 
-  // if (currentItem === undefined) {
-  //   console.log("undefined!", currentItemIndex);
-  //   console.log(items);
-  // }
   const currentItemProtected = currentItem?.status === ItemStatus.Protected;
 
   const defaultButtonProps: React.ComponentProps<typeof Button> = {
