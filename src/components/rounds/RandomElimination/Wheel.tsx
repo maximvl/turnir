@@ -1,9 +1,9 @@
-import { Shield } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { blue, blueGrey, brown, green, indigo, orange, pink, purple, teal } from "@mui/material/colors";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MusicContext } from "contexts/MusicContext";
-import { Item, ItemStatus, MusicType } from "types";
+import { Item, MusicType } from "types";
+import ItemTitle from "components/ItemTitle";
 
 enum WheelState {
   Start,
@@ -258,8 +258,6 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     onItemWinning(currentItem.id);
   };
 
-  const currentItemProtected = currentItem?.status === ItemStatus.Protected;
-
   const defaultButtonProps: React.ComponentProps<typeof Button> = {
     sx: { margin: 1 },
     color: "error",
@@ -268,7 +266,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   };
 
   const DefaultButton = (props: React.ComponentProps<typeof Button>) => (
-    <Button {...props}>{currentItemProtected ? "Снять защиту" : "Удалить"}</Button>
+    <Button {...props}>{currentItem.isProtected ? "Снять защиту" : "Удалить"}</Button>
   );
 
   const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
@@ -277,8 +275,9 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     <Box justifyContent={"center"}>
       {currentItem ? (
         <Box alignItems={"center"} display="flex" justifyContent={"center"}>
-          <h2 style={{ margin: 0 }}>{currentItem.title}</h2>
-          {currentItemProtected && <Shield sx={{ marginLeft: 1 }} />}
+          <h2 style={{ margin: 0 }}>
+            <ItemTitle item={currentItem} />
+          </h2>
         </Box>
       ) : null}
       {isFinished && <FinalButton {...defaultButtonProps} />}

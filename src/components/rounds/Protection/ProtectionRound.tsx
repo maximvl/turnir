@@ -2,6 +2,7 @@ import { Button } from "@mui/material";
 import { Shield } from "@mui/icons-material";
 import { Item } from "types";
 import Wheel from "../RandomElimination/Wheel";
+import InfoPanel from "../shared/InfoPanel";
 
 type Props = {
   items: Item[];
@@ -17,5 +18,12 @@ export default function ProtectionRound({ items, onItemProtection }: Props) {
     );
   };
 
-  return <Wheel items={items} onItemWinning={onItemProtection} ButtonComponent={ProtectButton} />;
+  return (
+    <div style={{ display: "grid", justifyContent: "center" }}>
+      <InfoPanel>
+        <p>Случайный вариант получит одноразовую защиту от вылета</p>
+      </InfoPanel>
+      <Wheel items={items} onItemWinning={onItemProtection} ButtonComponent={ProtectButton} />
+    </div>
+  );
 }

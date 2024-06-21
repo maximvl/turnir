@@ -3,15 +3,17 @@ import StreamerChoiceRound from "../StreamerChoice/StreamerChoiceRound";
 import ViewerChoiceRound from "../ViewerChoice/ViewerChoiceRound";
 import Wheel from "../RandomElimination/Wheel";
 import ProtectionRound from "../Protection/ProtectionRound";
+import SwapRound from "../Swap/SwapRound";
 
 type Props = {
   roundType: RoundType;
   items: Item[];
   onItemElimination: (id: string) => void;
   onItemProtection: (id: string) => void;
+  onItemSwap: (id: string) => void;
 };
 
-export default function RoundContent({ roundType, items, onItemElimination, onItemProtection }: Props) {
+export default function RoundContent({ roundType, items, onItemElimination, onItemProtection, onItemSwap }: Props) {
   switch (roundType) {
     case RoundType.RandomElimination: {
       return <Wheel items={items} onItemWinning={onItemElimination} />;
@@ -24,6 +26,9 @@ export default function RoundContent({ roundType, items, onItemElimination, onIt
     }
     case RoundType.Protection: {
       return <ProtectionRound items={items} onItemProtection={onItemProtection} />;
+    }
+    case RoundType.Swap: {
+      return <SwapRound items={items} onItemSwap={onItemSwap} />;
     }
     default: {
       return <div>Round type {roundType} not implemented</div>;

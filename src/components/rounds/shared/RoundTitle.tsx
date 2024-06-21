@@ -9,11 +9,12 @@ type Props = {
 
 export default function RoundTitle({ roundNumber, roundType, itemsLeft, totalRounds }: Props) {
   const isFinals = itemsLeft === 2;
+  const bonusRounds = [RoundType.Protection, RoundType.Swap];
 
-  if (roundType === RoundType.Protection) {
+  if (bonusRounds.includes(roundType)) {
     return (
       <div>
-        <h3 style={{ marginTop: 0 }}>Бонусный раунд {RoundTypeNames[roundType]}</h3>
+        <h3 style={{ margin: 0 }}>Бонусный раунд: {RoundTypeNames[roundType]}</h3>
       </div>
     );
   }
@@ -21,7 +22,7 @@ export default function RoundTitle({ roundNumber, roundType, itemsLeft, totalRou
   if (isFinals) {
     return (
       <div>
-        <h1 style={{ marginTop: 0 }}>Финал</h1>
+        <h1 style={{ margin: 0 }}>Финал</h1>
         <p>{RoundTypeNames[roundType]}</p>
       </div>
     );

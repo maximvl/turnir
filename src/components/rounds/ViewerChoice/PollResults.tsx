@@ -1,8 +1,9 @@
-import { Shield } from "@mui/icons-material";
-import { Avatar, Box, Chip, Grid, Paper, useTheme } from "@mui/material";
+import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
+import ItemTitle from "components/ItemTitle";
 import { useEffect, useState } from "react";
-import { Item, ItemStatus } from "types";
+import { Item } from "types";
+import InfoPanel from "../shared/InfoPanel";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
 type Props = {
@@ -56,16 +57,10 @@ export default function PollResults({ items, votes, onItemElimination }: Props) 
   const itemElement = (item: Item, selected: boolean) => {
     const color = selected ? "error" : "default";
     const onClick = selected ? onItemClick : () => {};
-    const isProtected = item.status === ItemStatus.Protected;
     return (
       <Chip
         avatar={<Avatar sx={{ backgroundColor: teal[700] }}>{item.id}</Avatar>}
-        label={
-          <Box display="flex" alignItems={"center"}>
-            {item.title}
-            {isProtected && <Shield sx={{ marginLeft: 1 }} />}
-          </Box>
-        }
+        label={<ItemTitle item={item} />}
         color={color}
         onClick={() => onClick(item.id)}
       />
@@ -78,27 +73,13 @@ export default function PollResults({ items, votes, onItemElimination }: Props) 
         <h2 style={{ margin: 0 }}>
           Результаты голосования ({totalVotes}) {timePassed}
         </h2>
-        <Paper
-          elevation={12}
-          sx={{
-            ...theme.typography.body2,
-            color: theme.palette.text.secondary,
-            paddingTop: 0.5,
-            paddingBottom: 0.5,
-            paddingLeft: 2,
-            paddingRight: 2,
-            margin: 1,
-            width: "max-content",
-            border: 1,
-            borderColor: theme.palette.info.main,
-          }}
-        >
+        <InfoPanel>
           <p style={{ whiteSpace: "pre-wrap" }}>
             Голосуйте номером варианта в чате: '5' а не '555' или '5 5 5' и тд
             {"\n"}
             <u>МОЖНО МЕНЯТЬ ГОЛОС</u>, засчитывается самый последний
           </p>
-        </Paper>
+        </InfoPanel>
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {

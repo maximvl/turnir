@@ -3,13 +3,14 @@ export type Item = {
   status: ItemStatus;
   eliminationRound?: number;
   eliminationType?: RoundType;
+  swappedWith?: string;
+  isProtected?: boolean;
   id: string;
 };
 
 export enum ItemStatus {
   Active,
   Eliminated,
-  Protected,
 }
 
 export enum TurnirState {
@@ -27,17 +28,15 @@ export enum RoundType {
   ViewerChoice = "ViewerChoice",
   Protection = "Protection",
   StreamerVsRandom = "StreamerVsRandom",
+  Swap = "Swap",
 }
 
-export const ClassicRoundTypes = [
-  RoundType.RandomElimination,
-  RoundType.StreamerChoice,
-  RoundType.ViewerChoice,
-];
+export const ClassicRoundTypes = [RoundType.RandomElimination, RoundType.StreamerChoice, RoundType.ViewerChoice];
 
 export const NewRoundTypes = [
   RoundType.Protection,
   // RoundType.StreamerVsRandom
+  RoundType.Swap,
 ];
 
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
@@ -48,15 +47,16 @@ export const RoundTypeNames = {
   [RoundType.ViewerChoice]: "Выбор зрителей",
   [RoundType.Protection]: "Защитный",
   [RoundType.StreamerVsRandom]: "Стример против рандома",
+  [RoundType.Swap]: "Подмена",
 };
 
 export const RoundTypeTooltip: { [key: string]: string } = {
-  [RoundType.Protection]:
-    "Один раз за турнир случайный вариант получает разовую защиту от вылета",
+  [RoundType.Protection]: "Один раз за турнир случайный вариант получает разовую защиту от вылета",
   [RoundType.StreamerVsRandom]: "Стример выбирает кто вылетит не видя варианты",
   [RoundType.RandomElimination]: "Выбывает случайный вариант",
   [RoundType.StreamerChoice]: "Стример выбирает кто вылетит",
   [RoundType.ViewerChoice]: "Зрители выбирают кто вылетит",
+  [RoundType.Swap]: "Случайный вариант скрытно меняется с другим, подмена вскроется когда один из них вылетит",
 };
 
 export const enum MusicType {

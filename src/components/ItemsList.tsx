@@ -1,8 +1,9 @@
-import { OpenInNewOutlined, Shield } from "@mui/icons-material";
+import { OpenInNewOutlined } from "@mui/icons-material";
 import { Box, Button, Grid, Link, Stack, TextField, Tooltip, useTheme } from "@mui/material";
 import { isEmpty, trim } from "lodash";
 import React from "react";
 import { Item, ItemStatus } from "types";
+import ItemTitle from "./ItemTitle";
 
 type Props = {
   items: Item[];
@@ -116,16 +117,14 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
           // if (item.eliminationType && item.eliminationType) {
           //   itemTitle = `${itemTitle} [${RoundTypeNames[item.eliminationType]} #${item.eliminationRound}]`;
           // }
-          const isProtected = item.status === ItemStatus.Protected;
           return (
             <Grid container columns={12} key={item.id}>
               <Grid item xs={10} width="inherit">
                 <Box display={"flex"} alignItems="center" width={"inherit"} style={{ paddingRight: 10 }}>
                   {item.id}.
                   <Box width={10} />
-                  <Box color={theme.palette.success.main} display="flex">
-                    {itemTitle}
-                    {isProtected && <Shield sx={{ marginLeft: 1 }} />}
+                  <Box color={theme.palette.success.main}>
+                    <ItemTitle item={item} />
                   </Box>
                 </Box>
               </Grid>

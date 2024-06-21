@@ -28,6 +28,7 @@ import {
   TurnirState,
 } from "types";
 import { createItem, fetchPreset } from "utils";
+import SwapRevealModal from "components/SwapRevealModal";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ function TournirApp() {
   };
 
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
+  const [swapRoundEnabled, setSwapRoundEnabled] = useState(true);
 
   const [items, setItems] = useState<Item[]>([]);
   const [turnirState, setTurnirState] = useState<TurnirState>(TurnirState.EditCandidates);
@@ -65,6 +67,10 @@ function TournirApp() {
   const [roundTypes, setRoundTypes] = useState<Map<RoundType, boolean>>(
     RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
   );
+
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [initialSwapItem, setInitialSwapItem] = useState<Item | undefined>(undefined);
+  const [actionSwapItem, setActionSwapItem] = useState<Item | undefined>(undefined);
 
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) => Boolean(roundTypes.get(key)));
@@ -89,6 +95,9 @@ function TournirApp() {
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter((item) => item.status !== ItemStatus.Eliminated);
+  const swapItem = activeItems.find((item) => item.swappedWith !== undefined);
+  const targetSwapItem = activeItems.find((item) => item.id === swapItem?.swappedWith);
+  // console.log("swap:", swapItem, targetSwapItem);
 
   const addMoreItems = () => {
     const nextIndex = items.length;
@@ -109,6 +118,9 @@ function TournirApp() {
     let roundOptions = activeRounds;
     if (!protectionRoundEnabled) {
       roundOptions = roundOptions.filter((round) => round !== RoundType.Protection);
+    }
+    if (!swapRoundEnabled) {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Swap);
     }
     if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
@@ -143,9 +155,19 @@ function TournirApp() {
   const onItemElimination = (id: string) => {
     const item = activeItems.find((item) => item.id === id);
     if (item) {
-      if (item.status === ItemStatus.Protected) {
-        item.status = ItemStatus.Active;
+      if (item.isProtected) {
+        item.isProtected = false;
         setNextRoundType();
+      } else if (item.swappedWith && targetSwapItem) {
+        setShowSwapModal(true);
+        setInitialSwapItem(item);
+        setActionSwapItem(targetSwapItem);
+        item.swappedWith = undefined;
+      } else if (targetSwapItem && swapItem && item.id === targetSwapItem.id) {
+        setShowSwapModal(true);
+        setInitialSwapItem(item);
+        setActionSwapItem(swapItem);
+        swapItem.swappedWith = undefined;
       } else {
         item.status = ItemStatus.Eliminated;
         item.eliminationRound = roundNumber;
@@ -165,8 +187,22 @@ function TournirApp() {
   const onItemProtection = (id: string) => {
     const item = activeItems.find((item) => item.id === id);
     if (item) {
-      item.status = ItemStatus.Protected;
+      item.isProtected = true;
       setProtectionRoundEnabled(false);
+      setItems([...items]);
+      setNextRoundType();
+    }
+  };
+
+  const onItemSwap = (id: string) => {
+    const item = activeItems.find((item) => item.id === id);
+    if (item) {
+      const targetItem = sample(activeItems.filter((i) => i.id !== id));
+      if (!targetItem) {
+        return;
+      }
+      item.swappedWith = targetItem.id;
+      setSwapRoundEnabled(false);
       setItems([...items]);
       setNextRoundType();
     }
@@ -179,10 +215,13 @@ function TournirApp() {
       item.status = ItemStatus.Active;
       item.eliminationRound = undefined;
       item.eliminationType = undefined;
+      item.isProtected = false;
+      item.swappedWith = undefined;
     });
     setItems([...items]);
     setMusicPlaying(undefined);
     setProtectionRoundEnabled(true);
+    setSwapRoundEnabled(true);
   };
 
   const onRoundTypeClick = (roundType: RoundType) => {
@@ -400,12 +439,24 @@ function TournirApp() {
                 items={activeItems}
                 onItemElimination={onItemElimination}
                 onItemProtection={onItemProtection}
+                onItemSwap={onItemSwap}
               />
             </div>
           )}
           {turnirState === TurnirState.Victory && <Victory winner={activeItems[0]} />}
         </Grid>
       </Grid>
+      {initialSwapItem && actionSwapItem && (
+        <SwapRevealModal
+          open={showSwapModal}
+          onClose={() => {
+            onItemElimination(actionSwapItem.id);
+            setShowSwapModal(false);
+          }}
+          initialItem={initialSwapItem}
+          actionItem={actionSwapItem}
+        />
+      )}
     </QueryClientProvider>
   );
 }

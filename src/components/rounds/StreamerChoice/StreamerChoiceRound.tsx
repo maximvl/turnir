@@ -1,10 +1,10 @@
-import { Shield } from "@mui/icons-material";
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
 import { isNull } from "lodash";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { MusicContext } from "contexts/MusicContext";
-import { Item, ItemStatus, MusicType } from "types";
+import { Item, MusicType } from "types";
+import ItemTitle from "components/ItemTitle";
 
 type Props = {
   items: Item[];
@@ -64,7 +64,6 @@ export default function StreamerChoiceRound({ items, onItemElimination }: Props)
   };
 
   const itemElement = (item: Item) => {
-    const isProtected = item.status === ItemStatus.Protected;
     const isSelected = selectedItemId === item.id;
     let style = {};
     if (isSelected) {
@@ -76,12 +75,7 @@ export default function StreamerChoiceRound({ items, onItemElimination }: Props)
     return (
       <Chip
         avatar={<Avatar sx={{ backgroundColor: teal[700] }}>{item.id}</Avatar>}
-        label={
-          <Box display="flex" alignItems={"center"}>
-            {item.title}
-            {isProtected && <Shield sx={{ marginLeft: 1 }} />}
-          </Box>
-        }
+        label={<ItemTitle item={item} />}
         sx={style}
         className={blinking && isSelected ? "blinking" : ""}
         onClick={() => onSelectItem(item.id)}
