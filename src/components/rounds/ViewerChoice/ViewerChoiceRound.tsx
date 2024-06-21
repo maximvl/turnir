@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Item } from "../types";
+import { Item } from "types";
 import PollResults from "./PollResults";
 import { useQuery } from "react-query";
-import { fetchVotes, PollVote, resetVotes } from "../utils";
+import { fetchVotes, PollVote, resetVotes } from "utils";
 import VotesLog from "./VotesLog";
 import { isEmpty } from "lodash";
 
@@ -24,9 +24,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({});
   const [resetState, setResetState] = useState<ResetState>("started");
   const [voteMessages, setVoteMessages] = useState<PollVote[]>([]);
-  const [lastTs, setLastTs] = useState<number>(() =>
-    Math.floor(Date.now() / 1000),
-  );
+  const [lastTs, setLastTs] = useState<number>(() => Math.floor(Date.now() / 1000));
 
   const {
     data: votes,
@@ -108,16 +106,8 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
 
   return (
     <div>
-      <Box
-        display="inline-block"
-        alignItems="center"
-        style={{ paddingLeft: 16, width: "100%" }}
-      >
-        <PollResults
-          items={items}
-          votes={Object.values(votesMap)}
-          onItemElimination={onItemElimination}
-        />
+      <Box display="inline-block" alignItems="center" style={{ paddingLeft: 16, width: "100%" }}>
+        <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} />
         <div style={{ marginTop: 20 }}>
           <VotesLog votes={voteMessages} items={items} />
         </div>

@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { Item } from "../types";
-import { PollVote } from "../utils";
+import { Item } from "types";
+import { PollVote } from "utils";
 
 type Props = {
   votes: PollVote[];
@@ -79,8 +79,7 @@ export default function VotesLog({ votes, items }: Props) {
               m: 1,
             }}
           >
-            {formatTime(vote.ts)}: {vote.username} голосует против{" "}
-            {vote.message} ({itemNameMap[vote.message]})
+            {formatTime(vote.ts)}: {vote.username} голосует против {vote.message} ({itemNameMap[vote.message]})
           </Box>
         ))}
       </Box>

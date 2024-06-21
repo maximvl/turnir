@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { Item } from "../types";
-import { Preset, ErrorResponse, savePreset, updatePreset } from "../utils";
+import { Item } from "types";
+import { Preset, ErrorResponse, savePreset, updatePreset } from "utils";
 
 type Props = {
   items: Item[];
@@ -98,11 +98,7 @@ export default function SavePreset({ items, title: currentTitle }: Props) {
           {saved && (
             <Box>
               <div>Успешно сохранено, ссылка:</div>
-              <MuiLink
-                target="_blank"
-                rel="noopener noreferrer"
-                href={`/turnir/${presetId}`}
-              >
+              <MuiLink target="_blank" rel="noopener noreferrer" href={`/turnir/${presetId}`}>
                 {window.location.href}
               </MuiLink>
             </Box>
@@ -115,11 +111,7 @@ export default function SavePreset({ items, title: currentTitle }: Props) {
           </Button>
         </DialogActions>
       </Dialog>
-      <Button
-        variant="outlined"
-        endIcon={<Save />}
-        onClick={() => setShow(true)}
-      >
+      <Button variant="outlined" endIcon={<Save />} onClick={() => setShow(true)}>
         Сохранить
       </Button>
     </>

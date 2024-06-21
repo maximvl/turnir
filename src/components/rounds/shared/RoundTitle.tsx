@@ -1,4 +1,4 @@
-import { RoundType, RoundTypeNames } from "../types";
+import { RoundType, RoundTypeNames } from "types";
 
 type Props = {
   roundNumber: number;
@@ -7,20 +7,13 @@ type Props = {
   totalRounds: number;
 };
 
-export default function RoundTitle({
-  roundNumber,
-  roundType,
-  itemsLeft,
-  totalRounds,
-}: Props) {
+export default function RoundTitle({ roundNumber, roundType, itemsLeft, totalRounds }: Props) {
   const isFinals = itemsLeft === 2;
 
   if (roundType === RoundType.Protection) {
     return (
       <div>
-        <h3 style={{ marginTop: 0 }}>
-          Бонусный раунд {RoundTypeNames[roundType]}
-        </h3>
+        <h3 style={{ marginTop: 0 }}>Бонусный раунд {RoundTypeNames[roundType]}</h3>
       </div>
     );
   }

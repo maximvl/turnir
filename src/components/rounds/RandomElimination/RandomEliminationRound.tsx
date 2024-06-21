@@ -1,9 +1,9 @@
 import { Box, Button, Grid, useTheme } from "@mui/material";
 import { sample } from "lodash";
 import { useContext, useEffect, useReducer, useState } from "react";
-import { MusicContext } from "../contexts/MusicContext";
-import { Item } from "../types";
-import { BorderLinearProgress } from "./BorderLinearProgress";
+import { MusicContext } from "contexts/MusicContext";
+import { Item } from "types";
+import { BorderLinearProgress } from "../ViewerChoice/BorderLinearProgress";
 
 type Props = {
   items: Item[];
@@ -21,9 +21,7 @@ const SELECTION_TIMEOUT_MAX = 1500;
 const PROGRESS_BAR_TIMEOUT = 400;
 
 function randomTimeout() {
-  const value =
-    Math.random() * (SELECTION_TIMEOUT_MAX - SELECTION_TIMEOUT_MIN) +
-    SELECTION_TIMEOUT_MIN;
+  const value = Math.random() * (SELECTION_TIMEOUT_MAX - SELECTION_TIMEOUT_MIN) + SELECTION_TIMEOUT_MIN;
   console.log("timeout", value);
   return Math.floor(value);
 }
@@ -52,16 +50,10 @@ function selectRandomItemId(itemsCount: number, selectedItemId: number) {
   return sample(candidates) || 0;
 }
 
-function selectionReducer(
-  state: SelectionState,
-  action: SelectionAction,
-): SelectionState {
+function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
   switch (action.type) {
     case SelectionActionType.ChoseItem: {
-      const selectedItemId = selectRandomItemId(
-        action.itemsCount,
-        state.selectedItemId,
-      );
+      const selectedItemId = selectRandomItemId(action.itemsCount, state.selectedItemId);
       return {
         itemsCount: action.itemsCount,
         selectedItemId,
@@ -73,10 +65,7 @@ function selectionReducer(
   }
 }
 
-function selectionTaskReducer(
-  _state: SelectionTaskState,
-  action: SelectionTaskState,
-): SelectionTaskState {
+function selectionTaskReducer(_state: SelectionTaskState, action: SelectionTaskState): SelectionTaskState {
   return action;
 }
 
@@ -84,19 +73,13 @@ function progressBarReducer(_status: number, action: number): number {
   return action;
 }
 
-export default function RandomEliminationRound({
-  items,
-  onItemElimination,
-}: Props) {
+export default function RandomEliminationRound({ items, onItemElimination }: Props) {
   const [selectionState, selectionDispatch] = useReducer(selectionReducer, {
     itemsCount: items.length,
     selectedItemId: selectRandomItemId(items.length, -1),
   });
 
-  const [selectionTaskState, selectionTaskDispatch] = useReducer(
-    selectionTaskReducer,
-    SelectionTaskState.StartNext,
-  );
+  const [selectionTaskState, selectionTaskDispatch] = useReducer(selectionTaskReducer, SelectionTaskState.StartNext);
 
   const [progressBar, progressBarDispatch] = useReducer(progressBarReducer, 0);
   const { setMusicPlaying } = useContext(MusicContext);
@@ -164,12 +147,7 @@ export default function RandomEliminationRound({
 
   return (
     <div>
-      <Box
-        display="inline-block"
-        alignItems="center"
-        width={"200px"}
-        style={{ marginBottom: 20 }}
-      >
+      <Box display="inline-block" alignItems="center" width={"200px"} style={{ marginBottom: 20 }}>
         <BorderLinearProgress variant="determinate" value={progressBar} />
       </Box>
       <Grid container columns={1} rowGap={1}>

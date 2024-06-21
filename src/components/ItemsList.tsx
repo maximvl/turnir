@@ -1,17 +1,8 @@
 import { OpenInNewOutlined, Shield } from "@mui/icons-material";
-import {
-  Box,
-  Button,
-  Grid,
-  Link,
-  Stack,
-  TextField,
-  Tooltip,
-  useTheme,
-} from "@mui/material";
+import { Box, Button, Grid, Link, Stack, TextField, Tooltip, useTheme } from "@mui/material";
 import { isEmpty, trim } from "lodash";
 import React from "react";
-import { Item, ItemStatus } from "../types";
+import { Item, ItemStatus } from "types";
 
 type Props = {
   items: Item[];
@@ -20,12 +11,7 @@ type Props = {
   canEditItems: boolean;
 };
 
-export default function ItemsList({
-  items,
-  setItem,
-  activeItems,
-  canEditItems,
-}: Props) {
+export default function ItemsList({ items, setItem, activeItems, canEditItems }: Props) {
   return (
     <div>
       {canEditItems ? (
@@ -81,24 +67,12 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
       <h3 style={{ marginTop: 0 }}>Кандидаты ({activeItems.length})</h3>
       <p style={{ paddingBottom: 2 }}>можно вставлять несколько строк</p>
 
-      <Grid
-        container
-        rowGap={1}
-        columns={1}
-        direction="column"
-        alignItems={"flex-start"}
-        border={0}
-      >
+      <Grid container rowGap={1} columns={1} direction="column" alignItems={"flex-start"} border={0}>
         {items.map((item, index) => {
           return (
             <Grid container columns={12} key={index}>
               <Grid item xs={10} width="inherit">
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  width={"inherit"}
-                  style={{ paddingRight: 10 }}
-                >
+                <Box display={"flex"} alignItems="center" width={"inherit"} style={{ paddingRight: 10 }}>
                   {index + 1}.
                   <Box width={10} />
                   <EditableItem
@@ -130,24 +104,13 @@ type NonEditableItemsListProps = {
 function NonEditableItemsList({ items }: NonEditableItemsListProps) {
   const theme = useTheme();
 
-  const activeItems = items.filter(
-    (item) => item.status !== ItemStatus.Eliminated,
-  );
-  const eliminatedItems = items.filter(
-    (item) => item.status === ItemStatus.Eliminated,
-  );
+  const activeItems = items.filter((item) => item.status !== ItemStatus.Eliminated);
+  const eliminatedItems = items.filter((item) => item.status === ItemStatus.Eliminated);
 
   return (
     <div>
       <h3 style={{ marginTop: 0 }}>Участники ({activeItems.length})</h3>
-      <Grid
-        container
-        rowGap={1}
-        columns={1}
-        direction="column"
-        alignItems={"flex-start"}
-        border={0}
-      >
+      <Grid container rowGap={1} columns={1} direction="column" alignItems={"flex-start"} border={0}>
         {activeItems.map((item) => {
           let itemTitle = item.title;
           // if (item.eliminationType && item.eliminationType) {
@@ -157,12 +120,7 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
           return (
             <Grid container columns={12} key={item.id}>
               <Grid item xs={10} width="inherit">
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  width={"inherit"}
-                  style={{ paddingRight: 10 }}
-                >
+                <Box display={"flex"} alignItems="center" width={"inherit"} style={{ paddingRight: 10 }}>
                   {item.id}.
                   <Box width={10} />
                   <Box color={theme.palette.success.main} display="flex">
@@ -188,12 +146,7 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
           return (
             <Grid container columns={12} key={item.id}>
               <Grid item xs={10} width="inherit">
-                <Box
-                  display={"flex"}
-                  alignItems="center"
-                  width={"inherit"}
-                  style={{ paddingRight: 10 }}
-                >
+                <Box display={"flex"} alignItems="center" width={"inherit"} style={{ paddingRight: 10 }}>
                   {item.id}.
                   <Box width={10} />
                   <Box color={theme.palette.error.light}>{itemTitle}</Box>

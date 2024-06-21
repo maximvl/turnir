@@ -2,7 +2,7 @@ import { Shield } from "@mui/icons-material";
 import { Avatar, Box, Chip, Grid, Paper, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
 import { useEffect, useState } from "react";
-import { Item, ItemStatus } from "../types";
+import { Item, ItemStatus } from "types";
 import { BorderLinearProgress } from "./BorderLinearProgress";
 
 type Props = {

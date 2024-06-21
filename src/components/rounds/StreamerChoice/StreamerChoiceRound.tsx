@@ -3,35 +3,26 @@ import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
 import { isNull } from "lodash";
 import { useContext, useEffect, useReducer, useState } from "react";
-import { MusicContext } from "../contexts/MusicContext";
-import { Item, ItemStatus, MusicType } from "../types";
+import { MusicContext } from "contexts/MusicContext";
+import { Item, ItemStatus, MusicType } from "types";
 
 type Props = {
   items: Item[];
   onItemElimination: (index: string) => void;
 };
 
-const selectionReducer = (
-  state: string | null,
-  value: string | null,
-): string | null => {
+const selectionReducer = (state: string | null, value: string | null): string | null => {
   if (!isNull(state) && !isNull(value)) {
     return state;
   }
   return value;
 };
 
-export default function StreamerChoiceRound({
-  items,
-  onItemElimination,
-}: Props) {
+export default function StreamerChoiceRound({ items, onItemElimination }: Props) {
   const theme = useTheme();
   const { setMusicPlaying } = useContext(MusicContext);
 
-  const [selectedItemId, selectionDispatch] = useReducer(
-    selectionReducer,
-    null,
-  );
+  const [selectedItemId, selectionDispatch] = useReducer(selectionReducer, null);
 
   const [blinking, setBlinking] = useState(false);
 

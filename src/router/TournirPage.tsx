@@ -1,28 +1,20 @@
 import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
 import StartIcon from "@mui/icons-material/Start";
-import {
-  Box,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  Slider,
-  Tooltip,
-} from "@mui/material";
+import { Box, Checkbox, Divider, FormControlLabel, Grid, Slider, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
 import { filter, isEmpty, sample, toString } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { useLocation } from "react-router";
 import { useParams } from "react-router";
-import "../App.css";
-import ItemsList from "../components/ItemsList";
-import ReleaseNotes from "../components/ReleaseNotes";
-import RoundContent from "../components/RoundContent";
-import RoundTitle from "../components/RoundTitle";
-import SavePreset from "../components/SavePreset";
-import Victory from "../components/Victory";
-import { MusicContext } from "../contexts/MusicContext";
+import "App.css";
+import ItemsList from "components/ItemsList";
+import ReleaseNotes from "components/ReleaseNotes";
+import RoundContent from "components/rounds/shared/RoundContent";
+import RoundTitle from "components/rounds/shared/RoundTitle";
+import SavePreset from "components/SavePreset";
+import Victory from "components/Victory";
+import { MusicContext } from "contexts/MusicContext";
 import {
   ClassicRoundTypes,
   Item,
@@ -34,8 +26,8 @@ import {
   RoundTypes,
   RoundTypeTooltip,
   TurnirState,
-} from "../types";
-import { createItem, fetchPreset } from "../utils";
+} from "types";
+import { createItem, fetchPreset } from "utils";
 
 const queryClient = new QueryClient();
 
@@ -43,9 +35,7 @@ function TournirApp() {
   const increaseAmount = 10;
   const initialItems = 10;
   const [roundNumber, setRoundNumber] = useState(0);
-  const [currentRoundType, setCurrentRoundType] = useState(
-    RoundType.RandomElimination,
-  );
+  const [currentRoundType, setCurrentRoundType] = useState(RoundType.RandomElimination);
 
   const [title, setTitle] = useState("");
   const location = useLocation();
@@ -61,20 +51,14 @@ function TournirApp() {
       console.log(preset);
       return;
     }
-    setItems(
-      preset.options.map((title, index) =>
-        createItem((index + 1).toString(), title),
-      ),
-    );
+    setItems(preset.options.map((title, index) => createItem((index + 1).toString(), title)));
     setTitle(preset.title);
   };
 
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
 
   const [items, setItems] = useState<Item[]>([]);
-  const [turnirState, setTurnirState] = useState<TurnirState>(
-    TurnirState.EditCandidates,
-  );
+  const [turnirState, setTurnirState] = useState<TurnirState>(TurnirState.EditCandidates);
 
   const [noRoundRepeat, setNoRoundRepeat] = useState(true);
 
@@ -83,13 +67,9 @@ function TournirApp() {
   );
 
   const allRounds = Array.from(roundTypes.keys());
-  const activeRounds: RoundType[] = filter(allRounds, (key) =>
-    Boolean(roundTypes.get(key)),
-  );
+  const activeRounds: RoundType[] = filter(allRounds, (key) => Boolean(roundTypes.get(key)));
 
-  const classicRounds = allRounds.filter((round) =>
-    ClassicRoundTypes.includes(round),
-  );
+  const classicRounds = allRounds.filter((round) => ClassicRoundTypes.includes(round));
   const newRounds = allRounds.filter((round) => NewRoundTypes.includes(round));
 
   useEffect(() => {
@@ -105,13 +85,10 @@ function TournirApp() {
     // eslint-disable-next-line
   }, [location]);
 
-  const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } =
-    useContext(MusicContext);
+  const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
-  const activeItems = nonEmptyItems.filter(
-    (item) => item.status !== ItemStatus.Eliminated,
-  );
+  const activeItems = nonEmptyItems.filter((item) => item.status !== ItemStatus.Eliminated);
 
   const addMoreItems = () => {
     const nextIndex = items.length;
@@ -131,9 +108,7 @@ function TournirApp() {
   const setNextRoundType = () => {
     let roundOptions = activeRounds;
     if (!protectionRoundEnabled) {
-      roundOptions = roundOptions.filter(
-        (round) => round !== RoundType.Protection,
-      );
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Protection);
     }
     if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
@@ -252,28 +227,10 @@ function TournirApp() {
         columns={12}
         sx={{ borderTop: 0.5, borderBottom: 0.5, borderColor: "grey.700" }}
       >
-        <Grid
-          item
-          xs={4}
-          border={0}
-          paddingTop={2}
-          sx={{ width: "100%", paddingBottom: 2 }}
-        >
-          <Grid
-            container
-            columns={1}
-            border={0}
-            rowGap={2}
-            paddingLeft={6}
-            paddingRight={2}
-          >
+        <Grid item xs={4} border={0} paddingTop={2} sx={{ width: "100%", paddingBottom: 2 }}>
+          <Grid container columns={1} border={0} rowGap={2} paddingLeft={6} paddingRight={2}>
             <Grid item xs={1} paddingLeft={0}>
-              <ItemsList
-                items={items}
-                setItem={setItemValue}
-                activeItems={nonEmptyItems}
-                canEditItems={canEditItems}
-              />
+              <ItemsList items={items} setItem={setItemValue} activeItems={nonEmptyItems} canEditItems={canEditItems} />
             </Grid>
             {canEditItems && (
               <Grid item xs={1}>
@@ -302,18 +259,8 @@ function TournirApp() {
           }}
         >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
-            <Grid
-              item
-              xs={1}
-              paddingLeft={2}
-              display="flex"
-              alignItems={"center"}
-            >
-              <Button
-                variant="outlined"
-                onClick={() => setIsMuted(!isMuted)}
-                sx={{ marginRight: 2 }}
-              >
+            <Grid item xs={1} paddingLeft={2} display="flex" alignItems={"center"}>
+              <Button variant="outlined" onClick={() => setIsMuted(!isMuted)} sx={{ marginRight: 2 }}>
                 {isMuted ? <VolumeOff /> : <VolumeUp />}
               </Button>
               <Slider
@@ -408,10 +355,7 @@ function TournirApp() {
               <Button
                 variant="contained"
                 onClick={startTurnir}
-                disabled={
-                  nonEmptyItems.length === 0 ||
-                  turnirState !== TurnirState.EditCandidates
-                }
+                disabled={nonEmptyItems.length === 0 || turnirState !== TurnirState.EditCandidates}
                 endIcon={<StartIcon />}
                 color="success"
               >
@@ -421,10 +365,7 @@ function TournirApp() {
             <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
-                disabled={
-                  turnirState !== TurnirState.RoundEnd &&
-                  turnirState !== TurnirState.Start
-                }
+                disabled={turnirState !== TurnirState.RoundEnd && turnirState !== TurnirState.Start}
                 onClick={onNextRoundClick}
                 endIcon={<SkipNext />}
               >
@@ -445,15 +386,7 @@ function TournirApp() {
           </Grid>
         </Grid>
 
-        <Grid
-          item
-          xs={6}
-          border={0}
-          paddingTop={2}
-          paddingRight={6}
-          paddingBottom={2}
-          textAlign="center"
-        >
+        <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
           {turnirState === TurnirState.Start && (
             <div>
               <RoundTitle
@@ -470,9 +403,7 @@ function TournirApp() {
               />
             </div>
           )}
-          {turnirState === TurnirState.Victory && (
-            <Victory winner={activeItems[0]} />
-          )}
+          {turnirState === TurnirState.Victory && <Victory winner={activeItems[0]} />}
         </Grid>
       </Grid>
     </QueryClientProvider>

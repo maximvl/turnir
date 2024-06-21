@@ -2,8 +2,8 @@ import { Shield } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { blue, blueGrey, brown, green, indigo, orange, pink, purple, teal } from "@mui/material/colors";
 import { useContext, useEffect, useRef, useState } from "react";
-import { MusicContext } from "../contexts/MusicContext";
-import { Item, ItemStatus, MusicType } from "../types";
+import { MusicContext } from "contexts/MusicContext";
+import { Item, ItemStatus, MusicType } from "types";
 
 enum WheelState {
   Start,

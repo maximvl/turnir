@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
-import { Item } from "../types";
-import fireworks from "../images/fireworks.gif";
+import { Item } from "types";
+import fireworks from "images/fireworks.gif";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -28,14 +28,8 @@ export default function Victory({ winner }: Props) {
             width={"100%"}
             className="raising"
           >
-            <div
-              className="neon"
-              style={{ textAlign: "center", backgroundColor: "black" }}
-            >
-              <span
-                className="text"
-                data-text={winner.title.toLocaleUpperCase()}
-              >
+            <div className="neon" style={{ textAlign: "center", backgroundColor: "black" }}>
+              <span className="text" data-text={winner.title.toLocaleUpperCase()}>
                 {winner.title.toLocaleUpperCase()}
               </span>
               <span className="gradient"></span>
@@ -43,12 +37,7 @@ export default function Victory({ winner }: Props) {
             </div>
           </Box>
         </Box>
-        <img
-          src={fireworks}
-          alt=""
-          width={"100%"}
-          style={{ zIndex: 10, position: "relative" }}
-        />
+        <img src={fireworks} alt="" width={"100%"} style={{ zIndex: 10, position: "relative" }} />
       </Box>
     </Box>
   );
