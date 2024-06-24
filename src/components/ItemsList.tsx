@@ -10,15 +10,16 @@ type Props = {
   setItem: (id: number, text: string) => void;
   activeItems: Item[];
   canEditItems: boolean;
+  showKPLinks?: boolean;
 };
 
-export default function ItemsList({ items, setItem, activeItems, canEditItems }: Props) {
+export default function ItemsList({ items, setItem, activeItems, canEditItems, showKPLinks = true }: Props) {
   return (
     <div>
       {canEditItems ? (
-        <EditableItemsList items={items} setItem={setItem} />
+        <EditableItemsList items={items} setItem={setItem} showKPLinks={showKPLinks} />
       ) : (
-        <NonEditableItemsList items={activeItems} />
+        <NonEditableItemsList items={activeItems} showKPLinks={showKPLinks} />
       )}
     </div>
   );
@@ -54,9 +55,10 @@ function EditableItem({ item, handleChange, handlePaste }: EditableItemProps) {
 type EditableItemsListProps = {
   items: Item[];
   setItem: (index: number, text: string) => void;
+  showKPLinks?: boolean;
 };
 
-function EditableItemsList({ items, setItem }: EditableItemsListProps) {
+function EditableItemsList({ items, setItem, showKPLinks }: EditableItemsListProps) {
   const handleChange = (index: number, text: string) => {
     setItem(index, text);
   };
@@ -87,9 +89,11 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
                   />
                 </Box>
               </Grid>
-              <Grid item xs={2} paddingLeft={1}>
-                {item.title && <KPLink item={item} />}
-              </Grid>
+              {showKPLinks && (
+                <Grid item xs={2} paddingLeft={1}>
+                  {item.title && <KPLink item={item} />}
+                </Grid>
+              )}
             </Grid>
           );
         })}
@@ -100,9 +104,10 @@ function EditableItemsList({ items, setItem }: EditableItemsListProps) {
 
 type NonEditableItemsListProps = {
   items: Item[];
+  showKPLinks?: boolean;
 };
 
-function NonEditableItemsList({ items }: NonEditableItemsListProps) {
+function NonEditableItemsList({ items, showKPLinks }: NonEditableItemsListProps) {
   const theme = useTheme();
 
   const activeItems = items.filter((item) => item.status !== ItemStatus.Eliminated);
@@ -128,9 +133,11 @@ function NonEditableItemsList({ items }: NonEditableItemsListProps) {
                   </Box>
                 </Box>
               </Grid>
-              <Grid item xs={2} paddingLeft={1}>
-                {item.title && <KPLink item={item} />}
-              </Grid>
+              {showKPLinks && (
+                <Grid item xs={2} paddingLeft={1}>
+                  {item.title && <KPLink item={item} />}
+                </Grid>
+              )}
             </Grid>
           );
         })}

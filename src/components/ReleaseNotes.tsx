@@ -11,6 +11,16 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: "1.7",
+    date: "2024-06-22",
+    changes: ["Добавлена отдельная страница голосования"],
+  },
+  {
+    version: "1.6",
+    date: "2024-06-21",
+    changes: ["Добавлен новый раунд: Подмена"],
+  },
+  {
     version: "1.5",
     date: "2024-06-20",
     changes: ["Улучшена плавность колеса рандома, добавлен нашс возврата"],
@@ -70,9 +80,7 @@ export default function ReleaseNotes() {
 
   return (
     <>
-      <Typography variant="body2" style={{ cursor: "pointer" }} onClick={() => setShow(true)}>
-        <Button>Что нового</Button>
-      </Typography>
+      <Button onClick={() => setShow(true)}>Что нового</Button>
       <Dialog open={show} onClose={() => setShow(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Что нового</DialogTitle>
         <DialogContent dividers>

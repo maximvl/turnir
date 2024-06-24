@@ -10,6 +10,8 @@ import { isEmpty } from "lodash";
 type Props = {
   items: Item[];
   onItemElimination: (index: string) => void;
+  logFormatter?: (vote: PollVote, formattedTime: string, optionTitle: string) => string;
+  timer?: number;
 };
 
 type VotesDict = {
@@ -20,18 +22,40 @@ const VOTES_REFETCH_INTERVAL = 2000;
 
 type ResetState = "started" | "finished";
 
-export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
+export default function ViewerChoiceRound({ items, onItemElimination, logFormatter, timer }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({});
   const [resetState, setResetState] = useState<ResetState>("started");
   const [voteMessages, setVoteMessages] = useState<PollVote[]>([]);
+
   const [lastTs, setLastTs] = useState<number>(() => Math.floor(Date.now() / 1000));
+  const [state, setState] = useState<"started" | "finished">("started");
+
+  const [time, setTime] = useState(() => timer || 0);
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (timer !== undefined) {
+      if (time === 0) {
+        setState("finished");
+        return;
+      }
+      interval = setInterval(() => {
+        setTime(time - 1);
+      }, 1000);
+    } else {
+      interval = setInterval(() => {
+        setTime(time + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [time, timer]);
 
   const {
     data: votes,
     error,
     isLoading,
-  } = useQuery(["votes", items.length, lastTs], fetchVotes, {
+  } = useQuery(["votes", items.length, lastTs], (args) => fetchVotes(args), {
     refetchInterval: VOTES_REFETCH_INTERVAL,
+    enabled: state === "started",
   });
 
   // console.log("votes", votes);
@@ -43,6 +67,7 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
     setVoteMessages([]);
     setLastTs(Math.floor(Date.now() / 1000));
     setResetState("finished");
+    setTime(timer || 0);
   };
 
   useEffect(() => {
@@ -107,9 +132,9 @@ export default function ViewerChoiceRound({ items, onItemElimination }: Props) {
   return (
     <div>
       <Box display="inline-block" alignItems="center" style={{ paddingLeft: 16, width: "100%" }}>
-        <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} />
+        <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} time={time} />
         <div style={{ marginTop: 20 }}>
-          <VotesLog votes={voteMessages} items={items} />
+          <VotesLog votes={voteMessages} items={items} logFormatter={logFormatter} isFinished={state === "finished"} />
         </div>
       </Box>
     </div>

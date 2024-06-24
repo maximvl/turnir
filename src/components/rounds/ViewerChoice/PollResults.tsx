@@ -1,7 +1,6 @@
 import { Avatar, Box, Chip, Grid, useTheme } from "@mui/material";
 import { teal } from "@mui/material/colors";
 import ItemTitle from "components/ItemTitle";
-import { useEffect, useState } from "react";
 import { Item } from "types";
 import InfoPanel from "../shared/InfoPanel";
 import { BorderLinearProgress } from "./BorderLinearProgress";
@@ -10,25 +9,20 @@ type Props = {
   items: Item[];
   onItemElimination?: (index: string) => void;
   votes: string[];
+  time?: number;
 };
 
-export default function PollResults({ items, votes, onItemElimination }: Props) {
+export default function PollResults({ items, votes, onItemElimination, time }: Props) {
   const theme = useTheme();
 
-  const [time, setTime] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(time + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [time]);
-
-  const seconds = time % 60;
-  const minutes = Math.floor(time / 60);
-  const secondsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
-  const minutesString = minutes < 10 ? `0${minutes}` : `${minutes}`;
-  const timePassed = `${minutesString}:${secondsString}`;
+  let timePassed = undefined;
+  if (time !== undefined) {
+    const seconds = time % 60;
+    const minutes = Math.floor(time / 60);
+    const secondsString = seconds < 10 ? `0${seconds}` : `${seconds}`;
+    const minutesString = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    timePassed = `${minutesString}:${secondsString}`;
+  }
 
   const onItemClick = (index: string) => {
     if (onItemElimination) {
@@ -49,9 +43,7 @@ export default function PollResults({ items, votes, onItemElimination }: Props) 
   }
 
   const maxVotes = Object.values(votesByOption).reduce((acc, curr) => Math.max(acc, curr), 0);
-
   const itemIdsWithMaxVotes = Object.keys(votesByOption).filter((key) => votesByOption[key] === maxVotes);
-
   const totalVotes = votes.length;
 
   const itemElement = (item: Item, selected: boolean) => {
@@ -71,7 +63,7 @@ export default function PollResults({ items, votes, onItemElimination }: Props) 
     <div>
       <Box textAlign="center" display="grid" justifyContent={"center"}>
         <h2 style={{ margin: 0 }}>
-          Результаты голосования ({totalVotes}) {timePassed}
+          Результаты голосования ({totalVotes}) {timePassed || ""}
         </h2>
         <InfoPanel>
           <p style={{ whiteSpace: "pre-wrap" }}>

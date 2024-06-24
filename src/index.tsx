@@ -6,21 +6,28 @@ import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import MusicContextProvider from "./contexts/MusicContext";
+import VotingPage from "router/VotingPage";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
+const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 
-const baseURL = process.env.PUBLIC_URL || "/turnir";
+// const baseURL = process.env.PUBLIC_URL || "/turnir";
 
 const router = createBrowserRouter([
   {
-    path: `${baseURL}/`,
+    path: "/",
     element: <TournirPage />,
   },
   {
-    path: `${baseURL}/:id`,
+    path: "/turnir",
     element: <TournirPage />,
+  },
+  {
+    path: "/turnir/:id",
+    element: <TournirPage />,
+  },
+  {
+    path: "/voting",
+    element: <VotingPage />,
   },
 ]);
 

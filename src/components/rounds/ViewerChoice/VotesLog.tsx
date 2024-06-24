@@ -6,9 +6,15 @@ import { PollVote } from "utils";
 type Props = {
   votes: PollVote[];
   items: Item[];
+  logFormatter?: (vote: PollVote, formattedTime: string, optionName: string) => string;
+  isFinished: boolean;
 };
 
-export default function VotesLog({ votes, items }: Props) {
+const voteFormatter = (vote: PollVote, formattedTime: string, optionName: string) => {
+  return `${formattedTime}: ${vote.username} голосует против ${vote.message} (${optionName})`;
+};
+
+export default function VotesLog({ votes, items, logFormatter = voteFormatter, isFinished }: Props) {
   // console.log("votes", votes);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const automaticScroll = useRef(true);
@@ -23,11 +29,17 @@ export default function VotesLog({ votes, items }: Props) {
 
   useEffect(() => {
     const time = new Date().getTime();
-    if (automaticScroll.current || time - lastScrollTime.current > 6000) {
+    if (automaticScroll.current || time - lastScrollTime.current > 3000) {
       automaticScroll.current = true;
       scrollToBottom();
     }
   }, [votes.length]);
+
+  useEffect(() => {
+    if (isFinished) {
+      scrollToBottom();
+    }
+  }, [isFinished]);
 
   const onScroll = (event: React.UIEvent) => {
     const time = new Date().getTime();
@@ -42,7 +54,7 @@ export default function VotesLog({ votes, items }: Props) {
     if (automaticScroll.current) {
       scrollToBottom();
     }
-  }, [scrollableRef, votes.length]);
+  }, [scrollableRef, votes.length, isFinished]);
 
   const itemNameMap = items.reduce(
     (acc, item) => {
@@ -79,9 +91,14 @@ export default function VotesLog({ votes, items }: Props) {
               m: 1,
             }}
           >
-            {formatTime(vote.ts)}: {vote.username} голосует против {vote.message} ({itemNameMap[vote.message]})
+            {logFormatter(vote, formatTime(vote.ts), itemNameMap[vote.message])}
           </Box>
         ))}
+        {isFinished && (
+          <Box textAlign={"center"} component="span" sx={{ display: "block", m: 1 }}>
+            Голосование завершено
+          </Box>
+        )}
       </Box>
     </div>
   );

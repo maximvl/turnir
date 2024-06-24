@@ -2,19 +2,18 @@ import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
 import StartIcon from "@mui/icons-material/Start";
 import { Box, Checkbox, Divider, FormControlLabel, Grid, Slider, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
-import { filter, isEmpty, sample, toString } from "lodash";
-import { useContext, useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { useLocation } from "react-router";
-import { useParams } from "react-router";
 import "App.css";
 import ItemsList from "components/ItemsList";
-import ReleaseNotes from "components/ReleaseNotes";
 import RoundContent from "components/rounds/shared/RoundContent";
 import RoundTitle from "components/rounds/shared/RoundTitle";
 import SavePreset from "components/SavePreset";
+import SwapRevealModal from "components/SwapRevealModal";
 import Victory from "components/Victory";
 import { MusicContext } from "contexts/MusicContext";
+import { filter, isEmpty, sample, toString } from "lodash";
+import { useContext, useEffect, useState } from "react";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { useLocation, useParams } from "react-router";
 import {
   ClassicRoundTypes,
   Item,
@@ -28,7 +27,7 @@ import {
   TurnirState,
 } from "types";
 import { createItem, fetchPreset } from "utils";
-import SwapRevealModal from "components/SwapRevealModal";
+import MainMenu from "./MainMenu";
 
 const queryClient = new QueryClient();
 
@@ -59,7 +58,14 @@ function TournirApp() {
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
   const [swapRoundEnabled, setSwapRoundEnabled] = useState(true);
 
-  const [items, setItems] = useState<Item[]>([]);
+  const [items, setItems] = useState<Item[]>(() => {
+    if (presetId) {
+      return [];
+    }
+    return Array(initialItems)
+      .fill(0)
+      .map((_, index) => createItem(toString(index + 1)));
+  });
   const [turnirState, setTurnirState] = useState<TurnirState>(TurnirState.EditCandidates);
 
   const [noRoundRepeat, setNoRoundRepeat] = useState(true);
@@ -81,15 +87,9 @@ function TournirApp() {
   useEffect(() => {
     if (presetId) {
       loadPreset(presetId);
-    } else {
-      setItems(
-        Array(initialItems)
-          .fill(0)
-          .map((_, index) => createItem(toString(index + 1))),
-      );
     }
     // eslint-disable-next-line
-  }, [location]);
+  }, [presetId]);
 
   const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } = useContext(MusicContext);
 
@@ -233,32 +233,7 @@ function TournirApp() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="app">
-        <Box
-          sx={{
-            textAlign: "left",
-            float: "left",
-            position: "absolute",
-            paddingLeft: 6,
-            paddingTop: 3,
-          }}
-        >
-          <ReleaseNotes />
-        </Box>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          style={{
-            fontWeight: "bold",
-            fontSize: "2em",
-            margin: 20,
-            textAlign: "center",
-          }}
-        >
-          <Box>{title ? `Турнир: ${title}` : "Турнир"}</Box>
-        </Box>
-      </div>
+      <MainMenu title={title ? `Турнир: ${title}` : "Турнир"} />
       <Grid
         container
         columnSpacing={0}
