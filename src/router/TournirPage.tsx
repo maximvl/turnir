@@ -13,7 +13,7 @@ import { MusicContext } from "contexts/MusicContext";
 import { filter, isEmpty, sample, toString } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { useLocation, useParams } from "react-router";
+import { useParams } from "react-router";
 import {
   ClassicRoundTypes,
   Item,
@@ -38,7 +38,6 @@ function TournirApp() {
   const [currentRoundType, setCurrentRoundType] = useState(RoundType.RandomElimination);
 
   const [title, setTitle] = useState("");
-  const location = useLocation();
 
   const { id: presetId } = useParams();
   const loadPreset = async (presetId: string) => {
