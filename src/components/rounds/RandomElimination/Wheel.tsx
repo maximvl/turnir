@@ -270,10 +270,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     onClick: onClick,
   };
 
-  const DefaultButton = (props: React.ComponentProps<typeof Button>) => (
-    <Button {...props}>{currentItem.isProtected ? "Снять защиту" : "Удалить"}</Button>
-  );
-
+  const DefaultButton = (props: React.ComponentProps<typeof Button>) => <Button {...props}>"Удалить"</Button>;
   const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
 
   return (

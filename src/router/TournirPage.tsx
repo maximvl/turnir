@@ -28,6 +28,7 @@ import {
 } from "types";
 import { createItem, fetchPreset } from "utils";
 import MainMenu from "./MainMenu";
+import ProtectionRemoveModal from "components/ProtectionRemoveModal";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,9 @@ function TournirApp() {
   const [showSwapModal, setShowSwapModal] = useState(false);
   const [initialSwapItem, setInitialSwapItem] = useState<Item | undefined>(undefined);
   const [actionSwapItem, setActionSwapItem] = useState<Item | undefined>(undefined);
+
+  const [showProtectionModal, setShowProtectionModal] = useState(false);
+  const [protectedItem, setProtectedItem] = useState<Item | undefined>(undefined);
 
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) => Boolean(roundTypes.get(key)));
@@ -155,8 +159,10 @@ function TournirApp() {
     const item = activeItems.find((item) => item.id === id);
     if (item) {
       if (item.isProtected) {
+        setShowProtectionModal(true);
+        setProtectedItem(item);
         item.isProtected = false;
-        setNextRoundType();
+        // setNextRoundType();
       } else if (item.swappedWith && targetSwapItem) {
         setShowSwapModal(true);
         setInitialSwapItem(item);
@@ -429,6 +435,16 @@ function TournirApp() {
           }}
           initialItem={initialSwapItem}
           actionItem={actionSwapItem}
+        />
+      )}
+      {protectedItem && (
+        <ProtectionRemoveModal
+          open={showProtectionModal}
+          onClose={() => {
+            setNextRoundType();
+            setShowProtectionModal(false);
+          }}
+          item={protectedItem}
         />
       )}
     </QueryClientProvider>
