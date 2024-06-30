@@ -24,7 +24,7 @@ export default function SwapRound(props: Props) {
           <p style={{ whiteSpace: "pre-wrap" }}>
             Случайный вариант секретно меняется с другим
             {"\n"}
-            Подмена вскроется когда один из них вылетает
+            Подмена вскроется когда один из них вылетит
           </p>
         </InfoPanel>
       </div>

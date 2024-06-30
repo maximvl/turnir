@@ -10,9 +10,24 @@ type Props = {
   onItemElimination?: (index: string) => void;
   votes: string[];
   time?: number;
+  hideResults?: boolean;
+  winnerCheck?: (votes: number) => number;
+  showInfo?: boolean;
 };
 
-export default function PollResults({ items, votes, onItemElimination, time }: Props) {
+const defaultWinnerCheck = (votes: number) => {
+  return votes;
+};
+
+export default function PollResults({
+  items,
+  votes,
+  onItemElimination,
+  time,
+  hideResults,
+  winnerCheck = defaultWinnerCheck,
+  showInfo = true,
+}: Props) {
   const theme = useTheme();
 
   let timePassed = undefined;
@@ -42,8 +57,17 @@ export default function PollResults({ items, votes, onItemElimination, time }: P
     votesByOption[option] += 1;
   }
 
-  const maxVotes = Object.values(votesByOption).reduce((acc, curr) => Math.max(acc, curr), 0);
-  const itemIdsWithMaxVotes = Object.keys(votesByOption).filter((key) => votesByOption[key] === maxVotes);
+  const winningVoteAmount = Object.values(votesByOption).reduce(
+    (acc, votes) => Math.max(acc, winnerCheck(votes)),
+    Object.values(votesByOption)[0] || 0,
+  );
+
+  const itemIdsWithWinningVotes = Object.keys(votesByOption).filter(
+    (key) => winnerCheck(votesByOption[key]) === winningVoteAmount,
+  );
+
+  // const maxVotes = Object.values(votesByOption).reduce((acc, curr) => Math.max(acc, curr), 0);
+  // const itemIdsWithMaxVotes = Object.keys(votesByOption).filter((key) => votesByOption[key] === maxVotes);
   const totalVotes = votes.length;
 
   const itemElement = (item: Item, selected: boolean) => {
@@ -63,19 +87,21 @@ export default function PollResults({ items, votes, onItemElimination, time }: P
     <div>
       <Box textAlign="center" display="grid" justifyContent={"center"}>
         <h2 style={{ margin: 0 }}>
-          Результаты голосования ({totalVotes}) {timePassed || ""}
+          Результаты голосования {hideResults && "скрыты"} ({totalVotes}) {timePassed || ""}
         </h2>
-        <InfoPanel>
-          <p style={{ whiteSpace: "pre-wrap" }}>
-            Голосуйте номером варианта в чате: '5' а не '555' или '5 5 5' и тд
-            {"\n"}
-            <u>МОЖНО МЕНЯТЬ ГОЛОС</u>, засчитывается самый последний
-          </p>
-        </InfoPanel>
+        {showInfo && (
+          <InfoPanel>
+            <p style={{ whiteSpace: "pre-wrap" }}>
+              Голосуйте номером варианта в чате: '5' а не '555' или '5 5 5' и тд
+              {"\n"}
+              <u>МОЖНО МЕНЯТЬ ГОЛОС</u>, засчитывается самый последний
+            </p>
+          </InfoPanel>
+        )}
       </Box>
       <Grid container columns={4} rowGap={1}>
         {items.map((item, index) => {
-          const highlight = totalVotes > 0 && itemIdsWithMaxVotes.includes(item.id);
+          const highlight = totalVotes > 0 && itemIdsWithWinningVotes.includes(item.id) && !hideResults;
           const currentVotes = votesByOption[item.id] || 0;
           return (
             <Grid container columns={12} key={index} columnSpacing={4} alignItems="center">
@@ -88,11 +114,11 @@ export default function PollResults({ items, votes, onItemElimination, time }: P
                     backgroundColor: highlight ? theme.palette.error.light : null,
                   }}
                   variant="determinate"
-                  value={(currentVotes / totalVotes) * 100}
+                  value={hideResults ? 0 : (currentVotes / totalVotes) * 100}
                 />
               </Grid>
               <Grid item xs={1} textAlign={"left"}>
-                {currentVotes}
+                {hideResults ? "?" : currentVotes}
               </Grid>
             </Grid>
           );

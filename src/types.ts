@@ -29,6 +29,7 @@ export enum RoundType {
   Protection = "Protection",
   StreamerVsRandom = "StreamerVsRandom",
   Swap = "Swap",
+  ClosestVotes = "ClosestVotes",
 }
 
 export const ClassicRoundTypes = [RoundType.RandomElimination, RoundType.StreamerChoice, RoundType.ViewerChoice];
@@ -37,6 +38,7 @@ export const NewRoundTypes = [
   RoundType.Protection,
   // RoundType.StreamerVsRandom
   RoundType.Swap,
+  RoundType.ClosestVotes,
 ];
 
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
@@ -48,6 +50,7 @@ export const RoundTypeNames = {
   [RoundType.Protection]: "Защитный",
   [RoundType.StreamerVsRandom]: "Стример против рандома",
   [RoundType.Swap]: "Подмена",
+  [RoundType.ClosestVotes]: "Стример против Чата",
 };
 
 export const RoundTypeTooltip: { [key: string]: string } = {
@@ -57,6 +60,7 @@ export const RoundTypeTooltip: { [key: string]: string } = {
   [RoundType.StreamerChoice]: "Стример выбирает кто вылетит",
   [RoundType.ViewerChoice]: "Зрители выбирают кто вылетит",
   [RoundType.Swap]: "Случайный вариант скрытно меняется с другим, подмена вскроется когда один из них вылетит",
+  [RoundType.ClosestVotes]: "Вылетает вариант получивший наиболее близкое количество голосов к тому что выбрал стример",
 };
 
 export const enum MusicType {

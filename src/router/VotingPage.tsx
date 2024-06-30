@@ -3,7 +3,7 @@ import { Button, Divider, Grid, Slider } from "@mui/material";
 import ItemsList from "components/ItemsList";
 import ViewerChoiceRound from "components/rounds/ViewerChoice/ViewerChoiceRound";
 import { isEmpty, toString } from "lodash";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Item, ItemStatus } from "types";
 import { createItem, PollVote } from "utils";
@@ -140,12 +140,7 @@ export default function VotingPage() {
 
         <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
           {status === "voting" && (
-            <ViewerChoiceRound
-              items={activeItems}
-              onItemElimination={onItemChoice}
-              logFormatter={logFormatter}
-              timer={timer}
-            />
+            <ViewerChoiceRound items={activeItems} onItemElimination={onItemChoice} logFormatter={logFormatter} />
           )}
         </Grid>
       </Grid>

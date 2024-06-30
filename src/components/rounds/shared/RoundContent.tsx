@@ -4,6 +4,7 @@ import ViewerChoiceRound from "../ViewerChoice/ViewerChoiceRound";
 import Wheel from "../RandomElimination/Wheel";
 import ProtectionRound from "../Protection/ProtectionRound";
 import SwapRound from "../Swap/SwapRound";
+import ClosestVotesRound from "../ClosestVotes/ClosestVotesRound";
 
 type Props = {
   roundType: RoundType;
@@ -29,6 +30,9 @@ export default function RoundContent({ roundType, items, onItemElimination, onIt
     }
     case RoundType.Swap: {
       return <SwapRound items={items} onItemSwap={onItemSwap} />;
+    }
+    case RoundType.ClosestVotes: {
+      return <ClosestVotesRound items={items} onItemElimination={onItemElimination} />;
     }
     default: {
       return <div>Round type {roundType} not implemented</div>;

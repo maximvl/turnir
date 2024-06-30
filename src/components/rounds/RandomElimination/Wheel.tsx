@@ -4,6 +4,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { MusicContext } from "contexts/MusicContext";
 import { Item, MusicType } from "types";
 import ItemTitle from "components/ItemTitle";
+import CatDance from "images/cat_dance.webp";
 
 enum WheelState {
   Start,
@@ -85,6 +86,10 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     purple[800],
   ];
 
+  const centerRadius = 30;
+  const centerImage = new Image();
+  centerImage.src = CatDance;
+
   const drawWheel = (rotation: number) => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -96,7 +101,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
       context.rotate(rotation);
 
       context.font = "15px Arial";
-      const textOffsetFromCenter = 40;
+      const textOffsetFromCenter = 45;
       for (let i = 0; i < amountOfItems; i++) {
         const color = colors[i % colors.length];
 
@@ -123,13 +128,13 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
 
         context.rotate(pieceAngle);
       }
-      context.fillStyle = "white";
-      context.beginPath();
-      context.arc(0, 0, 20, 0, 2 * Math.PI);
-      context.fill();
-      context.lineWidth = 2;
-      context.strokeStyle = "white";
-      context.stroke();
+      // context.fillStyle = "white";
+      // context.beginPath();
+      // context.arc(0, 0, centerRadius, 0, 2 * Math.PI);
+      // context.fill();
+      // context.lineWidth = 2;
+      // context.strokeStyle = "white";
+      // context.stroke();
       context.restore();
     }
   };
@@ -152,7 +157,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   }
 
   const backtrackSpeed = -0.001;
-  const backtrackTime = 2000 + 1000 * Math.random();
+  const backtrackTime = 2500 + 700 * Math.random();
 
   const animate = (time: number) => {
     if (timeRef.current) {
@@ -292,7 +297,25 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
           }}
         />
       </div>
-      <canvas ref={onRefChange} width={size} height={size} onClick={startSpinning} />
+      <div style={{ justifyContent: "center", display: "flex" }}>
+        <div style={{ position: "relative", margin: 0, padding: 0, width: `${size}px`, height: `${size}px` }}>
+          <canvas ref={onRefChange} width={size} height={size} onClick={startSpinning} />
+          {![WheelState.Start, WheelState.Stop].includes(wheelState.current) && (
+            <img
+              src={CatDance}
+              alt=""
+              style={{
+                position: "absolute",
+                top: `${size / 2 - centerRadius}px`,
+                left: `${size / 2 - centerRadius}px`,
+                width: centerRadius * 2,
+                height: centerRadius * 2,
+              }}
+              onClick={startSpinning}
+            />
+          )}
+        </div>
+      </div>
     </Box>
   );
 }
