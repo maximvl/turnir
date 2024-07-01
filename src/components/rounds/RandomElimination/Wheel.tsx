@@ -5,6 +5,7 @@ import { MusicContext } from "contexts/MusicContext";
 import { Item, MusicType } from "types";
 import ItemTitle from "components/ItemTitle";
 import CatDance from "images/cat_dance.webp";
+import { random } from "lodash";
 
 enum WheelState {
   Start,
@@ -29,6 +30,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const wheelState = useRef<WheelState>(WheelState.Start);
   const [isFinished, setIsFinished] = useState<boolean>(false);
   const [hasBacktrack, setHasBacktrack] = useState<boolean>(() => Math.random() > 0.5);
+  const [initialAngle, setInitialAngle] = useState<number>(() => random(0, 360));
 
   useEffect(() => {
     if (isFinished) {
@@ -41,17 +43,17 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const amountOfItems = items.length;
 
   const size = 400;
-  const sizeOffset = 10;
+  const sizeOffset = 0;
   const diameter = size - sizeOffset;
-  const radius = diameter / 2;
+  const radius = diameter / 2 + 2;
   const centerX = diameter / 2;
   const centerY = diameter / 2;
   const pieceAngle = (2 * Math.PI) / amountOfItems;
   const angleHalf = pieceAngle / 2;
 
   const getSelectedItemId = (rotation: number) => {
-    const initialAngle = angleHalf + (90 * Math.PI) / 180;
-    const initialIndex = Math.round((initialAngle + rotation) / pieceAngle) - 1;
+    const startingAngle = angleHalf + ((90 + initialAngle) * Math.PI) / 180;
+    const initialIndex = Math.round((startingAngle + rotation) / pieceAngle) - 1;
     return amountOfItems - 1 - (initialIndex % amountOfItems);
   };
 
@@ -63,6 +65,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     wheelState.current = WheelState.Start;
     setIsFinished(false);
     setHasBacktrack(Math.random() > 0.5);
+    setInitialAngle(random(0, 360));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
@@ -98,7 +101,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
       context.save();
       context.translate(sizeOffset / 2, sizeOffset / 2);
       context.translate(centerX, centerY);
-      context.rotate(rotation);
+      context.rotate(rotation + initialAngle * (Math.PI / 180));
 
       context.font = "15px Arial";
       const textOffsetFromCenter = 45;
@@ -109,7 +112,10 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
         context.fill(piece);
         context.strokeStyle = "white";
         context.lineWidth = 2;
-        context.stroke(piece);
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(radius * Math.cos(0), radius * Math.sin(0));
+        context.stroke();
 
         context.save();
         context.rotate(angleHalf);
@@ -128,14 +134,30 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
 
         context.rotate(pieceAngle);
       }
-      // context.fillStyle = "white";
-      // context.beginPath();
-      // context.arc(0, 0, centerRadius, 0, 2 * Math.PI);
-      // context.fill();
-      // context.lineWidth = 2;
-      // context.strokeStyle = "white";
-      // context.stroke();
+
       context.restore();
+
+      context.fillStyle = "white";
+      context.strokeStyle = "black";
+      context.beginPath();
+      context.moveTo(centerX, centerY - radius + 30);
+      context.lineTo(centerX - 30, centerY - radius);
+      context.lineTo(centerX + 30, centerY - radius);
+      context.closePath();
+      context.fill();
+
+      context.beginPath();
+      context.moveTo(centerX, centerY - radius + 30);
+      context.lineTo(centerX - 27, centerY - radius + 3);
+      context.closePath();
+      context.lineWidth = 2;
+      context.stroke();
+
+      context.beginPath();
+      context.moveTo(centerX, centerY - radius + 30);
+      context.lineTo(centerX + 27, centerY - radius + 3);
+      context.closePath();
+      context.stroke();
     }
   };
 
@@ -270,7 +292,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
     onClick: onClick,
   };
 
-  const DefaultButton = (props: React.ComponentProps<typeof Button>) => <Button {...props}>"Удалить"</Button>;
+  const DefaultButton = (props: React.ComponentProps<typeof Button>) => <Button {...props}>Удалить</Button>;
   const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
 
   return (
@@ -283,20 +305,64 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
         </Box>
       ) : null}
       {isFinished && <FinalButton {...defaultButtonProps} />}
-      <div style={{ width: "100%", justifyContent: "center", display: "flex" }}>
+      <div style={{ justifyContent: "center", display: "flex", marginTop: 4 }}>
         <div
           style={{
-            width: 0,
-            height: 0,
-            borderTop: "40px solid white",
-            borderLeft: "40px solid transparent",
-            borderRight: "40px solid transparent",
+            position: "relative",
+            margin: 0,
+            padding: 0,
+            width: `${size + 8}px`,
+            height: `${size + 8}px`,
+            borderWidth: "4px",
+            borderStyle: "solid",
+            borderRadius: "50%",
+            borderColor: "white",
+            zIndex: 5,
           }}
-        />
-      </div>
-      <div style={{ justifyContent: "center", display: "flex" }}>
-        <div style={{ position: "relative", margin: 0, padding: 0, width: `${size}px`, height: `${size}px` }}>
-          <canvas ref={onRefChange} width={size} height={size} onClick={startSpinning} />
+        >
+          <canvas
+            ref={onRefChange}
+            width={size}
+            height={size}
+            onClick={startSpinning}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              zIndex: 1,
+            }}
+          />
+          <div
+            onClick={startSpinning}
+            style={{
+              position: "absolute",
+              top: -6,
+              left: -6,
+              zIndex: 2,
+              width: `${size + 12}px`,
+              height: `${size + 12}px`,
+              borderRadius: "50%",
+              borderColor: "white",
+              borderWidth: "6px",
+              borderStyle: "solid",
+            }}
+          />
+          <div
+            onClick={startSpinning}
+            style={{
+              position: "absolute",
+              top: -2,
+              left: -2,
+              zIndex: 2,
+              width: `${size + 4}px`,
+              height: `${size + 4}px`,
+              borderRadius: "50%",
+              borderColor: "black",
+              borderWidth: "2px",
+              borderStyle: "solid",
+            }}
+          />
+
           {![WheelState.Start, WheelState.Stop].includes(wheelState.current) && (
             <img
               src={CatDance}
@@ -307,6 +373,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
                 left: `${size / 2 - centerRadius}px`,
                 width: centerRadius * 2,
                 height: centerRadius * 2,
+                zIndex: 5,
               }}
               onClick={startSpinning}
             />
