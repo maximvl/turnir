@@ -93,6 +93,15 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const centerImage = new Image();
   centerImage.src = CatDance;
 
+  const arrowPath = new Path2D();
+  arrowPath.moveTo(centerX, centerY - radius + 30);
+  arrowPath.lineTo(centerX - 30, centerY - radius);
+  arrowPath.lineTo(centerX - 18, centerY - radius + 2);
+  arrowPath.lineTo(centerX, centerY - radius + 20);
+  arrowPath.lineTo(centerX + 18, centerY - radius + 2);
+  arrowPath.lineTo(centerX + 30, centerY - radius);
+  arrowPath.lineTo(centerX, centerY - radius + 30);
+
   const drawWheel = (rotation: number) => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
@@ -139,25 +148,9 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
 
       context.fillStyle = "white";
       context.strokeStyle = "black";
-      context.beginPath();
-      context.moveTo(centerX, centerY - radius + 30);
-      context.lineTo(centerX - 30, centerY - radius);
-      context.lineTo(centerX + 30, centerY - radius);
-      context.closePath();
-      context.fill();
-
-      context.beginPath();
-      context.moveTo(centerX, centerY - radius + 30);
-      context.lineTo(centerX - 27, centerY - radius + 3);
-      context.closePath();
       context.lineWidth = 2;
-      context.stroke();
-
-      context.beginPath();
-      context.moveTo(centerX, centerY - radius + 30);
-      context.lineTo(centerX + 27, centerY - radius + 3);
-      context.closePath();
-      context.stroke();
+      context.fill(arrowPath);
+      context.stroke(arrowPath);
     }
   };
 
@@ -305,7 +298,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
         </Box>
       ) : null}
       {isFinished && <FinalButton {...defaultButtonProps} />}
-      <div style={{ justifyContent: "center", display: "flex", marginTop: 4 }}>
+      <div style={{ justifyContent: "center", display: "flex", marginTop: 10 }}>
         <div
           style={{
             position: "relative",
