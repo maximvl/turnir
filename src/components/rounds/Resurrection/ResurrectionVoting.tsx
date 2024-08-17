@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import useChatVoting from "components/hooks/useChatVoting";
 import { MusicContext } from "contexts/MusicContext";
 import { isEmpty } from "lodash";
@@ -29,7 +29,7 @@ export default function ResurrectionVoting({ items, onItemElimination }: Props) 
     setTime(0);
     setVotingState("voting");
     setState("voting");
-    setMusicPlaying(MusicType.RickRoll);
+    setMusicPlaying(MusicType.Nightsong);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
@@ -69,7 +69,9 @@ export default function ResurrectionVoting({ items, onItemElimination }: Props) 
             hideResults
             time={time}
           />
-          <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} />
+          <Box marginTop={2}>
+            <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} />
+          </Box>
         </>
       )}
       {state === "show_results" && (

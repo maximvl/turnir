@@ -20,9 +20,10 @@ type Props = {
   onItemWinning: (index: string) => void;
   ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element;
   centerImage?: string;
+  music?: MusicType;
 };
 
-export default function Wheel({ items, onItemWinning, ButtonComponent, centerImage }: Props) {
+export default function Wheel({ items, onItemWinning, ButtonComponent, centerImage, music = MusicType.Wheel }: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
   const rotationRef = useRef<number>(0);
@@ -33,6 +34,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
   const [hasBacktrack, setHasBacktrack] = useState<boolean>(() => Math.random() > 0.5);
   const [initialAngle, setInitialAngle] = useState<number>(() => random(0, 360));
 
+  const { setMusicPlaying } = useContext(MusicContext);
   useEffect(() => {
     if (isFinished) {
       setMusicPlaying(undefined);
@@ -40,7 +42,6 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFinished]);
 
-  const { setMusicPlaying } = useContext(MusicContext);
   const amountOfItems = items.length;
 
   const size = 400;
@@ -263,7 +264,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
 
   const startSpinning = () => {
     if (wheelState.current === WheelState.Start) {
-      setMusicPlaying(MusicType.Wheel);
+      setMusicPlaying(music);
       wheelState.current = WheelState.Acceleration;
       speedRef.current = startSpeed;
     }

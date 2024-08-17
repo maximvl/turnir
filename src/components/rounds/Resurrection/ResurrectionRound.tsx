@@ -1,9 +1,9 @@
-import { Item } from "types";
+import { Item, MusicType } from "types";
 import InfoPanel from "../shared/InfoPanel";
 import Wheel from "../shared/Wheel";
-import { Box, Button, useTheme } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import Icon from "@mdi/react";
-import { mdiCross, mdiEmoticonDevil } from "@mdi/js";
+import { mdiCross } from "@mdi/js";
 import { useEffect, useState } from "react";
 import PrayImage from "images/pray.webp";
 import ResurrectionVoting from "./ResurrectionVoting";
@@ -49,6 +49,7 @@ export default function ResurrectionRound({ activeItems, eliminatedItems, onItem
             onItemWinning={onItemResurrection}
             ButtonComponent={ResurrectButton}
             centerImage={PrayImage}
+            music={MusicType.Nightsong}
           />
         </Box>
       )}

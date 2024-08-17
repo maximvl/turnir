@@ -1,10 +1,7 @@
-import { Avatar, Chip, Grid, useTheme } from "@mui/material";
-import { teal } from "@mui/material/colors";
 import { isNull } from "lodash";
 import { useContext, useEffect, useReducer, useState } from "react";
 import { MusicContext } from "contexts/MusicContext";
 import { Item, MusicType } from "types";
-import ItemTitle from "components/ItemTitle";
 import ListChoice from "../shared/ListChoice";
 
 type Props = {

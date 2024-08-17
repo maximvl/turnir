@@ -20,14 +20,8 @@ export const MusicContext = createContext<MusicContextType>({
   setVolume: (_1: number) => {},
 });
 
-export default function MusicContextProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(
-    undefined,
-  );
+export default function MusicContextProvider({ children }: { children: React.ReactNode }) {
+  const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(undefined);
 
   const [isMuted, setIsMuted] = useState(false);
 
@@ -42,33 +36,10 @@ export default function MusicContextProvider({
 
   const [volume, setVolume] = useState(getStoredVolume());
 
-  const wheelMusic = document.getElementById(
-    MusicTypeIds[MusicType.Wheel],
-  ) as HTMLAudioElement | null;
-
-  const victoryMusic = document.getElementById(
-    MusicTypeIds[MusicType.Victory],
-  ) as HTMLAudioElement | null;
-
-  const thinkingMusic = document.getElementById(
-    MusicTypeIds[MusicType.Thinking],
-  ) as HTMLAudioElement | null;
-
-  const rickRollMusic = document.getElementById(
-    MusicTypeIds[MusicType.RickRoll],
-  ) as HTMLAudioElement | null;
-
-  const wrongAnswerMusic = document.getElementById(
-    MusicTypeIds[MusicType.WrongAnswer],
-  ) as HTMLAudioElement | null;
-
-  const musicMap = {
-    [MusicType.Wheel]: wheelMusic,
-    [MusicType.Victory]: victoryMusic,
-    [MusicType.Thinking]: thinkingMusic,
-    [MusicType.RickRoll]: rickRollMusic,
-    [MusicType.WrongAnswer]: wrongAnswerMusic,
-  };
+  const musicMap: { [key: string]: HTMLAudioElement | null } = {};
+  for (const key in MusicTypeIds) {
+    musicMap[key] = document.getElementById(MusicTypeIds[key as MusicType]) as HTMLAudioElement | null;
+  }
 
   const startMusic = (music?: MusicType) => {
     if (musicPlaying) {
