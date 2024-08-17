@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { Shield } from "@mui/icons-material";
 import { Item } from "types";
-import Wheel from "../RandomElimination/Wheel";
+import Wheel from "../shared/Wheel";
 import InfoPanel from "../shared/InfoPanel";
 
 type Props = {

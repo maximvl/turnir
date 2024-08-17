@@ -1,3 +1,5 @@
+import { mdiCross } from "@mdi/js";
+import Icon from "@mdi/react";
 import { ChangeCircle, Shield } from "@mui/icons-material";
 import { Box } from "@mui/material";
 import { Item } from "types";
@@ -10,8 +12,11 @@ export default function ItemTitle(props: Props) {
   return (
     <Box display="flex" alignItems="center">
       {props.item.title}
-      {props.item.isProtected && <Shield sx={{ marginLeft: 1 }} />}
-      {props.item.swappedWith && <ChangeCircle sx={{ marginLeft: 1 }} />}
+      {props.item.isProtected && <Shield sx={{ marginLeft: 1 }} color={"success"} />}
+      {props.item.swappedWith && <ChangeCircle sx={{ marginLeft: 1 }} color={"warning"} />}
+      {props.item.isResurrected && (
+        <Icon path={mdiCross} style={{ width: 24, height: 24, marginLeft: 10 }} color="white" />
+      )}
     </Box>
   );
 }

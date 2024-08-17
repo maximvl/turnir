@@ -19,9 +19,10 @@ type Props = {
   items: Item[];
   onItemWinning: (index: string) => void;
   ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element;
+  centerImage?: string;
 };
 
-export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) {
+export default function Wheel({ items, onItemWinning, ButtonComponent, centerImage }: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
   const rotationRef = useRef<number>(0);
@@ -90,8 +91,6 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   ];
 
   const centerRadius = 30;
-  const centerImage = new Image();
-  centerImage.src = CatDance;
 
   const arrowPath = new Path2D();
   arrowPath.moveTo(centerX, centerY - radius + 30);
@@ -288,6 +287,8 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
   const DefaultButton = (props: React.ComponentProps<typeof Button>) => <Button {...props}>Удалить</Button>;
   const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
 
+  const displayCat = ![WheelState.Start, WheelState.Stop].includes(wheelState.current);
+
   return (
     <Box justifyContent={"center"}>
       {currentItem ? (
@@ -356,21 +357,20 @@ export default function Wheel({ items, onItemWinning, ButtonComponent }: Props) 
             }}
           />
 
-          {![WheelState.Start, WheelState.Stop].includes(wheelState.current) && (
-            <img
-              src={CatDance}
-              alt=""
-              style={{
-                position: "absolute",
-                top: `${size / 2 - centerRadius}px`,
-                left: `${size / 2 - centerRadius}px`,
-                width: centerRadius * 2,
-                height: centerRadius * 2,
-                zIndex: 5,
-              }}
-              onClick={startSpinning}
-            />
-          )}
+          <img
+            src={centerImage || CatDance}
+            alt=""
+            style={{
+              position: "absolute",
+              display: displayCat ? "block" : "none",
+              top: `${size / 2 - centerRadius}px`,
+              left: `${size / 2 - centerRadius}px`,
+              width: centerRadius * 2,
+              height: centerRadius * 2,
+              zIndex: 5,
+            }}
+            onClick={startSpinning}
+          />
         </div>
       </div>
     </Box>

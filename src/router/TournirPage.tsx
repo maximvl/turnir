@@ -57,6 +57,7 @@ function TournirApp() {
 
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
   const [swapRoundEnabled, setSwapRoundEnabled] = useState(true);
+  const [resurrectionRoundEnabled, setResurrectionRoundEnabled] = useState(true);
 
   const [items, setItems] = useState<Item[]>(() => {
     if (presetId) {
@@ -98,8 +99,10 @@ function TournirApp() {
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter((item) => item.status !== ItemStatus.Eliminated);
+  const eliminatedItems = nonEmptyItems.filter((item) => item.status === ItemStatus.Eliminated);
   const swapItem = activeItems.find((item) => item.swappedWith !== undefined);
   const targetSwapItem = activeItems.find((item) => item.id === swapItem?.swappedWith);
+
   // console.log("swap:", swapItem, targetSwapItem);
 
   const addMoreItems = () => {
@@ -128,6 +131,15 @@ function TournirApp() {
     if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
     }
+
+    // this is ran before current item is eliminated
+    if (resurrectionRoundEnabled && eliminatedItems.length + 1 >= activeItems.length) {
+      roundOptions = [RoundType.Resurrection];
+      setResurrectionRoundEnabled(false);
+    } else {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Resurrection);
+    }
+
     const nextRoundType = sample(roundOptions) as RoundType;
 
     switch (nextRoundType) {
@@ -146,9 +158,20 @@ function TournirApp() {
 
   const startTurnir = () => {
     setTurnirState(TurnirState.Start);
+    nonEmptyItems.forEach((item) => {
+      item.status = ItemStatus.Active;
+      item.eliminationRound = undefined;
+      item.eliminationType = undefined;
+      item.isProtected = false;
+      item.swappedWith = undefined;
+      item.isResurrected = false;
+    });
     setItems([...nonEmptyItems]);
     setRoundNumber(1);
     setNextRoundType();
+    setSwapRoundEnabled(true);
+    setResurrectionRoundEnabled(true);
+    setProtectionRoundEnabled(true);
   };
 
   const onNextRoundClick = () => {
@@ -213,20 +236,22 @@ function TournirApp() {
     }
   };
 
-  const onRestartClick = () => {
-    setTurnirState(TurnirState.EditCandidates);
-    setRoundNumber(1);
-    items.forEach((item) => {
+  const onItemResurrection = (id: string) => {
+    const item = eliminatedItems.find((item) => item.id === id);
+    if (item) {
+      item.isResurrected = true;
       item.status = ItemStatus.Active;
       item.eliminationRound = undefined;
       item.eliminationType = undefined;
-      item.isProtected = false;
-      item.swappedWith = undefined;
-    });
-    setItems([...items]);
+      setResurrectionRoundEnabled(false);
+      setItems([...items]);
+      setNextRoundType();
+    }
+  };
+
+  const onRestartClick = () => {
+    setTurnirState(TurnirState.EditCandidates);
     setMusicPlaying(undefined);
-    setProtectionRoundEnabled(true);
-    setSwapRoundEnabled(true);
   };
 
   const onRoundTypeClick = (roundType: RoundType) => {
@@ -416,10 +441,12 @@ function TournirApp() {
               />
               <RoundContent
                 roundType={currentRoundType}
-                items={activeItems}
+                activeItems={activeItems}
+                eliminatedItems={eliminatedItems}
                 onItemElimination={onItemElimination}
                 onItemProtection={onItemProtection}
                 onItemSwap={onItemSwap}
+                onItemResurrection={onItemResurrection}
               />
             </div>
           )}

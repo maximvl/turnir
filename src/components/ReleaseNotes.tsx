@@ -81,6 +81,7 @@ export default function ReleaseNotes() {
       setShow(true);
       window.localStorage.setItem(storageKey, latestVersion);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

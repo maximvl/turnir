@@ -1,6 +1,6 @@
-import { Box, Button, Input, Slider, TextField } from "@mui/material";
+import { Box, Button, Slider } from "@mui/material";
 import useChatVoting from "components/hooks/useChatVoting";
-import { isEmpty, isUndefined } from "lodash";
+import { isEmpty } from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { Item, MusicType } from "types";
 import PollResults from "../ViewerChoice/PollResults";
@@ -16,14 +16,7 @@ type Props = {
 type State = "voting" | "streamer_choice" | "show_results";
 
 export default function ClosestVotesRound({ items, onItemElimination }: Props) {
-  const {
-    state: votingState,
-    setState: setVotingState,
-    votesMap,
-    voteMessages,
-    error,
-    isLoading,
-  } = useChatVoting({ items });
+  const { setState: setVotingState, votesMap, voteMessages, error, isLoading } = useChatVoting({ items });
   const { setMusicPlaying } = useContext(MusicContext);
 
   const [state, setState] = useState<State>("voting");
@@ -44,6 +37,7 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
     setVotingState("voting");
     setState("voting");
     setMusicPlaying(MusicType.RickRoll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
   // console.log("target:", targetNumber)
 

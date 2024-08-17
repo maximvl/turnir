@@ -5,6 +5,7 @@ export type Item = {
   eliminationType?: RoundType;
   swappedWith?: string;
   isProtected?: boolean;
+  isResurrected?: boolean;
   id: string;
 };
 
@@ -30,6 +31,7 @@ export enum RoundType {
   StreamerVsRandom = "StreamerVsRandom",
   Swap = "Swap",
   ClosestVotes = "ClosestVotes",
+  Resurrection = "Resurrection",
 }
 
 export const ClassicRoundTypes = [RoundType.RandomElimination, RoundType.StreamerChoice, RoundType.ViewerChoice];
@@ -39,6 +41,7 @@ export const NewRoundTypes = [
   // RoundType.StreamerVsRandom
   RoundType.Swap,
   RoundType.ClosestVotes,
+  RoundType.Resurrection,
 ];
 
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
@@ -51,6 +54,7 @@ export const RoundTypeNames = {
   [RoundType.StreamerVsRandom]: "Стример против рандома",
   [RoundType.Swap]: "Подмена",
   [RoundType.ClosestVotes]: "Стример против Чата",
+  [RoundType.Resurrection]: "Воскрешение",
 };
 
 export const RoundTypeTooltip: { [key: string]: string } = {
@@ -61,6 +65,7 @@ export const RoundTypeTooltip: { [key: string]: string } = {
   [RoundType.ViewerChoice]: "Зрители выбирают кто вылетит",
   [RoundType.Swap]: "Случайный вариант скрытно меняется с другим, подмена вскроется когда один из них вылетит",
   [RoundType.ClosestVotes]: "Вылетает вариант получивший наиболее близкое количество голосов к тому что выбрал стример",
+  [RoundType.Resurrection]: "На середине турнира выбывший вариант получает возможность вернуться в игру",
 };
 
 export const enum MusicType {

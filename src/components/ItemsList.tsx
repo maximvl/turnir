@@ -118,10 +118,6 @@ function NonEditableItemsList({ items, showKPLinks }: NonEditableItemsListProps)
       <h3 style={{ marginTop: 0 }}>Участники ({activeItems.length})</h3>
       <Grid container rowGap={1} columns={1} direction="column" alignItems={"flex-start"} border={0}>
         {activeItems.map((item) => {
-          let itemTitle = item.title;
-          // if (item.eliminationType && item.eliminationType) {
-          //   itemTitle = `${itemTitle} [${RoundTypeNames[item.eliminationType]} #${item.eliminationRound}]`;
-          // }
           return (
             <Grid container columns={12} key={item.id}>
               <Grid item xs={10} width="inherit">
