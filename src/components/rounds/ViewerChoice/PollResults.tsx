@@ -99,7 +99,7 @@ export default function PollResults({
           </InfoPanel>
         )}
       </Box>
-      <Grid container columns={4} rowGap={1}>
+      <Grid container columns={4} rowGap={1} marginTop={2}>
         {items.map((item, index) => {
           const highlight = totalVotes > 0 && itemIdsWithWinningVotes.includes(item.id) && !hideResults;
           const currentVotes = votesByOption[item.id] || 0;

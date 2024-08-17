@@ -7,6 +7,7 @@ import PollResults from "../ViewerChoice/PollResults";
 import VotesLog from "../ViewerChoice/VotesLog";
 import InfoPanel from "../shared/InfoPanel";
 import { MusicContext } from "contexts/MusicContext";
+import { PollVote } from "utils";
 
 type Props = {
   items: Item[];
@@ -14,6 +15,10 @@ type Props = {
 };
 
 type State = "voting" | "streamer_choice" | "show_results";
+
+const voteFormatter = (vote: PollVote, formattedTime: string, optionName: string) => {
+  return `${formattedTime}: ${vote.username} голосует ${vote.message} (${optionName})`;
+};
 
 export default function ClosestVotesRound({ items, onItemElimination }: Props) {
   const { setState: setVotingState, votesMap, voteMessages, error, isLoading } = useChatVoting({ items });
@@ -84,7 +89,7 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
             hideResults
             time={time}
           />
-          <VotesLog items={items} votes={voteMessages} isFinished={false} />
+          <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} />
         </>
       )}
       {state === "streamer_choice" && (
