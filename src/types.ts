@@ -6,12 +6,14 @@ export type Item = {
   swappedWith?: string;
   isProtected?: boolean;
   isResurrected?: boolean;
+  hasDeal?: boolean;
   id: string;
 };
 
 export enum ItemStatus {
   Active,
   Eliminated,
+  Excluded,
 }
 
 export enum TurnirState {
@@ -32,6 +34,8 @@ export enum RoundType {
   Swap = "Swap",
   ClosestVotes = "ClosestVotes",
   Resurrection = "Resurrection",
+  Deal = "Deal",
+  DealReturn = "DealReturn",
 }
 
 export const ClassicRoundTypes = [RoundType.RandomElimination, RoundType.StreamerChoice, RoundType.ViewerChoice];
@@ -42,6 +46,7 @@ export const NewRoundTypes = [
   RoundType.Swap,
   RoundType.ClosestVotes,
   RoundType.Resurrection,
+  RoundType.Deal,
 ];
 
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
@@ -55,6 +60,8 @@ export const RoundTypeNames = {
   [RoundType.Swap]: "Подмена",
   [RoundType.ClosestVotes]: "Стример против Чата",
   [RoundType.Resurrection]: "Воскрешение",
+  [RoundType.Deal]: "Счастливый билетик",
+  [RoundType.DealReturn]: "Плата за билет",
 };
 
 export const RoundTypeTooltip: { [key: string]: string } = {
@@ -66,6 +73,7 @@ export const RoundTypeTooltip: { [key: string]: string } = {
   [RoundType.Swap]: "Случайный вариант скрытно меняется с другим, подмена вскроется когда один из них вылетит",
   [RoundType.ClosestVotes]: "Вылетает вариант получивший наиболее близкое количество голосов к тому что выбрал стример",
   [RoundType.Resurrection]: "На середине турнира выбывший вариант получает возможность вернуться в игру",
+  [RoundType.Deal]: "Выбранный вариант пропускает половину турнира, но будет ролить 50/50 чтобы вернуться",
 };
 
 export const enum MusicType {

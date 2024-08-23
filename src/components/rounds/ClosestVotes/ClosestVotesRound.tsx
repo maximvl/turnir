@@ -96,6 +96,7 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
         <>
           <div style={{ display: "grid", justifyContent: "center" }}>
             <InfoPanel>
+              <p>Стример пытается угадать сколько глосов за разные варианты</p>
               <h3>Будет удален вариант с наиболее близким числом голосов</h3>
             </InfoPanel>
           </div>
@@ -121,6 +122,7 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
         <>
           <div style={{ display: "grid", justifyContent: "center" }}>
             <InfoPanel>
+              <p>Стример пытается угадать сколько голосов за разные варианты</p>
               <h3>Будет удален вариант с наиболее близким числом голосов</h3>
             </InfoPanel>
           </div>

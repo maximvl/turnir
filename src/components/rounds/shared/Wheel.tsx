@@ -19,11 +19,12 @@ type Props = {
   items: Item[];
   onItemWinning: (index: string) => void;
   ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element;
+  buttonGenerator?: (item: Item) => (props: React.ComponentProps<typeof Button>) => JSX.Element;
   centerImage?: string;
   music?: MusicType;
 };
 
-export default function Wheel({ items, onItemWinning, ButtonComponent, centerImage, music = MusicType.Wheel }: Props) {
+export default function Wheel({ items, onItemWinning, ButtonComponent, centerImage, music, buttonGenerator }: Props) {
   const animationRef = useRef<number>();
   const timeRef = useRef<number>();
   const rotationRef = useRef<number>(0);
@@ -36,11 +37,11 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
 
   const { setMusicPlaying } = useContext(MusicContext);
   useEffect(() => {
-    if (isFinished) {
+    if (isFinished && !music) {
       setMusicPlaying(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFinished]);
+  }, [isFinished, music]);
 
   const amountOfItems = items.length;
 
@@ -264,7 +265,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
 
   const startSpinning = () => {
     if (wheelState.current === WheelState.Start) {
-      setMusicPlaying(music);
+      setMusicPlaying(music || MusicType.Wheel);
       wheelState.current = WheelState.Acceleration;
       speedRef.current = startSpeed;
     }
@@ -286,9 +287,18 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
   };
 
   const DefaultButton = (props: React.ComponentProps<typeof Button>) => <Button {...props}>Удалить</Button>;
-  const FinalButton = ButtonComponent ? ButtonComponent : DefaultButton;
 
-  const displayCat = ![WheelState.Start, WheelState.Stop].includes(wheelState.current);
+  let FinalButton = DefaultButton;
+
+  if (isFinished && buttonGenerator) {
+    FinalButton = buttonGenerator(currentItem);
+  }
+
+  if (isFinished && ButtonComponent) {
+    FinalButton = ButtonComponent;
+  }
+
+  const displayCenterImage = ![WheelState.Start, WheelState.Stop].includes(wheelState.current);
 
   return (
     <Box justifyContent={"center"}>
@@ -363,7 +373,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
             alt=""
             style={{
               position: "absolute",
-              display: displayCat ? "block" : "none",
+              display: displayCenterImage ? "block" : "none",
               top: `${size / 2 - centerRadius}px`,
               left: `${size / 2 - centerRadius}px`,
               width: centerRadius * 2,

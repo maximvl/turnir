@@ -9,7 +9,13 @@ type Props = {
 
 export default function RoundTitle({ roundNumber, roundType, itemsLeft, totalRounds }: Props) {
   const isFinals = itemsLeft === 2;
-  const bonusRounds = [RoundType.Protection, RoundType.Swap, RoundType.Resurrection];
+  const bonusRounds = [
+    RoundType.Protection,
+    RoundType.Swap,
+    RoundType.Resurrection,
+    RoundType.Deal,
+    RoundType.DealReturn,
+  ];
 
   if (bonusRounds.includes(roundType)) {
     return (

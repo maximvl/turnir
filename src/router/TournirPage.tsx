@@ -36,7 +36,7 @@ function TournirApp() {
   const increaseAmount = 10;
   const initialItems = 10;
   const [roundNumber, setRoundNumber] = useState(0);
-  const [currentRoundType, setCurrentRoundType] = useState(RoundType.RandomElimination);
+  const [currentRoundType, setCurrentRoundType] = useState<RoundType | null>(null);
 
   const [title, setTitle] = useState("");
 
@@ -58,6 +58,8 @@ function TournirApp() {
   const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
   const [swapRoundEnabled, setSwapRoundEnabled] = useState(true);
   const [resurrectionRoundEnabled, setResurrectionRoundEnabled] = useState(true);
+  const [dealRoundEnabled, setDealRoundEnabled] = useState(true);
+  const [dealReturnEnabled, setDealReturnEnabled] = useState(true);
 
   const [items, setItems] = useState<Item[]>(() => {
     if (presetId) {
@@ -98,11 +100,12 @@ function TournirApp() {
   const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
-  const activeItems = nonEmptyItems.filter((item) => item.status !== ItemStatus.Eliminated);
+  const activeItems = nonEmptyItems.filter((item) => item.status === ItemStatus.Active);
   const eliminatedItems = nonEmptyItems.filter((item) => item.status === ItemStatus.Eliminated);
   const swapItem = activeItems.find((item) => item.swappedWith !== undefined);
   const targetSwapItem = activeItems.find((item) => item.id === swapItem?.swappedWith);
 
+  const dealItem = nonEmptyItems.find((item) => item.status === ItemStatus.Excluded);
   // console.log("swap:", swapItem, targetSwapItem);
 
   const addMoreItems = () => {
@@ -122,14 +125,24 @@ function TournirApp() {
 
   const setNextRoundType = () => {
     let roundOptions = activeRounds;
+
     if (!protectionRoundEnabled) {
       roundOptions = roundOptions.filter((round) => round !== RoundType.Protection);
     }
     if (!swapRoundEnabled) {
       roundOptions = roundOptions.filter((round) => round !== RoundType.Swap);
     }
+    if (!dealRoundEnabled) {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Deal);
+    }
+
     if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
+    }
+
+    if (dealItem && dealReturnEnabled && eliminatedItems.length + 1 >= activeItems.length) {
+      roundOptions = [RoundType.DealReturn];
+      setDealReturnEnabled(false);
     }
 
     // this is ran before current item is eliminated
@@ -138,6 +151,12 @@ function TournirApp() {
       setResurrectionRoundEnabled(false);
     } else {
       roundOptions = roundOptions.filter((round) => round !== RoundType.Resurrection);
+    }
+
+    // console.log("prophecy enabled", prophecyRoundEnabled);
+    if (dealRoundEnabled) {
+      roundOptions = [RoundType.Deal];
+      setDealRoundEnabled(false);
     }
 
     const nextRoundType = sample(roundOptions) as RoundType;
@@ -156,8 +175,16 @@ function TournirApp() {
     setCurrentRoundType(nextRoundType);
   };
 
+  useEffect(() => {
+    console.log("flag 1");
+    if (turnirState === TurnirState.Start) {
+      console.log("flag 2");
+      setNextRoundType();
+    }
+    // eslint-disable-next-line
+  }, [turnirState]);
+
   const startTurnir = () => {
-    setTurnirState(TurnirState.Start);
     nonEmptyItems.forEach((item) => {
       item.status = ItemStatus.Active;
       item.eliminationRound = undefined;
@@ -165,13 +192,17 @@ function TournirApp() {
       item.isProtected = false;
       item.swappedWith = undefined;
       item.isResurrected = false;
+      item.hasDeal = false;
     });
     setItems([...nonEmptyItems]);
     setRoundNumber(1);
-    setNextRoundType();
     setSwapRoundEnabled(true);
     setResurrectionRoundEnabled(true);
     setProtectionRoundEnabled(true);
+    setDealRoundEnabled(true);
+    setDealReturnEnabled(true);
+    setTurnirState(TurnirState.Start);
+    // setNextRoundType();
   };
 
   const onNextRoundClick = () => {
@@ -179,6 +210,16 @@ function TournirApp() {
   };
 
   const onItemElimination = (id: string) => {
+    if (dealItem && dealItem.id === id) {
+      dealItem.status = ItemStatus.Eliminated;
+      dealItem.eliminationRound = roundNumber;
+      if (currentRoundType) {
+        dealItem.eliminationType = currentRoundType;
+      }
+      setNextRoundType();
+      return;
+    }
+
     const item = activeItems.find((item) => item.id === id);
     if (item) {
       if (item.isProtected) {
@@ -199,7 +240,9 @@ function TournirApp() {
       } else {
         item.status = ItemStatus.Eliminated;
         item.eliminationRound = roundNumber;
-        item.eliminationType = currentRoundType;
+        if (currentRoundType) {
+          item.eliminationType = currentRoundType;
+        }
         setRoundNumber(roundNumber + 1);
         if (activeItems.length === 2 && turnirState === TurnirState.Start) {
           setTurnirState(TurnirState.Victory);
@@ -243,7 +286,26 @@ function TournirApp() {
       item.status = ItemStatus.Active;
       item.eliminationRound = undefined;
       item.eliminationType = undefined;
-      setResurrectionRoundEnabled(false);
+      setItems([...items]);
+      setNextRoundType();
+    }
+  };
+
+  const onDealReturn = (id: string) => {
+    if (dealItem) {
+      dealItem.status = ItemStatus.Active;
+      dealItem.eliminationRound = undefined;
+      dealItem.eliminationType = undefined;
+      setItems([...items]);
+      setNextRoundType();
+    }
+  };
+
+  const onItemDeal = (id: string) => {
+    const item = activeItems.find((item) => item.id === id);
+    if (item) {
+      item.hasDeal = true;
+      item.status = ItemStatus.Excluded;
       setItems([...items]);
       setNextRoundType();
     }
@@ -431,7 +493,7 @@ function TournirApp() {
         </Grid>
 
         <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
-          {turnirState === TurnirState.Start && (
+          {turnirState === TurnirState.Start && currentRoundType && (
             <div>
               <RoundTitle
                 roundNumber={roundNumber}
@@ -447,6 +509,9 @@ function TournirApp() {
                 onItemProtection={onItemProtection}
                 onItemSwap={onItemSwap}
                 onItemResurrection={onItemResurrection}
+                onIteamDeal={onItemDeal}
+                dealItem={dealItem}
+                onDealReturn={onDealReturn}
               />
             </div>
           )}

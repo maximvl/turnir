@@ -6,6 +6,8 @@ import SwapRound from "../Swap/SwapRound";
 import ClosestVotesRound from "../ClosestVotes/ClosestVotesRound";
 import ResurrectionRound from "../Resurrection/ResurrectionRound";
 import RandomEliminationRound from "../RandomElimination/RandomEliminationRound";
+import DealRound from "../DealRound/DealRound";
+import DealReturn from "../DealRound/DealReturn";
 
 type Props = {
   roundType: RoundType;
@@ -15,6 +17,9 @@ type Props = {
   onItemProtection: (id: string) => void;
   onItemSwap: (id: string) => void;
   onItemResurrection: (id: string) => void;
+  onIteamDeal: (id: string) => void;
+  dealItem?: Item;
+  onDealReturn: (id: string) => void;
 };
 
 export default function RoundContent({
@@ -25,6 +30,9 @@ export default function RoundContent({
   onItemProtection,
   onItemSwap,
   onItemResurrection,
+  onIteamDeal,
+  dealItem,
+  onDealReturn,
 }: Props) {
   switch (roundType) {
     case RoundType.RandomElimination: {
@@ -53,6 +61,15 @@ export default function RoundContent({
           onItemResurrection={onItemResurrection}
         />
       );
+    }
+    case RoundType.Deal: {
+      return <DealRound items={activeItems} onItemSelect={onIteamDeal} />;
+    }
+    case RoundType.DealReturn: {
+      if (!dealItem) {
+        return <div>Deal item not found</div>;
+      }
+      return <DealReturn item={dealItem} onItemReturn={onDealReturn} onItemElimination={onItemElimination} />;
     }
     default: {
       return <div>Round type {roundType} not implemented</div>;
