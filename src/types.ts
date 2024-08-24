@@ -48,6 +48,14 @@ export const NewRoundTypes = [
   RoundType.Deal,
 ];
 
+export const OneTimeRounds = [
+  RoundType.Protection,
+  RoundType.Swap,
+  RoundType.Resurrection,
+  RoundType.Deal,
+  RoundType.DealReturn,
+];
+
 export const RoundTypes = ClassicRoundTypes.concat(NewRoundTypes);
 
 export const RoundTypeNames = {
@@ -59,7 +67,7 @@ export const RoundTypeNames = {
   [RoundType.Swap]: "Подмена",
   [RoundType.ClosestVotes]: "Стример против Чата",
   [RoundType.Resurrection]: "Воскрешение",
-  [RoundType.Deal]: "Счастливый билетик",
+  [RoundType.Deal]: '"Счастливый" билетик',
   [RoundType.DealReturn]: "Плата за билет",
 };
 

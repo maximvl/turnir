@@ -55,11 +55,17 @@ function TournirApp() {
     setTitle(preset.title);
   };
 
-  const [protectionRoundEnabled, setProtectionRoundEnabled] = useState(true);
-  const [swapRoundEnabled, setSwapRoundEnabled] = useState(true);
-  const [resurrectionRoundEnabled, setResurrectionRoundEnabled] = useState(true);
-  const [dealRoundEnabled, setDealRoundEnabled] = useState(true);
-  const [dealReturnEnabled, setDealReturnEnabled] = useState(true);
+  const [oneTimeRounds, setOneTimeRounds] = useState({
+    [RoundType.Protection]: true,
+    [RoundType.Swap]: true,
+    [RoundType.Resurrection]: true,
+    [RoundType.Deal]: true,
+    [RoundType.DealReturn]: true,
+  });
+
+  const disableOneTimeRound = (round: RoundType) => {
+    setOneTimeRounds({ ...oneTimeRounds, [round]: false });
+  };
 
   const [items, setItems] = useState<Item[]>(() => {
     if (presetId) {
@@ -128,22 +134,30 @@ function TournirApp() {
 
   const setNextRoundType = () => {
     let roundOptions = activeRounds;
+    roundOptions.push(RoundType.DealReturn);
 
-    if (!protectionRoundEnabled) {
-      roundOptions = roundOptions.filter((round) => round !== RoundType.Protection);
-    }
-    if (!swapRoundEnabled) {
-      roundOptions = roundOptions.filter((round) => round !== RoundType.Swap);
-    }
-    if (!dealRoundEnabled) {
-      roundOptions = roundOptions.filter((round) => round !== RoundType.Deal);
-    }
+    const inactiveOneTimeRounds = Object.entries(oneTimeRounds)
+      .filter(([key, value]) => !value)
+      .map(([key, value]) => key);
+
+    roundOptions = roundOptions.filter((round) => !inactiveOneTimeRounds.includes(round));
 
     if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
     }
 
-    // console.log({ dealReturnEnabled, eliminatedItems, activeItems, dealItem });
+    const resurrectionRoundEnabled = roundOptions.includes(RoundType.Resurrection);
+    const dealRoundEnabled = roundOptions.includes(RoundType.Deal);
+    const dealReturnEnabled = roundOptions.includes(RoundType.DealReturn);
+
+    // console.log({
+    //   roundOptions,
+    //   resurrectionRoundEnabled,
+    //   dealRoundEnabled,
+    //   dealReturnEnabled,
+    //   inactiveOneTimeRounds,
+    //   oneTimeRounds,
+    // });
     if (
       !resurrectionRoundEnabled &&
       dealItem &&
@@ -151,14 +165,13 @@ function TournirApp() {
       (eliminatedItems.length >= activeItems.length || activeItems.length <= 3)
     ) {
       roundOptions = [RoundType.DealReturn];
-      // console.log("deal return round");
-      setDealReturnEnabled(false);
+    } else {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.DealReturn);
     }
 
     // this is ran before current item is eliminated
     if (resurrectionRoundEnabled && eliminatedItems.length >= activeItems.length) {
       roundOptions = [RoundType.Resurrection];
-      setResurrectionRoundEnabled(false);
     } else {
       roundOptions = roundOptions.filter((round) => round !== RoundType.Resurrection);
     }
@@ -166,7 +179,8 @@ function TournirApp() {
     // console.log("prophecy enabled", prophecyRoundEnabled);
     if (dealRoundEnabled) {
       roundOptions = [RoundType.Deal];
-      setDealRoundEnabled(false);
+    } else {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Deal);
     }
 
     const nextRoundType = sample(roundOptions) as RoundType;
@@ -181,6 +195,10 @@ function TournirApp() {
       default:
         setMusicPlaying(undefined);
         break;
+    }
+
+    if (nextRoundType in oneTimeRounds) {
+      disableOneTimeRound(nextRoundType);
     }
 
     console.log("setting next round", nextRoundType);
@@ -221,11 +239,13 @@ function TournirApp() {
     setCurrentRoundType(null);
     setItems([...nonEmptyItems]);
     setRoundNumber(1);
-    setSwapRoundEnabled(true);
-    setResurrectionRoundEnabled(true);
-    setProtectionRoundEnabled(true);
-    setDealRoundEnabled(true);
-    setDealReturnEnabled(true);
+    setOneTimeRounds({
+      [RoundType.Resurrection]: true,
+      [RoundType.Protection]: true,
+      [RoundType.Swap]: true,
+      [RoundType.Deal]: true,
+      [RoundType.DealReturn]: true,
+    });
     setTurnirState(TurnirState.Start);
   };
 
@@ -272,7 +292,6 @@ function TournirApp() {
     const item = activeItems.find((item) => item.id === id);
     if (item) {
       item.isProtected = true;
-      setProtectionRoundEnabled(false);
       finishRound();
     }
   };
@@ -285,7 +304,6 @@ function TournirApp() {
         return;
       }
       item.swappedWith = targetItem.id;
-      setSwapRoundEnabled(false);
       finishRound();
     }
   };

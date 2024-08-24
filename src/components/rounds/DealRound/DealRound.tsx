@@ -8,7 +8,7 @@ type Props = {
   onItemSelect: (itemId: string) => void;
 };
 
-export default function DarkPactRound({ items, onItemSelect }: Props) {
+export default function DealRound({ items, onItemSelect }: Props) {
   const round = Math.round(items.length / 2);
   return (
     <Box>

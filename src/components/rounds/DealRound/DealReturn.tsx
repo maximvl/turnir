@@ -9,9 +9,9 @@ type Props = {
   onItemReturn: (itemId: string) => void;
 };
 
-export default function DarkPactReturn({ item, onItemReturn, onItemElimination }: Props) {
-  const savedOption = { id: "1", title: "Возвращение", status: ItemStatus.Active };
-  const eliminatedOption = { id: "2", title: "Выбывание", status: ItemStatus.Active };
+export default function DealReturn({ item, onItemReturn, onItemElimination }: Props) {
+  const savedOption = { id: "1", title: "Возвращается", status: ItemStatus.Active };
+  const eliminatedOption = { id: "2", title: "Выбывает", status: ItemStatus.Active };
 
   const wheelItems = [savedOption, eliminatedOption];
 
@@ -49,7 +49,7 @@ export default function DarkPactReturn({ item, onItemReturn, onItemElimination }
       <Box display="flex" justifyContent="center">
         <InfoPanel>
           <p>
-            {item.title} {<br />}должен заплатить за счастливый билет
+            {item.title} {<br />}должен заплатить за счастливый билетик
           </p>
         </InfoPanel>
       </Box>
