@@ -78,6 +78,7 @@ function TournirApp() {
   const [turnirState, setTurnirState] = useState<TurnirState>(TurnirState.EditCandidates);
 
   const [noRoundRepeat, setNoRoundRepeat] = useState(true);
+  const [lastNonBonusRoundType, setLastNonBonusRoundType] = useState<RoundType | null>(null);
 
   const [roundTypes, setRoundTypes] = useState<Map<RoundType, boolean>>(
     RoundTypes.reduce((acc, t) => acc.set(t, true), new Map()),
@@ -135,15 +136,22 @@ function TournirApp() {
   const setNextRoundType = () => {
     let roundOptions = activeRounds;
     roundOptions.push(RoundType.DealReturn);
+    // if (roundTypes.get(RoundType.Deal) && oneTimeRounds[RoundType.Deal]) {
+    //   roundOptions.push(RoundType.DealReturn);
+    // }
 
     const inactiveOneTimeRounds = Object.entries(oneTimeRounds)
       .filter(([key, value]) => !value)
       .map(([key, value]) => key);
 
+    if (items.length < 6) {
+      roundOptions = roundOptions.filter((round) => round !== RoundType.Deal);
+    }
+
     roundOptions = roundOptions.filter((round) => !inactiveOneTimeRounds.includes(round));
 
-    if (noRoundRepeat && roundOptions.length > 1 && roundNumber > 0) {
-      roundOptions = roundOptions.filter((round) => round !== currentRoundType);
+    if (noRoundRepeat && roundOptions.length > 1 && lastNonBonusRoundType) {
+      roundOptions = roundOptions.filter((round) => round !== lastNonBonusRoundType);
     }
 
     const resurrectionRoundEnabled = roundOptions.includes(RoundType.Resurrection);
@@ -162,7 +170,7 @@ function TournirApp() {
       !resurrectionRoundEnabled &&
       dealItem &&
       dealReturnEnabled &&
-      (eliminatedItems.length >= activeItems.length || activeItems.length <= 3)
+      (eliminatedItems.length >= activeItems.length || activeItems.length <= 2)
     ) {
       roundOptions = [RoundType.DealReturn];
     } else {
@@ -199,6 +207,8 @@ function TournirApp() {
 
     if (nextRoundType in oneTimeRounds) {
       disableOneTimeRound(nextRoundType);
+    } else {
+      setLastNonBonusRoundType(nextRoundType);
     }
 
     console.log("setting next round", nextRoundType);
@@ -246,6 +256,7 @@ function TournirApp() {
       [RoundType.Deal]: true,
       [RoundType.DealReturn]: true,
     });
+    setLastNonBonusRoundType(null);
     setTurnirState(TurnirState.Start);
   };
 
@@ -272,7 +283,7 @@ function TournirApp() {
         setShowSwapModal(true);
         setInitialSwapItem(item);
         setActionSwapItem(targetSwapItem);
-      } else if (targetSwapItem && swapItem && item.id === targetSwapItem.id) {
+      } else if (targetSwapItem && swapItem?.swappedWith && item.id === targetSwapItem.id) {
         setShowSwapModal(true);
         setInitialSwapItem(item);
         setActionSwapItem(swapItem);
@@ -438,7 +449,7 @@ function TournirApp() {
                 }}
               >
                 <Grid container rowGap={2} alignItems="baseline" columns={1}>
-                  <Grid item xs={1} paddingLeft={2}>
+                  <Grid item xs={1} paddingLeft={2} paddingTop={1.4}>
                     <Tooltip title="Один и тот же раунд не будет повторяться подряд">
                       <FormControlLabel
                         control={

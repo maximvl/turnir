@@ -67,7 +67,7 @@ function EditableItemsList({ items, setItem, showKPLinks }: EditableItemsListPro
 
   return (
     <div>
-      <h3 style={{ marginTop: 0 }}>Кандидаты ({activeItems.length})</h3>
+      <h3 style={{ marginTop: 0 }}>Участники ({activeItems.length})</h3>
       <p style={{ paddingBottom: 2 }}>можно вставлять несколько строк</p>
 
       <Grid container rowGap={1} columns={1} direction="column" alignItems={"flex-start"} border={0}>
