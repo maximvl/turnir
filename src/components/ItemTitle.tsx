@@ -15,7 +15,7 @@ export default function ItemTitle(props: Props) {
       {props.item.isProtected && <Shield sx={{ marginLeft: 1 }} color={"success"} />}
       {props.item.swappedWith && <ChangeCircle sx={{ marginLeft: 1 }} color={"warning"} />}
       {props.item.isResurrected && (
-        <Icon path={mdiCross} style={{ width: 24, height: 24, marginLeft: 10 }} color="white" />
+        <Icon path={mdiCross} style={{ width: 24, height: 24, marginLeft: 7 }} color="white" />
       )}
       {props.item.hasDeal && <Casino sx={{ marginLeft: 1 }} color="action" />}
     </Box>
