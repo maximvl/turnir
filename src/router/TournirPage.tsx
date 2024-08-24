@@ -82,7 +82,6 @@ function TournirApp() {
   const [actionSwapItem, setActionSwapItem] = useState<Item | undefined>(undefined);
 
   const [showProtectionModal, setShowProtectionModal] = useState(false);
-  const [protectedItem, setProtectedItem] = useState<Item | undefined>(undefined);
 
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) => Boolean(roundTypes.get(key)));
@@ -105,7 +104,11 @@ function TournirApp() {
   const swapItem = activeItems.find((item) => item.swappedWith !== undefined);
   const targetSwapItem = activeItems.find((item) => item.id === swapItem?.swappedWith);
 
+  const protectedItem = activeItems.find((item) => item.isProtected);
   const dealItem = nonEmptyItems.find((item) => item.status === ItemStatus.Excluded);
+
+  // console.log("deal item", dealItem);
+
   // console.log("swap:", swapItem, targetSwapItem);
 
   const addMoreItems = () => {
@@ -140,13 +143,20 @@ function TournirApp() {
       roundOptions = roundOptions.filter((round) => round !== currentRoundType);
     }
 
-    if (dealItem && dealReturnEnabled && eliminatedItems.length + 1 >= activeItems.length) {
+    // console.log({ dealReturnEnabled, eliminatedItems, activeItems, dealItem });
+    if (
+      !resurrectionRoundEnabled &&
+      dealItem &&
+      dealReturnEnabled &&
+      (eliminatedItems.length >= activeItems.length || activeItems.length <= 3)
+    ) {
       roundOptions = [RoundType.DealReturn];
+      // console.log("deal return round");
       setDealReturnEnabled(false);
     }
 
     // this is ran before current item is eliminated
-    if (resurrectionRoundEnabled && eliminatedItems.length + 1 >= activeItems.length) {
+    if (resurrectionRoundEnabled && eliminatedItems.length >= activeItems.length) {
       roundOptions = [RoundType.Resurrection];
       setResurrectionRoundEnabled(false);
     } else {
@@ -172,17 +182,31 @@ function TournirApp() {
         setMusicPlaying(undefined);
         break;
     }
+
+    console.log("setting next round", nextRoundType);
     setCurrentRoundType(nextRoundType);
+    setTurnirState(TurnirState.RoundStart);
   };
 
   useEffect(() => {
-    console.log("flag 1");
     if (turnirState === TurnirState.Start) {
-      console.log("flag 2");
       setNextRoundType();
     }
+    if (turnirState === TurnirState.RoundChange) {
+      if (activeItems.length === 1) {
+        setTurnirState(TurnirState.Victory);
+        setMusicPlaying(MusicType.Victory);
+      } else {
+        setNextRoundType();
+      }
+    }
     // eslint-disable-next-line
-  }, [turnirState]);
+  }, [turnirState, items]);
+
+  const finishRound = () => {
+    setTurnirState(TurnirState.RoundChange);
+    setItems([...items]);
+  };
 
   const startTurnir = () => {
     nonEmptyItems.forEach((item) => {
@@ -194,6 +218,7 @@ function TournirApp() {
       item.isResurrected = false;
       item.hasDeal = false;
     });
+    setCurrentRoundType(null);
     setItems([...nonEmptyItems]);
     setRoundNumber(1);
     setSwapRoundEnabled(true);
@@ -202,7 +227,6 @@ function TournirApp() {
     setDealRoundEnabled(true);
     setDealReturnEnabled(true);
     setTurnirState(TurnirState.Start);
-    // setNextRoundType();
   };
 
   const onNextRoundClick = () => {
@@ -216,7 +240,7 @@ function TournirApp() {
       if (currentRoundType) {
         dealItem.eliminationType = currentRoundType;
       }
-      setNextRoundType();
+      finishRound();
       return;
     }
 
@@ -224,19 +248,14 @@ function TournirApp() {
     if (item) {
       if (item.isProtected) {
         setShowProtectionModal(true);
-        setProtectedItem(item);
-        item.isProtected = false;
-        // setNextRoundType();
       } else if (item.swappedWith && targetSwapItem) {
         setShowSwapModal(true);
         setInitialSwapItem(item);
         setActionSwapItem(targetSwapItem);
-        item.swappedWith = undefined;
       } else if (targetSwapItem && swapItem && item.id === targetSwapItem.id) {
         setShowSwapModal(true);
         setInitialSwapItem(item);
         setActionSwapItem(swapItem);
-        swapItem.swappedWith = undefined;
       } else {
         item.status = ItemStatus.Eliminated;
         item.eliminationRound = roundNumber;
@@ -244,14 +263,8 @@ function TournirApp() {
           item.eliminationType = currentRoundType;
         }
         setRoundNumber(roundNumber + 1);
-        if (activeItems.length === 2 && turnirState === TurnirState.Start) {
-          setTurnirState(TurnirState.Victory);
-          setMusicPlaying(MusicType.Victory);
-        } else {
-          setNextRoundType();
-        }
+        finishRound();
       }
-      setItems([...items]);
     }
   };
 
@@ -260,8 +273,7 @@ function TournirApp() {
     if (item) {
       item.isProtected = true;
       setProtectionRoundEnabled(false);
-      setItems([...items]);
-      setNextRoundType();
+      finishRound();
     }
   };
 
@@ -274,8 +286,7 @@ function TournirApp() {
       }
       item.swappedWith = targetItem.id;
       setSwapRoundEnabled(false);
-      setItems([...items]);
-      setNextRoundType();
+      finishRound();
     }
   };
 
@@ -286,8 +297,7 @@ function TournirApp() {
       item.status = ItemStatus.Active;
       item.eliminationRound = undefined;
       item.eliminationType = undefined;
-      setItems([...items]);
-      setNextRoundType();
+      finishRound();
     }
   };
 
@@ -296,8 +306,7 @@ function TournirApp() {
       dealItem.status = ItemStatus.Active;
       dealItem.eliminationRound = undefined;
       dealItem.eliminationType = undefined;
-      setItems([...items]);
-      setNextRoundType();
+      finishRound();
     }
   };
 
@@ -306,8 +315,7 @@ function TournirApp() {
     if (item) {
       item.hasDeal = true;
       item.status = ItemStatus.Excluded;
-      setItems([...items]);
-      setNextRoundType();
+      finishRound();
     }
   };
 
@@ -471,7 +479,7 @@ function TournirApp() {
             <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
-                disabled={turnirState !== TurnirState.RoundEnd && turnirState !== TurnirState.Start}
+                disabled={turnirState !== TurnirState.RoundStart}
                 onClick={onNextRoundClick}
                 endIcon={<SkipNext />}
               >
@@ -493,7 +501,7 @@ function TournirApp() {
         </Grid>
 
         <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
-          {turnirState === TurnirState.Start && currentRoundType && (
+          {turnirState === TurnirState.RoundStart && currentRoundType && (
             <div>
               <RoundTitle
                 roundNumber={roundNumber}
@@ -522,8 +530,10 @@ function TournirApp() {
         <SwapRevealModal
           open={showSwapModal}
           onClose={() => {
-            onItemElimination(actionSwapItem.id);
             setShowSwapModal(false);
+            initialSwapItem.swappedWith = undefined;
+            actionSwapItem.swappedWith = undefined;
+            onItemElimination(actionSwapItem.id);
           }}
           initialItem={initialSwapItem}
           actionItem={actionSwapItem}
@@ -533,8 +543,9 @@ function TournirApp() {
         <ProtectionRemoveModal
           open={showProtectionModal}
           onClose={() => {
-            setNextRoundType();
             setShowProtectionModal(false);
+            protectedItem.isProtected = false;
+            finishRound();
           }}
           item={protectedItem}
         />

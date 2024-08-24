@@ -19,9 +19,8 @@ export enum ItemStatus {
 export enum TurnirState {
   EditCandidates,
   Start,
-  RoundSelection,
   RoundStart,
-  RoundEnd,
+  RoundChange,
   Victory,
 }
 

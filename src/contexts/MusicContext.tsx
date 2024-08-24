@@ -35,25 +35,28 @@ export default function MusicContextProvider({ children }: { children: React.Rea
   };
 
   const [volume, setVolume] = useState(getStoredVolume());
+  const [playPromise, setPlayPromise] = useState<Promise<void> | null>(null);
 
   const musicMap: { [key: string]: HTMLAudioElement | null } = {};
   for (const key in MusicTypeIds) {
     musicMap[key] = document.getElementById(MusicTypeIds[key as MusicType]) as HTMLAudioElement | null;
   }
 
-  const startMusic = (music?: MusicType) => {
+  const startMusic = async (music?: MusicType) => {
     if (musicPlaying) {
       const currentMusic = musicMap[musicPlaying];
-      if (currentMusic) {
-        currentMusic.pause();
-        currentMusic.currentTime = 0;
+      if (currentMusic && playPromise) {
+        playPromise.then(() => {
+          currentMusic.pause();
+          currentMusic.currentTime = 0;
+        });
       }
     }
     setMusicPlaying(music);
     if (music) {
       const newMusic = musicMap[music];
       if (newMusic) {
-        newMusic.play();
+        setPlayPromise(newMusic.play());
       }
     }
   };
