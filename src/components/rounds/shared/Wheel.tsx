@@ -103,9 +103,14 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
   arrowPath.lineTo(centerX + 30, centerY - radius);
   arrowPath.lineTo(centerX, centerY - radius + 30);
 
+  const lineSeparator = new Path2D();
+  lineSeparator.moveTo(0, 0);
+  lineSeparator.lineTo(radius * Math.cos(0), radius * Math.sin(0));
+
   const drawWheel = (rotation: number) => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
+    const selectedIndex = getSelectedItemId(rotationRef.current);
     // console.log(canvas, context, rotation);
     if (context) {
       context.save();
@@ -119,13 +124,14 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
         const color = colors[i % colors.length];
 
         context.fillStyle = color;
+        if (wheelState.current === WheelState.Stop && i !== selectedIndex) {
+          context.fillStyle = hexToShade(color, 0.4);
+        }
+
         context.fill(piece);
         context.strokeStyle = "white";
         context.lineWidth = 2;
-        context.beginPath();
-        context.moveTo(0, 0);
-        context.lineTo(radius * Math.cos(0), radius * Math.sin(0));
-        context.stroke();
+        context.stroke(lineSeparator);
 
         context.save();
         context.rotate(angleHalf);
@@ -144,6 +150,9 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
 
         context.rotate(pieceAngle);
       }
+      context.strokeStyle = "white";
+      context.lineWidth = 2;
+      context.stroke(lineSeparator);
 
       context.restore();
 
@@ -323,6 +332,9 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
             borderRadius: "50%",
             borderColor: "white",
             zIndex: 5,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
           <canvas
@@ -335,6 +347,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
               left: 0,
               top: 0,
               zIndex: 1,
+              opacity: wheelState.current === WheelState.Start ? 0.5 : 1,
             }}
           />
           <div
@@ -368,6 +381,18 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
             }}
           />
 
+          {wheelState.current === WheelState.Start && (
+            <Button
+              onClick={startSpinning}
+              variant="contained"
+              style={{
+                zIndex: 10,
+              }}
+            >
+              Запуск
+            </Button>
+          )}
+
           <img
             src={centerImage || CatDance}
             alt=""
@@ -386,4 +411,25 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
       </div>
     </Box>
   );
+}
+
+function hexToShade(hexcode: string, shade: number = 0.7) {
+  // Remove the leading '#' if present
+  const hex = hexcode.replace(/^#/, "");
+  // Parse the hex color code into its RGB components
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+
+  const newR = Math.round(r * shade);
+  const newG = Math.round(g * shade);
+  const newB = Math.round(b * shade);
+
+  // Convert each component back to a 2-digit hex string
+  const rHex = newR.toString(16).padStart(2, "0");
+  const gHex = newG.toString(16).padStart(2, "0");
+  const bHex = newB.toString(16).padStart(2, "0");
+
+  // Combine the components back into a single hex string
+  return `#${rHex}${gHex}${bHex}`;
 }
