@@ -102,7 +102,7 @@ function TournirApp() {
     // eslint-disable-next-line
   }, [presetId]);
 
-  const { setMusicPlaying, isMuted, setIsMuted, volume, setVolume } = useContext(MusicContext);
+  const { setMusicPlaying } = useContext(MusicContext);
 
   const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
   const activeItems = nonEmptyItems.filter((item) => item.status === ItemStatus.Active);
@@ -359,8 +359,53 @@ function TournirApp() {
         columns={12}
         sx={{ borderTop: 0.5, borderBottom: 0.5, borderColor: "grey.700" }}
       >
-        <Grid item xs={4} border={0} paddingTop={2} sx={{ width: "100%", paddingBottom: 2 }}>
-          <Grid container columns={1} border={0} rowGap={2} paddingLeft={6} paddingRight={2}>
+        <Grid item xs={4} borderRight={0.5} borderColor="grey.700" sx={{ width: "100%", paddingBottom: 2 }}>
+          <Box width={"100%"} borderBottom={0.5} borderLeft={0} borderColor={"grey.700"}>
+            <Grid container margin={2}>
+              <Grid item marginRight={2}>
+                <Button
+                  variant="contained"
+                  color="error"
+                  disabled={turnirState === TurnirState.EditCandidates}
+                  onClick={onRestartClick}
+                  endIcon={<RestartAlt />}
+                >
+                  Рестарт
+                </Button>
+              </Grid>
+              <Grid item marginRight={2}>
+                <Button
+                  variant="contained"
+                  disabled={turnirState !== TurnirState.RoundStart}
+                  onClick={onNextRoundClick}
+                  endIcon={<SkipNext />}
+                >
+                  Скипнуть раунд
+                </Button>
+              </Grid>
+              <Grid item marginRight={2}>
+                <Button
+                  variant="contained"
+                  onClick={startTurnir}
+                  disabled={nonEmptyItems.length === 0 || turnirState !== TurnirState.EditCandidates}
+                  endIcon={<StartIcon />}
+                  color="success"
+                >
+                  Запуск
+                </Button>
+              </Grid>
+            </Grid>
+          </Box>
+          <Grid
+            container
+            columns={1}
+            border={0}
+            rowGap={2}
+            paddingTop={2}
+            paddingLeft={6}
+            paddingRight={2}
+            sx={{ borderRgiht: 1, borderColor: "grey.700" }}
+          >
             <Grid item xs={1} paddingLeft={0}>
               <ItemsList items={items} setItem={setItemValue} activeItems={nonEmptyItems} canEditItems={canEditItems} />
             </Grid>
@@ -377,171 +422,122 @@ function TournirApp() {
           </Grid>
         </Grid>
 
-        <Grid
-          item
-          xs={2}
-          border={0}
-          paddingRight={0}
-          paddingTop={2}
-          paddingBottom={2}
-          sx={{
-            borderLeft: 0.5,
-            borderRight: 0.5,
-            borderColor: "grey.700",
-          }}
-        >
-          <Grid container rowGap={2} alignItems="baseline" columns={1}>
-            <Grid item xs={1} paddingLeft={2} display="flex" alignItems={"center"}>
-              <Button variant="outlined" onClick={() => setIsMuted(!isMuted)} sx={{ marginRight: 2 }}>
-                {isMuted ? <VolumeOff /> : <VolumeUp />}
-              </Button>
-              <Slider
-                aria-label="Volume"
-                value={volume}
-                min={0}
-                max={1}
-                step={0.01}
-                onChange={(_evt, value) => {
-                  setVolume(value as number);
+        <Grid item xs={8} columns={1}>
+          <Grid container sx={{ width: "100%" }}>
+            {turnirState === TurnirState.EditCandidates && (
+              <Grid
+                item
+                xs={3}
+                border={0}
+                paddingRight={0}
+                paddingTop={2}
+                paddingBottom={2}
+                sx={{
+                  borderRight: 0.5,
+                  borderColor: "grey.700",
                 }}
-                sx={{ marginRight: 2 }}
-              />
-            </Grid>
-            <Grid item xs={1} paddingLeft={2}>
-              <Tooltip title="Один и тот же раунд не будет повторяться подряд">
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      disabled={turnirState !== TurnirState.EditCandidates}
-                      checked={noRoundRepeat}
-                      style={{ paddingTop: 0, paddingBottom: 0 }}
-                      onChange={() => setNoRoundRepeat(!noRoundRepeat)}
-                    />
-                  }
-                  label={"Антиповтор раундов"}
-                />
-              </Tooltip>
-            </Grid>
+              >
+                <Grid container rowGap={2} alignItems="baseline" columns={1}>
+                  <Grid item xs={1} paddingLeft={2}>
+                    <Tooltip title="Один и тот же раунд не будет повторяться подряд">
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            disabled={turnirState !== TurnirState.EditCandidates}
+                            checked={noRoundRepeat}
+                            style={{ paddingTop: 0, paddingBottom: 0 }}
+                            onChange={() => setNoRoundRepeat(!noRoundRepeat)}
+                          />
+                        }
+                        label={"Антиповтор раундов"}
+                      />
+                    </Tooltip>
+                  </Grid>
 
-            <Grid item xs={1}>
-              <Divider style={{ width: "inherit" }} />
-            </Grid>
+                  <Grid item xs={1}>
+                    <Divider style={{ width: "inherit" }} />
+                  </Grid>
 
-            <Grid item xs={1} paddingLeft={2}>
-              Классические раунды
-            </Grid>
+                  <Grid item xs={1} paddingLeft={2}>
+                    Классические раунды
+                  </Grid>
 
-            {classicRounds.map((roundType, index) => {
-              return (
-                <Grid item key={index} xs={1} paddingLeft={2}>
-                  <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          disabled={turnirState !== TurnirState.EditCandidates}
-                          checked={roundTypes.get(roundType)}
-                          style={{ paddingTop: 0, paddingBottom: 0 }}
-                          onChange={() => onRoundTypeClick(roundType)}
-                        />
-                      }
-                      label={RoundTypeNames[roundType]}
-                    />
-                  </Tooltip>
+                  {classicRounds.map((roundType, index) => {
+                    return (
+                      <Grid item key={index} xs={1} paddingLeft={2}>
+                        <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                disabled={turnirState !== TurnirState.EditCandidates}
+                                checked={roundTypes.get(roundType)}
+                                style={{ paddingTop: 0, paddingBottom: 0 }}
+                                onChange={() => onRoundTypeClick(roundType)}
+                              />
+                            }
+                            label={RoundTypeNames[roundType]}
+                          />
+                        </Tooltip>
+                      </Grid>
+                    );
+                  })}
+
+                  <Grid item xs={1}>
+                    <Divider style={{ width: "inherit" }} />
+                  </Grid>
+
+                  <Grid item xs={1} paddingLeft={2}>
+                    Новые раунды
+                  </Grid>
+
+                  {newRounds.map((roundType, index) => {
+                    return (
+                      <Grid item key={index} xs={1} paddingLeft={2}>
+                        <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                disabled={turnirState !== TurnirState.EditCandidates}
+                                checked={roundTypes.get(roundType)}
+                                style={{ paddingTop: 0, paddingBottom: 0 }}
+                                onChange={() => onRoundTypeClick(roundType)}
+                              />
+                            }
+                            label={RoundTypeNames[roundType]}
+                          />
+                        </Tooltip>
+                      </Grid>
+                    );
+                  })}
                 </Grid>
-              );
-            })}
-
-            <Grid item xs={1}>
-              <Divider style={{ width: "inherit" }} />
-            </Grid>
-
-            <Grid item xs={1} paddingLeft={2}>
-              Новые раунды
-            </Grid>
-
-            {newRounds.map((roundType, index) => {
-              return (
-                <Grid item key={index} xs={1} paddingLeft={2}>
-                  <Tooltip title={RoundTypeTooltip[roundType as string] || ""}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          disabled={turnirState !== TurnirState.EditCandidates}
-                          checked={roundTypes.get(roundType)}
-                          style={{ paddingTop: 0, paddingBottom: 0 }}
-                          onChange={() => onRoundTypeClick(roundType)}
-                        />
-                      }
-                      label={RoundTypeNames[roundType]}
-                    />
-                  </Tooltip>
-                </Grid>
-              );
-            })}
-
-            <Grid item xs={1}>
-              <Divider style={{ width: "inherit" }} />
-            </Grid>
-
-            <Grid item paddingLeft={2} xs={1}>
-              <Button
-                variant="contained"
-                onClick={startTurnir}
-                disabled={nonEmptyItems.length === 0 || turnirState !== TurnirState.EditCandidates}
-                endIcon={<StartIcon />}
-                color="success"
-              >
-                Запуск
-              </Button>
-            </Grid>
-            <Grid item paddingLeft={2} xs={1}>
-              <Button
-                variant="contained"
-                disabled={turnirState !== TurnirState.RoundStart}
-                onClick={onNextRoundClick}
-                endIcon={<SkipNext />}
-              >
-                Скипнуть раунд
-              </Button>
-            </Grid>
-            <Grid item paddingLeft={2} xs={1}>
-              <Button
-                variant="contained"
-                color="error"
-                disabled={turnirState === TurnirState.EditCandidates}
-                onClick={onRestartClick}
-                endIcon={<RestartAlt />}
-              >
-                Рестарт
-              </Button>
+              </Grid>
+            )}
+            <Grid item width={"100%"} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
+              {turnirState === TurnirState.RoundStart && currentRoundType && (
+                <Box>
+                  <RoundTitle
+                    roundNumber={roundNumber}
+                    roundType={currentRoundType}
+                    itemsLeft={activeItems.length}
+                    totalRounds={nonEmptyItems.length - 1}
+                  />
+                  <RoundContent
+                    roundType={currentRoundType}
+                    activeItems={activeItems}
+                    eliminatedItems={eliminatedItems}
+                    onItemElimination={onItemElimination}
+                    onItemProtection={onItemProtection}
+                    onItemSwap={onItemSwap}
+                    onItemResurrection={onItemResurrection}
+                    onIteamDeal={onItemDeal}
+                    dealItem={dealItem}
+                    onDealReturn={onDealReturn}
+                  />
+                </Box>
+              )}
+              {turnirState === TurnirState.Victory && <Victory winner={activeItems[0]} />}
             </Grid>
           </Grid>
-        </Grid>
-
-        <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
-          {turnirState === TurnirState.RoundStart && currentRoundType && (
-            <div>
-              <RoundTitle
-                roundNumber={roundNumber}
-                roundType={currentRoundType}
-                itemsLeft={activeItems.length}
-                totalRounds={nonEmptyItems.length - 1}
-              />
-              <RoundContent
-                roundType={currentRoundType}
-                activeItems={activeItems}
-                eliminatedItems={eliminatedItems}
-                onItemElimination={onItemElimination}
-                onItemProtection={onItemProtection}
-                onItemSwap={onItemSwap}
-                onItemResurrection={onItemResurrection}
-                onIteamDeal={onItemDeal}
-                dealItem={dealItem}
-                onDealReturn={onDealReturn}
-              />
-            </div>
-          )}
-          {turnirState === TurnirState.Victory && <Victory winner={activeItems[0]} />}
         </Grid>
       </Grid>
       {initialSwapItem && actionSwapItem && (

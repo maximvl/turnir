@@ -37,7 +37,7 @@ export default function RoundTitle({ roundNumber, roundType, itemsLeft, totalRou
   return (
     <div>
       <h3 style={{ marginTop: 0 }}>
-        Раунд {roundNumber}/{totalRounds}: {RoundTypeNames[roundType]}
+        Раунд {roundNumber}: {RoundTypeNames[roundType]}
       </h3>
     </div>
   );
