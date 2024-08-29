@@ -1,5 +1,7 @@
 import { Box } from "@mui/material";
-import { Item } from "types";
+import { MusicContext } from "contexts/MusicContext";
+import { useContext, useEffect } from "react";
+import { Item, MusicType } from "types";
 import InfoPanel from "../shared/InfoPanel";
 import ListChoice from "../shared/ListChoice";
 
@@ -9,6 +11,12 @@ type Props = {
 };
 
 export default function DealRound({ items, onItemSelect }: Props) {
+  const { setMusicPlaying } = useContext(MusicContext);
+  useEffect(() => {
+    setMusicPlaying(MusicType.Thinking);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
   const round = Math.round(items.length / 2);
   return (
     <Box>

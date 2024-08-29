@@ -1,11 +1,12 @@
 import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Item } from "types";
+import { useContext, useEffect, useState } from "react";
+import { Item, MusicType } from "types";
 import PollResults from "./PollResults";
 import { PollVote } from "utils";
 import VotesLog from "./VotesLog";
 import { isEmpty } from "lodash";
 import useChatVoting from "components/hooks/useChatVoting";
+import { MusicContext } from "contexts/MusicContext";
 
 type Props = {
   items: Item[];
@@ -15,6 +16,13 @@ type Props = {
 
 export default function ViewerChoiceRound({ items, onItemElimination, logFormatter }: Props) {
   const { votesMap, voteMessages, state, setState, error, isLoading } = useChatVoting({ items });
+
+  const { setMusicPlaying } = useContext(MusicContext);
+
+  useEffect(() => {
+    setMusicPlaying(MusicType.RickRoll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
 
   useEffect(() => {
     if (state === "initial") {

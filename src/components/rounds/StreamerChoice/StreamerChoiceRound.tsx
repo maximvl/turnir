@@ -24,6 +24,11 @@ export default function StreamerChoiceRound({ items, onItemElimination }: Props)
   const [blinking, setBlinking] = useState(false);
 
   useEffect(() => {
+    setMusicPlaying(MusicType.Thinking);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
+  useEffect(() => {
     if (selectedItemId) {
       const failureEvent = Math.random() > 0.7;
       if (failureEvent) {

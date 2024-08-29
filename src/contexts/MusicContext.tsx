@@ -1,5 +1,5 @@
 import { isNil } from "lodash";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { MusicType, MusicTypeIds } from "../types";
 
 export type MusicContextType = {
@@ -21,9 +21,31 @@ export const MusicContext = createContext<MusicContextType>({
 });
 
 export default function MusicContextProvider({ children }: { children: React.ReactNode }) {
-  const [musicPlaying, setMusicPlaying] = useState<MusicType | undefined>(undefined);
-
+  const [currentMusic, setCurrentMusic] = useState<MusicType | undefined>(undefined);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  const musicMap: { [key: string]: HTMLAudioElement | null } = {};
+  for (const key in MusicTypeIds) {
+    musicMap[key] = document.getElementById(MusicTypeIds[key as MusicType]) as HTMLAudioElement | null;
+  }
+
+  useEffect(() => {
+    if (!currentMusic) {
+      return;
+    }
+    const music = musicMap[currentMusic];
+    if (!music) {
+      return;
+    }
+    if (isPlaying) {
+      music.currentTime = 0;
+      music.play();
+    } else {
+      music.pause();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMusic, isPlaying]);
 
   const volumeKey = "volume";
   const getStoredVolume = () => {
@@ -35,30 +57,21 @@ export default function MusicContextProvider({ children }: { children: React.Rea
   };
 
   const [volume, setVolume] = useState(getStoredVolume());
-  const [playPromise, setPlayPromise] = useState<Promise<void> | null>(null);
 
-  const musicMap: { [key: string]: HTMLAudioElement | null } = {};
-  for (const key in MusicTypeIds) {
-    musicMap[key] = document.getElementById(MusicTypeIds[key as MusicType]) as HTMLAudioElement | null;
-  }
-
-  const startMusic = async (music?: MusicType) => {
-    if (musicPlaying) {
-      const currentMusic = musicMap[musicPlaying];
-      if (currentMusic && playPromise) {
-        playPromise.then(() => {
-          currentMusic.pause();
-          currentMusic.currentTime = 0;
-        });
+  const startMusic = (music?: MusicType) => {
+    if (currentMusic) {
+      const current = musicMap[currentMusic];
+      if (current && !current.paused) {
+        if (music === currentMusic) {
+          current.currentTime = 0;
+        } else {
+          current.pause();
+          current.currentTime = 0;
+        }
       }
     }
-    setMusicPlaying(music);
-    if (music) {
-      const newMusic = musicMap[music];
-      if (newMusic) {
-        setPlayPromise(newMusic.play());
-      }
-    }
+    setCurrentMusic(music);
+    setIsPlaying(!!music);
   };
 
   const updateMuted = (muted: boolean) => {
@@ -83,7 +96,7 @@ export default function MusicContextProvider({ children }: { children: React.Rea
   return (
     <MusicContext.Provider
       value={{
-        musicPlaying,
+        musicPlaying: currentMusic,
         setMusicPlaying: startMusic,
         isMuted,
         setIsMuted: updateMuted,

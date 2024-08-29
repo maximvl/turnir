@@ -1,6 +1,6 @@
-import { RestartAlt, SkipNext, VolumeOff, VolumeUp } from "@mui/icons-material";
+import { RestartAlt, SkipNext } from "@mui/icons-material";
 import StartIcon from "@mui/icons-material/Start";
-import { Box, Checkbox, Divider, FormControlLabel, Grid, Slider, Tooltip } from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Grid, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
 import "App.css";
 import ItemsList from "components/ItemsList";
@@ -134,6 +134,7 @@ function TournirApp() {
   };
 
   const setNextRoundType = () => {
+    setMusicPlaying(undefined);
     let roundOptions = activeRounds;
     roundOptions.push(RoundType.DealReturn);
     // if (roundTypes.get(RoundType.Deal) && oneTimeRounds[RoundType.Deal]) {
@@ -192,18 +193,6 @@ function TournirApp() {
     }
 
     const nextRoundType = sample(roundOptions) as RoundType;
-
-    switch (nextRoundType) {
-      case RoundType.StreamerChoice:
-        setMusicPlaying(MusicType.Thinking);
-        break;
-      case RoundType.ViewerChoice:
-        setMusicPlaying(MusicType.RickRoll);
-        break;
-      default:
-        setMusicPlaying(undefined);
-        break;
-    }
 
     if (nextRoundType in oneTimeRounds) {
       disableOneTimeRound(nextRoundType);
