@@ -56,7 +56,7 @@ export default function ResurrectionVoting({ items, onItemElimination }: Props) 
   };
 
   return (
-    <div>
+    <Box>
       {state === "voting" && (
         <>
           <Button variant="contained" color="error" onClick={onVotingStop}>
@@ -70,18 +70,13 @@ export default function ResurrectionVoting({ items, onItemElimination }: Props) 
             time={time}
           />
           <Box marginTop={2}>
-            <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} />
+            <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} hideVotes />
           </Box>
         </>
       )}
       {state === "show_results" && (
-        <PollResults
-          items={items}
-          votes={Object.values(votesMap)}
-          onItemElimination={onItemElimination}
-          showInfo={false}
-        />
+        <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} />
       )}
-    </div>
+    </Box>
   );
 }

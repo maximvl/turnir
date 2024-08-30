@@ -89,7 +89,9 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
             hideResults
             time={time}
           />
-          <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} />
+          <Box marginTop={2}>
+            <VotesLog items={items} votes={voteMessages} isFinished={false} logFormatter={voteFormatter} hideVotes />
+          </Box>
         </>
       )}
       {state === "streamer_choice" && (

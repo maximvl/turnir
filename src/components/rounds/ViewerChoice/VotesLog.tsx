@@ -1,5 +1,5 @@
-import { Box } from "@mui/material";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { Box, Button } from "@mui/material";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Item } from "types";
 import { PollVote } from "utils";
 
@@ -8,17 +8,19 @@ type Props = {
   items: Item[];
   logFormatter?: (vote: PollVote, formattedTime: string, optionName: string) => string;
   isFinished: boolean;
+  hideVotes?: boolean;
 };
 
 const voteFormatter = (vote: PollVote, formattedTime: string, optionName: string) => {
   return `${formattedTime}: ${vote.username} голосует против ${vote.message} (${optionName})`;
 };
 
-export default function VotesLog({ votes, items, logFormatter = voteFormatter, isFinished }: Props) {
+export default function VotesLog({ votes, items, logFormatter = voteFormatter, isFinished, hideVotes }: Props) {
   // console.log("votes", votes);
   const scrollableRef = useRef<HTMLDivElement>(null);
   const automaticScroll = useRef(true);
   const lastScrollTime = useRef<number>(new Date().getTime());
+  const [showLogs, setShowLogs] = useState(!hideVotes);
 
   const scrollToBottom = () => {
     const scrollableElement = scrollableRef?.current;
@@ -74,32 +76,37 @@ export default function VotesLog({ votes, items, logFormatter = voteFormatter, i
   };
 
   return (
-    <div>
+    <Box>
       Лог голосования
-      <Box
-        sx={{ border: "1px solid", m: 1, overflow: "scroll", height: "300px" }}
-        ref={scrollableRef}
-        onScroll={onScroll}
-      >
-        {votes.map((vote, index) => (
-          <Box
-            textAlign={"left"}
-            key={index}
-            component="span"
-            sx={{
-              display: "block",
-              m: 1,
-            }}
-          >
-            {logFormatter(vote, formatTime(vote.ts), itemNameMap[vote.message])}
-          </Box>
-        ))}
-        {isFinished && (
-          <Box textAlign={"center"} component="span" sx={{ display: "block", m: 1 }}>
-            Голосование завершено
-          </Box>
-        )}
-      </Box>
-    </div>
+      <Button variant="outlined" onClick={() => setShowLogs(!showLogs)} sx={{ marginLeft: 2 }}>
+        {showLogs ? "Скрыть логи" : "Показать логи"}
+      </Button>
+      {showLogs && (
+        <Box
+          sx={{ border: "1px solid", m: 1, overflow: "scroll", height: "300px" }}
+          ref={scrollableRef}
+          onScroll={onScroll}
+        >
+          {votes.map((vote, index) => (
+            <Box
+              textAlign={"left"}
+              key={index}
+              component="span"
+              sx={{
+                display: "block",
+                m: 1,
+              }}
+            >
+              {logFormatter(vote, formatTime(vote.ts), itemNameMap[vote.message])}
+            </Box>
+          ))}
+          {isFinished && (
+            <Box textAlign={"center"} component="span" sx={{ display: "block", m: 1 }}>
+              Голосование завершено
+            </Box>
+          )}
+        </Box>
+      )}
+    </Box>
   );
 }

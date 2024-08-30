@@ -48,13 +48,11 @@ export default function ViewerChoiceRound({ items, onItemElimination, logFormatt
   }
 
   return (
-    <div>
-      <Box display="inline-block" alignItems="center" style={{ paddingLeft: 16, width: "100%" }}>
-        <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} time={time} />
-        <div style={{ marginTop: 20 }}>
-          <VotesLog votes={voteMessages} items={items} logFormatter={logFormatter} isFinished={state === "finished"} />
-        </div>
+    <Box display="inline-block" alignItems="center" style={{ paddingLeft: 16, width: "100%" }}>
+      <PollResults items={items} votes={Object.values(votesMap)} onItemElimination={onItemElimination} time={time} />
+      <Box marginTop={2}>
+        <VotesLog votes={voteMessages} items={items} logFormatter={logFormatter} isFinished={state === "finished"} />
       </Box>
-    </div>
+    </Box>
   );
 }
