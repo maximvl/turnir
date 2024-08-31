@@ -7,7 +7,7 @@ import ItemsList from "components/ItemsList";
 import RoundContent from "components/rounds/shared/RoundContent";
 import RoundTitle from "components/rounds/shared/RoundTitle";
 import SavePreset from "components/SavePreset";
-import SwapRevealModal from "components/SwapRevealModal";
+import SwapRevealModal from "components/modals/SwapRevealModal";
 import Victory from "components/Victory";
 import { MusicContext } from "contexts/MusicContext";
 import { filter, isEmpty, sample, toString } from "lodash";
@@ -28,7 +28,8 @@ import {
 } from "types";
 import { createItem, fetchPreset } from "utils";
 import MainMenu from "./MainMenu";
-import ProtectionRemoveModal from "components/ProtectionRemoveModal";
+import ProtectionRemoveModal from "components/modals/ProtectionRemoveModal";
+import SkipRoundModal from "components/modals/SkipRoundModal";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +91,7 @@ function TournirApp() {
   const [actionSwapItem, setActionSwapItem] = useState<Item | undefined>(undefined);
 
   const [showProtectionModal, setShowProtectionModal] = useState(false);
+  const [showSkipRoundModal, setShowSkipRoundModal] = useState(false);
 
   const allRounds = Array.from(roundTypes.keys());
   const activeRounds: RoundType[] = filter(allRounds, (key) => Boolean(roundTypes.get(key)));
@@ -253,9 +255,10 @@ function TournirApp() {
     setTurnirState(TurnirState.Start);
   };
 
-  const onNextRoundClick = () => {
+  const onSkipRoundClick = () => {
     // setNextRoundType();
-    setTurnirState(TurnirState.RoundChange);
+    // setTurnirState(TurnirState.RoundChange);
+    setShowSkipRoundModal(true);
   };
 
   const onItemElimination = (id: string) => {
@@ -391,7 +394,7 @@ function TournirApp() {
                   <Button
                     variant="contained"
                     disabled={turnirState !== TurnirState.RoundStart}
-                    onClick={onNextRoundClick}
+                    onClick={onSkipRoundClick}
                     endIcon={<SkipNext />}
                   >
                     Скипнуть раунд
@@ -573,6 +576,16 @@ function TournirApp() {
           item={protectedItem}
         />
       )}
+      <SkipRoundModal
+        open={showSkipRoundModal}
+        onClose={() => {
+          setShowSkipRoundModal(false);
+        }}
+        onConfirm={() => {
+          setShowSkipRoundModal(false);
+          finishRound();
+        }}
+      />
     </QueryClientProvider>
   );
 }
