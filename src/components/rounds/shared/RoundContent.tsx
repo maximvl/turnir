@@ -11,6 +11,7 @@ import DealReturn from "../DealRound/DealReturn";
 
 type Props = {
   roundType: RoundType;
+  roundId: number;
   activeItems: Item[];
   eliminatedItems: Item[];
   onItemElimination: (id: string) => void;
@@ -24,6 +25,7 @@ type Props = {
 
 export default function RoundContent({
   roundType,
+  roundId,
   activeItems,
   eliminatedItems,
   onItemElimination,

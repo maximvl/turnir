@@ -39,6 +39,7 @@ function TournirApp() {
   const [currentRoundType, setCurrentRoundType] = useState<RoundType | null>(null);
 
   const [title, setTitle] = useState("");
+  const [roundId, setRoundId] = useState(0);
 
   const { id: presetId } = useParams();
   const loadPreset = async (presetId: string) => {
@@ -207,6 +208,7 @@ function TournirApp() {
 
   useEffect(() => {
     if (turnirState === TurnirState.Start) {
+      setRoundId(roundId + 1);
       setNextRoundType();
     }
     if (turnirState === TurnirState.RoundChange) {
@@ -214,6 +216,7 @@ function TournirApp() {
         setTurnirState(TurnirState.Victory);
         setMusicPlaying(MusicType.Victory);
       } else {
+        setRoundNumber(roundNumber + 1);
         setNextRoundType();
       }
     }
@@ -238,6 +241,7 @@ function TournirApp() {
     setCurrentRoundType(null);
     setItems([...nonEmptyItems]);
     setRoundNumber(1);
+    setRoundId(0);
     setOneTimeRounds({
       [RoundType.Resurrection]: true,
       [RoundType.Protection]: true,
@@ -250,7 +254,8 @@ function TournirApp() {
   };
 
   const onNextRoundClick = () => {
-    setNextRoundType();
+    // setNextRoundType();
+    setTurnirState(TurnirState.RoundChange);
   };
 
   const onItemElimination = (id: string) => {
@@ -520,6 +525,7 @@ function TournirApp() {
                 />
                 <RoundContent
                   roundType={currentRoundType}
+                  roundId={roundId}
                   activeItems={activeItems}
                   eliminatedItems={eliminatedItems}
                   onItemElimination={onItemElimination}

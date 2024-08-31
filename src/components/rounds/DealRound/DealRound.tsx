@@ -13,7 +13,7 @@ type Props = {
 export default function DealRound({ items, onItemSelect }: Props) {
   const { setMusicPlaying } = useContext(MusicContext);
   useEffect(() => {
-    setMusicPlaying(MusicType.Thinking);
+    setMusicPlaying(MusicType.Light);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 

@@ -4,9 +4,10 @@ import Wheel from "../shared/Wheel";
 import { Box, Button } from "@mui/material";
 import Icon from "@mdi/react";
 import { mdiCross } from "@mdi/js";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import PrayImage from "images/pray.webp";
 import ResurrectionVoting from "./ResurrectionVoting";
+import { MusicContext } from "contexts/MusicContext";
 
 type Props = {
   activeItems: Item[];
@@ -18,9 +19,12 @@ type State = "initial" | "random" | "voting";
 
 export default function ResurrectionRound({ activeItems, eliminatedItems, onItemResurrection }: Props) {
   const [state, setState] = useState<State>("initial");
+  const { setMusicPlaying } = useContext(MusicContext);
 
   useEffect(() => {
     setState("initial");
+    setMusicPlaying(MusicType.Raphael);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeItems.length]);
 
   return (

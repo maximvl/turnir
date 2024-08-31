@@ -24,7 +24,8 @@ export default function StreamerChoiceRound({ items, onItemElimination }: Props)
   const [blinking, setBlinking] = useState(false);
 
   useEffect(() => {
-    setMusicPlaying(MusicType.Thinking);
+    const randomEvent = Math.random() >= 0.5;
+    setMusicPlaying(randomEvent ? MusicType.Thinking : MusicType.Light);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 

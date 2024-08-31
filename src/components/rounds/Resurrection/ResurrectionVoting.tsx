@@ -29,7 +29,7 @@ export default function ResurrectionVoting({ items, onItemElimination }: Props) 
     setTime(0);
     setVotingState("voting");
     setState("voting");
-    setMusicPlaying(MusicType.Nightsong);
+    setMusicPlaying(MusicType.DeathNote);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
 
