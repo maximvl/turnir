@@ -25,14 +25,15 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
   const { setMusicPlaying } = useContext(MusicContext);
 
   const [state, setState] = useState<State>("voting");
+  const [disabledStop, setDisabledStop] = useState(true);
 
   const [time, setTime] = useState(() => 0);
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(time + 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [time]);
+    if (time >= 15 && disabledStop) {
+      setDisabledStop(false);
+    }
+  }, [time, disabledStop]);
 
   const [targetNumber, setTargetNumber] = useState<number>(0);
 
@@ -42,6 +43,12 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
     setVotingState("voting");
     setState("voting");
     setMusicPlaying(MusicType.RickRoll);
+    setDisabledStop(true);
+
+    const interval = setInterval(() => {
+      setTime((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length]);
   // console.log("target:", targetNumber)
@@ -79,8 +86,8 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
     <div>
       {state === "voting" && (
         <>
-          <Button variant="contained" color="error" onClick={onVotingStop}>
-            Закончить
+          <Button variant="contained" color="error" onClick={onVotingStop} disabled={disabledStop}>
+            Закончить {disabledStop && ` (блокировка на ${15 - time} секунд)`}
           </Button>
           <PollResults
             items={items}
@@ -108,7 +115,7 @@ export default function ClosestVotesRound({ items, onItemElimination }: Props) {
               aria-label="Количество голосов"
               valueLabelDisplay="on"
               value={targetNumber}
-              min={minVotes}
+              min={0}
               max={maxVotes}
               step={1}
               onChange={(_event, value) => setTargetNumber(value as number)}

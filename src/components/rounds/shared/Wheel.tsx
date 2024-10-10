@@ -125,7 +125,7 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
 
         context.fillStyle = color;
         if (wheelState.current === WheelState.Stop && i !== selectedIndex) {
-          context.fillStyle = hexToShade(color, 0.4);
+          context.fillStyle = "#36454F";
         }
 
         context.fill(piece);
@@ -411,25 +411,4 @@ export default function Wheel({ items, onItemWinning, ButtonComponent, centerIma
       </div>
     </Box>
   );
-}
-
-function hexToShade(hexcode: string, shade: number = 0.7) {
-  // Remove the leading '#' if present
-  const hex = hexcode.replace(/^#/, "");
-  // Parse the hex color code into its RGB components
-  const r = parseInt(hex.slice(0, 2), 16);
-  const g = parseInt(hex.slice(2, 4), 16);
-  const b = parseInt(hex.slice(4, 6), 16);
-
-  const newR = Math.round(r * shade);
-  const newG = Math.round(g * shade);
-  const newB = Math.round(b * shade);
-
-  // Convert each component back to a 2-digit hex string
-  const rHex = newR.toString(16).padStart(2, "0");
-  const gHex = newG.toString(16).padStart(2, "0");
-  const bHex = newB.toString(16).padStart(2, "0");
-
-  // Combine the components back into a single hex string
-  return `#${rHex}${gHex}${bHex}`;
 }

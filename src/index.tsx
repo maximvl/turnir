@@ -34,12 +34,12 @@ const router = createBrowserRouter([
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
-    primary: {
-      main: "#a6d4fa",
-    },
-    background: {
-      default: "#242424",
-    },
+    // primary: {
+    //   main: "#a6d4fa",
+    // },
+    // background: {
+    //   default: "#242424",
+    // },
   },
 });
 
