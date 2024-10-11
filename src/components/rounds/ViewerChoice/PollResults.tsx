@@ -89,29 +89,45 @@ export default function PollResults({
           </InfoPanel>
         )}
       </Box>
-      <Grid container columns={4} rowGap={1} marginTop={2}>
-        {items.map((item, index) => {
-          const highlight =
-            totalVotes > 0 &&
-            itemIdsWithWinningVotes.includes(item.id) &&
-            !hideResults
-          const currentVotes = votesByOption[item.id] || 0
-          return (
-            <Grid
-              container
-              columns={12}
-              key={index}
-              columnSpacing={4}
-              alignItems="center"
-            >
-              <Grid item xs={7} textAlign="right">
+      <Box display="flex" justifyContent={'center'}>
+        <Box display="flex" flexDirection={'column'} width="fit-content">
+          {items.map((item, index) => {
+            const highlight =
+              totalVotes > 0 &&
+              itemIdsWithWinningVotes.includes(item.id) &&
+              !hideResults
+            return (
+              <Box key={index} textAlign="right" marginBottom={'10px'}>
                 <SelectItem
                   item={item}
                   selected={highlight}
                   onItemClick={onItemClick}
                 />
-              </Grid>
-              <Grid item xs={4}>
+              </Box>
+            )
+          })}
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          width="200px"
+          marginLeft={'15px'}
+        >
+          {items.map((item, index) => {
+            const highlight =
+              totalVotes > 0 &&
+              itemIdsWithWinningVotes.includes(item.id) &&
+              !hideResults
+            const currentVotes = votesByOption[item.id] || 0
+            return (
+              <Box
+                key={index}
+                width={'200px'}
+                height={'32px'}
+                display="grid"
+                marginBottom={'10px'}
+                alignItems={'center'}
+              >
                 <BorderLinearProgress
                   sx={{
                     backgroundColor: highlight
@@ -121,14 +137,32 @@ export default function PollResults({
                   variant="determinate"
                   value={hideResults ? 0 : (currentVotes / totalVotes) * 100}
                 />
-              </Grid>
-              <Grid item xs={1} textAlign={'left'}>
+              </Box>
+            )
+          })}
+        </Box>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignSelf="flex-end"
+          marginLeft={'10px'}
+        >
+          {items.map((item, index) => {
+            const currentVotes = votesByOption[item.id] || 0
+            return (
+              <Box
+                key={index}
+                height={'32px'}
+                marginBottom={'10px'}
+                fontSize={'18px'}
+                alignContent={'center'}
+              >
                 {hideResults ? '?' : currentVotes}
-              </Grid>
-            </Grid>
-          )
-        })}
-      </Grid>
+              </Box>
+            )
+          })}
+        </Box>
+      </Box>
     </div>
   )
 }
