@@ -20,6 +20,13 @@ export const MusicContext = createContext<MusicContextType>({
   setVolume: (volume: number) => {},
 })
 
+const MusicMap: { [key: string]: HTMLAudioElement | null } = {}
+for (const key in MusicTypeIds) {
+  MusicMap[key] = document.getElementById(
+    MusicTypeIds[key as MusicType]
+  ) as HTMLAudioElement | null
+}
+
 export default function MusicContextProvider({
   children,
 }: {
@@ -31,18 +38,11 @@ export default function MusicContextProvider({
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
 
-  const musicMap: { [key: string]: HTMLAudioElement | null } = {}
-  for (const key in MusicTypeIds) {
-    musicMap[key] = document.getElementById(
-      MusicTypeIds[key as MusicType]
-    ) as HTMLAudioElement | null
-  }
-
   useEffect(() => {
     if (!currentMusic) {
       return
     }
-    const music = musicMap[currentMusic]
+    const music = MusicMap[currentMusic]
     if (!music) {
       return
     }
@@ -66,16 +66,16 @@ export default function MusicContextProvider({
 
   const [volume, setVolume] = useState(getStoredVolume())
   useEffect(() => {
-    for (const music of Object.values(musicMap)) {
+    for (const music of Object.values(MusicMap)) {
       if (music) {
         music.volume = volume
       }
     }
-  }, [volume, musicMap])
+  }, [volume])
 
   const startMusic = (music?: MusicType) => {
     if (currentMusic) {
-      const current = musicMap[currentMusic]
+      const current = MusicMap[currentMusic]
       if (current && !current.paused) {
         if (music === currentMusic) {
           current.currentTime = 0
@@ -91,7 +91,7 @@ export default function MusicContextProvider({
 
   const updateMuted = (muted: boolean) => {
     setIsMuted(muted)
-    for (const music of Object.values(musicMap)) {
+    for (const music of Object.values(MusicMap)) {
       if (music) {
         music.muted = muted
       }

@@ -1,7 +1,4 @@
-import { GifBox } from '@mui/icons-material'
-import { Avatar, Box, Chip, Divider, Grid, useTheme } from '@mui/material'
-import { teal } from '@mui/material/colors'
-import ItemTitle from 'components/ItemTitle'
+import { Box, useTheme } from '@mui/material'
 import SelectItem from 'components/SelectItem'
 import { Item } from 'types'
 import InfoPanel from '../shared/InfoPanel'
