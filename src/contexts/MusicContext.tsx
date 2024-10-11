@@ -1,97 +1,107 @@
-import { isNil } from "lodash";
-import { createContext, useEffect, useState } from "react";
-import { MusicType, MusicTypeIds } from "../types";
+import { isNil } from 'lodash'
+import { createContext, useEffect, useState } from 'react'
+import { MusicType, MusicTypeIds } from '../types'
 
 export type MusicContextType = {
-  musicPlaying?: MusicType;
-  setMusicPlaying: (music?: MusicType) => void;
-  isMuted: boolean;
-  setIsMuted: (isMuted: boolean) => void;
-  volume: number;
-  setVolume: (volume: number) => void;
-};
+  musicPlaying?: MusicType
+  setMusicPlaying: (music?: MusicType) => void
+  isMuted: boolean
+  setIsMuted: (isMuted: boolean) => void
+  volume: number
+  setVolume: (volume: number) => void
+}
 
 export const MusicContext = createContext<MusicContextType>({
   musicPlaying: undefined,
-  setMusicPlaying: (_1?: MusicType) => {},
+  setMusicPlaying: (music?: MusicType) => {},
   isMuted: false,
-  setIsMuted: (_1: boolean) => {},
+  setIsMuted: (muted: boolean) => {},
   volume: 1,
-  setVolume: (_1: number) => {},
-});
+  setVolume: (volume: number) => {},
+})
 
-export default function MusicContextProvider({ children }: { children: React.ReactNode }) {
-  const [currentMusic, setCurrentMusic] = useState<MusicType | undefined>(undefined);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+export default function MusicContextProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const [currentMusic, setCurrentMusic] = useState<MusicType | undefined>(
+    undefined
+  )
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
 
-  const musicMap: { [key: string]: HTMLAudioElement | null } = {};
+  const musicMap: { [key: string]: HTMLAudioElement | null } = {}
   for (const key in MusicTypeIds) {
-    musicMap[key] = document.getElementById(MusicTypeIds[key as MusicType]) as HTMLAudioElement | null;
+    musicMap[key] = document.getElementById(
+      MusicTypeIds[key as MusicType]
+    ) as HTMLAudioElement | null
   }
 
   useEffect(() => {
     if (!currentMusic) {
-      return;
+      return
     }
-    const music = musicMap[currentMusic];
+    const music = musicMap[currentMusic]
     if (!music) {
-      return;
+      return
     }
     if (isPlaying) {
-      music.currentTime = 0;
-      music.play();
+      music.currentTime = 0
+      music.play()
     } else {
-      music.pause();
+      music.pause()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentMusic, isPlaying]);
+  }, [currentMusic, isPlaying])
 
-  const volumeKey = "volume";
+  const volumeKey = 'volume'
   const getStoredVolume = () => {
-    const storedVolume = localStorage.getItem(volumeKey);
+    const storedVolume = localStorage.getItem(volumeKey)
     if (!isNil(storedVolume)) {
-      return parseFloat(storedVolume) || 1;
+      return parseFloat(storedVolume) || 1
     }
-    return 1;
-  };
+    return 1
+  }
 
-  const [volume, setVolume] = useState(getStoredVolume());
+  const [volume, setVolume] = useState(getStoredVolume())
+  useEffect(() => {
+    for (const music of Object.values(musicMap)) {
+      if (music) {
+        music.volume = volume
+      }
+    }
+  }, [volume, musicMap])
 
   const startMusic = (music?: MusicType) => {
     if (currentMusic) {
-      const current = musicMap[currentMusic];
+      const current = musicMap[currentMusic]
       if (current && !current.paused) {
         if (music === currentMusic) {
-          current.currentTime = 0;
+          current.currentTime = 0
         } else {
-          current.pause();
-          current.currentTime = 0;
+          current.pause()
+          current.currentTime = 0
         }
       }
     }
-    setCurrentMusic(music);
-    setIsPlaying(!!music);
-  };
+    setCurrentMusic(music)
+    setIsPlaying(!!music)
+  }
 
   const updateMuted = (muted: boolean) => {
-    setIsMuted(muted);
+    setIsMuted(muted)
     for (const music of Object.values(musicMap)) {
       if (music) {
-        music.muted = muted;
+        music.muted = muted
       }
     }
-  };
+  }
 
   const updateVolume = (newVolume: number) => {
-    setVolume(newVolume);
-    localStorage.setItem(volumeKey, newVolume.toString());
-    for (const music of Object.values(musicMap)) {
-      if (music) {
-        music.volume = newVolume;
-      }
-    }
-  };
+    setVolume(newVolume)
+    localStorage.setItem(volumeKey, newVolume.toString())
+  }
 
   return (
     <MusicContext.Provider
@@ -106,5 +116,5 @@ export default function MusicContextProvider({ children }: { children: React.Rea
     >
       {children}
     </MusicContext.Provider>
-  );
+  )
 }
