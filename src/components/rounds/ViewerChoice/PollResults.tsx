@@ -2,6 +2,7 @@ import { GifBox } from '@mui/icons-material'
 import { Avatar, Box, Chip, Divider, Grid, useTheme } from '@mui/material'
 import { teal } from '@mui/material/colors'
 import ItemTitle from 'components/ItemTitle'
+import SelectItem from 'components/SelectItem'
 import { Item } from 'types'
 import InfoPanel from '../shared/InfoPanel'
 import { BorderLinearProgress } from './BorderLinearProgress'
@@ -71,39 +72,6 @@ export default function PollResults({
   // const itemIdsWithMaxVotes = Object.keys(votesByOption).filter((key) => votesByOption[key] === maxVotes);
   const totalVotes = votes.length
 
-  const itemElement = (item: Item, selected: boolean) => {
-    const color = selected ? 'error' : 'default'
-    const onClick = selected ? onItemClick : () => {}
-    return (
-      <Chip
-        label={
-          <Box display="flex">
-            <span
-              style={{
-                fontSize: '20px',
-                marginRight: '5px',
-                color: selected ? 'white' : '#ff9800',
-              }}
-            >
-              {item.id}
-            </span>
-            <Divider
-              orientation="vertical"
-              flexItem
-              style={{
-                marginRight: '5px',
-                backgroundColor: selected ? 'white' : '#757575',
-              }}
-            />
-            <ItemTitle item={item} />
-          </Box>
-        }
-        color={color}
-        onClick={() => onClick(item.id)}
-      />
-    )
-  }
-
   return (
     <div>
       <Box textAlign="center" display="grid" justifyContent={'center'}>
@@ -137,7 +105,11 @@ export default function PollResults({
               alignItems="center"
             >
               <Grid item xs={7} textAlign="right">
-                {itemElement(item, highlight)}
+                <SelectItem
+                  item={item}
+                  selected={highlight}
+                  onItemClick={onItemClick}
+                />
               </Grid>
               <Grid item xs={4}>
                 <BorderLinearProgress
