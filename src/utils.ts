@@ -1,6 +1,8 @@
 import { random } from "lodash";
 import { ItemStatus, Item } from "./types";
 
+const MOCK_API = process.env.NODE_ENV === "development";
+
 export function createItem(index: string, title: string = ""): Item {
   return { title, status: ItemStatus.Active, id: index };
 }
@@ -23,23 +25,23 @@ export type FetchVotesParams = {
   queryKey: (string | number)[];
 };
 
-export async function fetchVotes({
-  queryKey,
-}: FetchVotesParams): Promise<PollVotes> {
+export async function fetchVotes({ queryKey }: FetchVotesParams): Promise<PollVotes> {
   const [, , ts] = queryKey;
-  // const messages = [
-  //   {
-  //     id: 93152579,
-  //     message: random(1, 5).toString(),
-  //     ts: 1714571372,
-  //     user_id: random(10000, 99999),
-  //     username: random(10000, 99999).toString(),
-  //   },
-  // ];
-  // return { poll_votes: messages };
-  return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) =>
-    res.json(),
-  );
+  if (MOCK_API) {
+    const makeMessage = () => {
+      const user_id = random(1, 100);
+      return {
+        id: 93152579,
+        message: random(1, 5).toString(),
+        ts: Math.round(new Date().getTime() / 1000),
+        user_id: user_id,
+        username: user_id.toString(),
+      };
+    };
+    const messages: PollVote[] = Array.from({ length: 20 }, makeMessage);
+    return { poll_votes: messages };
+  }
+  return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) => res.json());
 }
 
 export async function resetVotes(options: string[]): Promise<number> {
@@ -63,11 +65,10 @@ export type ErrorResponse = {
   error_code?: string;
 };
 
-export async function savePreset(
-  title: string,
-  options: string[],
-): Promise<Preset | ErrorResponse> {
-  // return { id: "test", options, title };
+export async function savePreset(title: string, options: string[]): Promise<Preset | ErrorResponse> {
+  if (MOCK_API) {
+    return { id: "test", options, title };
+  }
   return fetch(`${URL_PREFIX}/turnir-api/presets`, {
     method: "POST",
     headers: {
@@ -77,12 +78,10 @@ export async function savePreset(
   }).then((res) => res.json());
 }
 
-export async function updatePreset(
-  id: string,
-  title: string,
-  options: string[],
-): Promise<Preset | ErrorResponse> {
-  // return { id, options, title };
+export async function updatePreset(id: string, title: string, options: string[]): Promise<Preset | ErrorResponse> {
+  if (MOCK_API) {
+    return { id, options, title };
+  }
   return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`, {
     method: "POST",
     headers: {
@@ -93,8 +92,8 @@ export async function updatePreset(
 }
 
 export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
-  // return { id, options: ["a", "b", "c"], title: `test ${random(1, 1000)}` };
-  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`).then((res) =>
-    res.json(),
-  );
+  if (MOCK_API) {
+    return { id, options: ["a", "b", "c"], title: `test ${random(1, 1000)}` };
+  }
+  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`).then((res) => res.json());
 }
