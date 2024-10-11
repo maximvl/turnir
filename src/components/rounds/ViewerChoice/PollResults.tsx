@@ -73,7 +73,7 @@ export default function PollResults({
   const totalVotes = votes.length
 
   return (
-    <div>
+    <Box>
       <Box textAlign="center" display="grid" justifyContent={'center'}>
         <h2 style={{ margin: 0 }}>
           Результаты голосования {hideResults && 'скрыты'} ({totalVotes}){' '}
@@ -89,7 +89,7 @@ export default function PollResults({
           </InfoPanel>
         )}
       </Box>
-      <Box display="flex" justifyContent={'center'}>
+      <Box display="flex" justifyContent={'center'} marginTop={2}>
         <Box display="flex" flexDirection={'column'} width="fit-content">
           {items.map((item, index) => {
             const highlight =
@@ -163,6 +163,6 @@ export default function PollResults({
           })}
         </Box>
       </Box>
-    </div>
+    </Box>
   )
 }
