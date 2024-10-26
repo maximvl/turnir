@@ -1,7 +1,10 @@
+import { Box } from '@mui/material'
+import MainMenu from './MainMenu'
+
 export default function LotoPage() {
   return (
-    <div>
-      <h1>Loto</h1>
-    </div>
+    <Box>
+      <MainMenu title={'Лото с чатом'} />
+    </Box>
   )
 }

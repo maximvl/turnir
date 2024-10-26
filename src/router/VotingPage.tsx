@@ -1,69 +1,85 @@
-import { RestartAlt, Start } from "@mui/icons-material";
-import { Button, Divider, Grid, Slider } from "@mui/material";
-import ItemsList from "components/ItemsList";
-import ViewerChoiceRound from "components/rounds/ViewerChoice/ViewerChoiceRound";
-import { isEmpty, toString } from "lodash";
-import { useState } from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
-import { Item, ItemStatus } from "types";
-import { createItem, PollVote } from "utils";
-import MainMenu from "./MainMenu";
+import { RestartAlt, Start } from '@mui/icons-material'
+import { Button, Divider, Grid, Slider } from '@mui/material'
+import ItemsList from 'components/ItemsList'
+import ViewerChoiceRound from 'components/rounds/ViewerChoice/ViewerChoiceRound'
+import { isEmpty, toString } from 'lodash'
+import { useState } from 'react'
+import { Item, ItemStatus } from 'types'
+import { createItem, PollVote } from 'utils'
+import MainMenu from './MainMenu'
 
-const queryClient = new QueryClient();
+type VotingStatus = 'idle' | 'voting'
 
-type VotingStatus = "idle" | "voting";
-
-const logFormatter = (vote: PollVote, formattedTime: string, optionTitle: string) => {
-  return `${formattedTime}: ${vote.username} голосует ${vote.message} (${optionTitle})`;
-};
+const logFormatter = (
+  vote: PollVote,
+  formattedTime: string,
+  optionTitle: string
+) => {
+  return `${formattedTime}: ${vote.username} голосует ${vote.message} (${optionTitle})`
+}
 
 export default function VotingPage() {
   const [items, setItems] = useState<Item[]>(() => {
     return Array(10)
       .fill(0)
-      .map((_, index) => createItem(toString(index + 1)));
-  });
-  const [status, setStatus] = useState<VotingStatus>("idle");
-  const [timer, setTimer] = useState(60);
+      .map((_, index) => createItem(toString(index + 1)))
+  })
+  const [status, setStatus] = useState<VotingStatus>('idle')
+  const [timer, setTimer] = useState(60)
 
   const setItemValue = (id: number, text: string) => {
-    items[id].title = text;
-    setItems([...items]);
-  };
-  const canEditItems = status === "idle";
-  const nonEmptyItems = items.filter((item) => !isEmpty(item.title));
-  const activeItems = nonEmptyItems.filter((item) => item.status !== ItemStatus.Eliminated);
+    items[id].title = text
+    setItems([...items])
+  }
+  const canEditItems = status === 'idle'
+  const nonEmptyItems = items.filter((item) => !isEmpty(item.title))
+  const activeItems = nonEmptyItems.filter(
+    (item) => item.status !== ItemStatus.Eliminated
+  )
 
   const addMoreItems = () => {
-    const nextIndex = items.length;
+    const nextIndex = items.length
     setItems([
       ...items,
       ...Array(10)
         .fill(0)
         .map((_, index) => createItem(toString(index + nextIndex + 1))),
-    ]);
-  };
+    ])
+  }
 
   const startVoting = () => {
-    setStatus("voting");
-  };
+    setStatus('voting')
+  }
   const onRestartClick = () => {
-    setStatus("idle");
-  };
-  const onItemChoice = (id: string) => {};
+    setStatus('idle')
+  }
+  const onItemChoice = (id: string) => {}
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <MainMenu title={"Голосование чата"} />
+    <>
+      <MainMenu title={'Голосование чата'} />
       <Grid
         container
         columnSpacing={0}
         border={0}
         columns={12}
-        sx={{ borderTop: 0.5, borderBottom: 0.5, borderColor: "grey.700" }}
+        sx={{ borderTop: 0.5, borderBottom: 0.5, borderColor: 'grey.700' }}
       >
-        <Grid item xs={4} border={0} paddingTop={2} sx={{ width: "100%", paddingBottom: 2 }}>
-          <Grid container columns={1} border={0} rowGap={2} paddingLeft={6} paddingRight={2}>
+        <Grid
+          item
+          xs={4}
+          border={0}
+          paddingTop={2}
+          sx={{ width: '100%', paddingBottom: 2 }}
+        >
+          <Grid
+            container
+            columns={1}
+            border={0}
+            rowGap={2}
+            paddingLeft={6}
+            paddingRight={2}
+          >
             <Grid item xs={1} paddingLeft={0}>
               <ItemsList
                 items={items}
@@ -93,7 +109,7 @@ export default function VotingPage() {
           sx={{
             borderLeft: 0.5,
             borderRight: 0.5,
-            borderColor: "grey.700",
+            borderColor: 'grey.700',
           }}
         >
           <Grid container rowGap={2} alignItems="baseline" columns={1}>
@@ -106,18 +122,20 @@ export default function VotingPage() {
                 max={30 * 20}
                 step={30}
                 onChange={(_, value) => setTimer(value as number)}
-                valueLabelFormat={() => `${Math.floor(timer / 60)}мин ${timer % 60}сек`}
-                disabled={status === "voting"}
+                valueLabelFormat={() =>
+                  `${Math.floor(timer / 60)}мин ${timer % 60}сек`
+                }
+                disabled={status === 'voting'}
               />
             </Grid>
             <Grid item xs={1}>
-              <Divider style={{ width: "inherit" }} />
+              <Divider style={{ width: 'inherit' }} />
             </Grid>
             <Grid item paddingLeft={2} xs={1}>
               <Button
                 variant="contained"
                 onClick={startVoting}
-                disabled={nonEmptyItems.length === 0 || status === "voting"}
+                disabled={nonEmptyItems.length === 0 || status === 'voting'}
                 endIcon={<Start />}
                 color="success"
               >
@@ -128,7 +146,7 @@ export default function VotingPage() {
               <Button
                 variant="contained"
                 color="error"
-                disabled={status === "idle"}
+                disabled={status === 'idle'}
                 onClick={onRestartClick}
                 endIcon={<RestartAlt />}
               >
@@ -138,12 +156,24 @@ export default function VotingPage() {
           </Grid>
         </Grid>
 
-        <Grid item xs={6} border={0} paddingTop={2} paddingRight={6} paddingBottom={2} textAlign="center">
-          {status === "voting" && (
-            <ViewerChoiceRound items={activeItems} onItemElimination={onItemChoice} logFormatter={logFormatter} />
+        <Grid
+          item
+          xs={6}
+          border={0}
+          paddingTop={2}
+          paddingRight={6}
+          paddingBottom={2}
+          textAlign="center"
+        >
+          {status === 'voting' && (
+            <ViewerChoiceRound
+              items={activeItems}
+              onItemElimination={onItemChoice}
+              logFormatter={logFormatter}
+            />
           )}
         </Grid>
       </Grid>
-    </QueryClientProvider>
-  );
+    </>
+  )
 }

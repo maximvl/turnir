@@ -8,6 +8,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import MusicContextProvider from './contexts/MusicContext'
 import VotingPage from 'router/VotingPage'
 import LotoPage from 'router/LotoPage'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -39,21 +40,19 @@ const router = createBrowserRouter([
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    // primary: {
-    //   main: "#a6d4fa",
-    // },
-    // background: {
-    //   default: "#242424",
-    // },
   },
 })
+
+const queryClient = new QueryClient()
 
 root.render(
   <React.StrictMode>
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <MusicContextProvider>
-        <RouterProvider router={router} />
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} />
+        </QueryClientProvider>
       </MusicContextProvider>
     </ThemeProvider>
   </React.StrictMode>
