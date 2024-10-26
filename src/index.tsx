@@ -1,13 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import TournirPage from './router/TournirPage'
+import TournirPage from './pages/turnir/TournirPage'
 import reportWebVitals from './reportWebVitals'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
-import MusicContextProvider from './contexts/MusicContext'
-import VotingPage from 'router/VotingPage'
-import LotoPage from 'router/LotoPage'
+import MusicContextProvider from 'common/hooks/MusicContext'
+import VotingPage from 'pages/voting/VotingPage'
+import LotoPage from 'pages/loto/LotoPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
