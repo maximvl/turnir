@@ -1,5 +1,5 @@
 import { VolumeOff, VolumeUp } from '@mui/icons-material'
-import { Box, Button, Slider, Typography } from '@mui/material'
+import { Box, Button, Slider } from '@mui/material'
 import ReleaseNotes from 'components/ReleaseNotes'
 import { MusicContext } from 'contexts/MusicContext'
 import { useContext } from 'react'
@@ -27,10 +27,9 @@ export default function MainMenu({ title }: Props) {
         }}
       >
         <Box display="flex">
-          <Button onClick={() => navigate('/turnir')} variant="text">
-            Турнир
-          </Button>
+          <Button onClick={() => navigate('/turnir')}>Турнир</Button>
           <Button onClick={() => navigate('/voting')}>Голосование</Button>
+          <Button onClick={() => navigate('/loto')}>Лото</Button>
         </Box>
         <Box display="flex">
           <Box display="flex" alignItems="flex-end" width="250px">
