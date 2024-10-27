@@ -106,10 +106,10 @@ export default function LotoPage() {
   }
 
   useEffect(() => {
-    if (filteredTickets.length === 1) {
+    if (filteredTickets.length === 1 && state === 'playing') {
       setState('win')
     }
-  }, [filteredTickets.length])
+  }, [filteredTickets.length, state])
 
   const ticketsDigits = filteredTickets.map((ticket) => {
     const match = matchesPerTicket[ticket.owner]
