@@ -1,13 +1,45 @@
 import { Box, Button } from '@mui/material'
 import MainMenu from 'common/MainMenu'
+import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
+import { useState } from 'react'
+import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
+import { Ticket } from './types'
 import { generateTicket } from './utils'
 
+const VOTES_REFETCH_INTERVAL = 2000
+
 export default function LotoPage() {
-  const tickets = Array.from({ length: 20 }).map((_, i) => {
-    return { owner: `User ${i}`, value: generateTicket() }
-  })
+  const [state, setState] = useState<'idle' | 'voting'>('voting')
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
+
+  const { data: chatMessages } = useQuery(
+    ['loto', 0, lastTs],
+    (args) => fetchVotes(args),
+    {
+      refetchInterval: VOTES_REFETCH_INTERVAL,
+      enabled: state === 'voting',
+    }
+  )
+
+  if (chatMessages?.poll_votes && chatMessages.poll_votes.length > 0) {
+    const lastVote = chatMessages.poll_votes[chatMessages.poll_votes.length - 1]
+    const currentOwners = tickets.map((ticket) => ticket.owner)
+    let newOwners: string[] = []
+    newOwners = chatMessages.poll_votes.map((vote) => vote.username)
+    newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
+
+    if (newOwners.length > 0) {
+      setLastTs(lastVote.ts)
+      setTickets([
+        ...newOwners.map((owner) => ({ owner, value: generateTicket() })),
+        ...tickets,
+      ])
+    }
+  }
+
   return (
     <Box>
       <MainMenu title={'Лото с чатом'} />
