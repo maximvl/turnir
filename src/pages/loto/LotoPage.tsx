@@ -55,7 +55,7 @@ export default function LotoPage() {
       const currentOwners = tickets.map((ticket) => ticket.owner)
 
       let newOwners: string[] = []
-      newOwners = chatMessages.poll_votes.map((vote) => vote.username)
+      newOwners = filteredVotes.map((vote) => vote.username)
       newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
       newOwners = uniq(newOwners)
 
