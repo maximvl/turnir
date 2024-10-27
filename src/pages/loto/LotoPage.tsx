@@ -1,5 +1,6 @@
 import { Box, Button } from '@mui/material'
 import MainMenu from 'common/MainMenu'
+import { uniq } from 'lodash'
 import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { useState } from 'react'
@@ -30,6 +31,7 @@ export default function LotoPage() {
     let newOwners: string[] = []
     newOwners = chatMessages.poll_votes.map((vote) => vote.username)
     newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
+    newOwners = uniq(newOwners)
 
     if (newOwners.length > 0) {
       setLastTs(lastVote.ts)
