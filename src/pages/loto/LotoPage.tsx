@@ -1,9 +1,11 @@
 import { Box, Button } from '@mui/material'
+import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
 import { flatten, sample, uniq } from 'lodash'
 import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
-import { useEffect, useRef, useState } from 'react'
+import { MusicType } from 'pages/turnir/types'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket } from './types'
@@ -24,6 +26,12 @@ export default function LotoPage() {
 
   const digitOptions = useRef(DIGITS)
   const nextDigitRef = useRef(nextDigit)
+
+  const music = useContext(MusicContext)
+
+  useEffect(() => {
+    music.setMusicPlaying(MusicType.Loto)
+  }, [])
 
   const { data: chatMessages } = useQuery(
     ['loto', 0, lastTs],
