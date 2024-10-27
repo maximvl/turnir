@@ -31,8 +31,8 @@ export default function MainMenu({ title }: Props) {
           <Button onClick={() => navigate('/voting')}>Голосование</Button>
           <Button onClick={() => navigate('/loto')}>Лото</Button>
         </Box>
-        <Box display="flex">
-          <Box display="flex" alignItems="flex-end" width="250px">
+        <Box display="flex" marginRight={'30px'}>
+          <Box display="flex" alignItems="flex-end" width="220px">
             <Button
               variant="outlined"
               onClick={() => setIsMuted(!isMuted)}
