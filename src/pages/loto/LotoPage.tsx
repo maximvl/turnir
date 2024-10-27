@@ -29,9 +29,11 @@ export default function LotoPage() {
 
   const music = useContext(MusicContext)
 
-  useEffect(() => {
-    music.setMusicPlaying(MusicType.Loto)
-  }, [])
+  const startMusic = () => {
+    if (!music.musicPlaying) {
+      music.setMusicPlaying(MusicType.Loto)
+    }
+  }
 
   const { data: chatMessages } = useQuery(
     ['loto', 0, lastTs],
@@ -119,7 +121,7 @@ export default function LotoPage() {
     nextDigitState === 'rolling' ? filterText + nextDigit : filterText
 
   return (
-    <Box>
+    <Box onClick={startMusic}>
       <MainMenu title={'Лото с чатом'} />
       <Box
         display="flex"
@@ -132,6 +134,7 @@ export default function LotoPage() {
             <>
               <Box display={'flex'} justifyContent={'center'}>
                 <InfoPanel>
+                  {!music.musicPlaying && <p>Кликни чтобы запустить музыку</p>}
                   <p>
                     Пишите в чат <strong>+лото</strong> чтобы получить билет
                   </p>
