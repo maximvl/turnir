@@ -4,6 +4,7 @@ import ReleaseNotes from './ReleaseNotes'
 import { MusicContext } from './hooks/MusicContext'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router'
+import { MusicType } from 'pages/turnir/types'
 
 type Props = {
   title: string
@@ -12,6 +13,24 @@ type Props = {
 export default function MainMenu({ title }: Props) {
   const navigate = useNavigate()
   const { isMuted, setIsMuted, volume, setVolume } = useContext(MusicContext)
+
+  const music = useContext(MusicContext)
+
+  const openTurnirPage = () => {
+    music.setMusicPlaying(undefined)
+    navigate('/turnir')
+  }
+
+  const openVotingPage = () => {
+    music.setMusicPlaying(undefined)
+    navigate('/voting')
+  }
+
+  const openLotoPage = () => {
+    music.setMusicPlaying(MusicType.Loto)
+    navigate('/loto')
+  }
+
   return (
     <Box>
       <Box
@@ -27,9 +46,9 @@ export default function MainMenu({ title }: Props) {
         }}
       >
         <Box display="flex">
-          <Button onClick={() => navigate('/turnir')}>Турнир</Button>
-          <Button onClick={() => navigate('/voting')}>Голосование</Button>
-          <Button onClick={() => navigate('/loto')}>Лото</Button>
+          <Button onClick={openTurnirPage}>Турнир</Button>
+          <Button onClick={openVotingPage}>Голосование</Button>
+          <Button onClick={openLotoPage}>Лото</Button>
         </Box>
         <Box display="flex" marginRight={'30px'}>
           <Box display="flex" alignItems="flex-end" width="220px">
