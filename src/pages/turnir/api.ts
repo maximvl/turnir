@@ -40,7 +40,7 @@ export async function fetchVotes({
         username: user_id.toString(),
       }
     }
-    const messages: PollVote[] = Array.from({ length: 2 }, makeMessage)
+    const messages: PollVote[] = Array.from({ length: 10 }, makeMessage)
     return { poll_votes: messages }
   }
   return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) =>

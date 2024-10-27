@@ -45,19 +45,26 @@ export default function LotoPage() {
   )
 
   if (chatMessages?.poll_votes && chatMessages.poll_votes.length > 0) {
-    const lastVote = chatMessages.poll_votes[chatMessages.poll_votes.length - 1]
-    const currentOwners = tickets.map((ticket) => ticket.owner)
-    let newOwners: string[] = []
-    newOwners = chatMessages.poll_votes.map((vote) => vote.username)
-    newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
-    newOwners = uniq(newOwners)
+    const filteredVotes = chatMessages.poll_votes.filter(
+      (vote) => vote.message.toLowerCase() === '+лото'
+    )
+    if (filteredVotes.length > 0) {
+      const lastVote =
+        chatMessages.poll_votes[chatMessages.poll_votes.length - 1]
+      const currentOwners = tickets.map((ticket) => ticket.owner)
 
-    if (newOwners.length > 0) {
-      setLastTs(lastVote.ts)
-      setTickets([
-        ...newOwners.map((owner) => ({ owner, value: generateTicket() })),
-        ...tickets,
-      ])
+      let newOwners: string[] = []
+      newOwners = chatMessages.poll_votes.map((vote) => vote.username)
+      newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
+      newOwners = uniq(newOwners)
+
+      if (newOwners.length > 0) {
+        setLastTs(lastVote.ts)
+        setTickets([
+          ...newOwners.map((owner) => ({ owner, value: generateTicket() })),
+          ...tickets,
+        ])
+      }
     }
   }
 
