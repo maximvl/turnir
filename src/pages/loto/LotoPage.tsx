@@ -6,6 +6,7 @@ import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
+import bingo from 'images/bingo.gif'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket } from './types'
@@ -184,38 +185,51 @@ export default function LotoPage() {
                   {fillWithDashes(displayValue)}
                 </span>
               </Box>
-              <Box
-                textAlign={'center'}
-                marginTop={'20px'}
-                marginBottom={'40px'}
-              >
+              <Box textAlign={'center'}>
                 {state === 'playing' && (
-                  <Button
-                    variant="outlined"
-                    onClick={() => setNextDigitState('roll_start')}
-                    disabled={
-                      filterText.length === 5 || nextDigitState !== 'idle'
-                    }
-                  >
-                    Следующая цифра
-                  </Button>
+                  <Box marginBottom={'60px'}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => setNextDigitState('roll_start')}
+                      disabled={
+                        filterText.length === 5 || nextDigitState !== 'idle'
+                      }
+                    >
+                      Следующая цифра
+                    </Button>
+                  </Box>
                 )}
-                {state === 'win' && <Box fontSize={'32px'}>Победитель</Box>}
+                {state === 'win' && (
+                  <Box>
+                    <img src={bingo} alt="bingo" width={'200px'} />
+                  </Box>
+                )}
               </Box>
             </Box>
           )}
 
-          <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
-            {filteredTickets.map((ticket, i) => {
-              return (
-                <TicketBox
-                  key={i}
-                  ticket={ticket}
-                  matches={matchesPerTicket[ticket.owner]}
-                />
-              )
-            })}
-          </Box>
+          {state !== 'win' && (
+            <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
+              {filteredTickets.map((ticket, i) => {
+                return (
+                  <Box key={i} marginTop={'20px'} marginRight={'20px'}>
+                    <TicketBox
+                      ticket={ticket}
+                      matches={matchesPerTicket[ticket.owner]}
+                    />
+                  </Box>
+                )
+              })}
+            </Box>
+          )}
+          {state === 'win' && (
+            <Box display={'flex'} justifyContent={'center'}>
+              <TicketBox
+                ticket={filteredTickets[0]}
+                matches={matchesPerTicket[filteredTickets[0].owner]}
+              />
+            </Box>
+          )}
         </Box>
       </Box>
     </Box>

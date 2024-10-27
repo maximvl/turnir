@@ -17,8 +17,6 @@ export default function TicketBox({ ticket, matches }: Props) {
       paddingRight={'10px'}
       paddingTop={'5px'}
       paddingBottom={'5px'}
-      marginTop={'20px'}
-      marginRight={'20px'}
       lineHeight={'1.0'}
     >
       {ticket.owner}
