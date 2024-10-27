@@ -19,7 +19,7 @@ export default function TicketBox({ ticket }: Props) {
       lineHeight={'1.0'}
     >
       {ticket.owner}
-      <Box fontSize={'32px'} marginTop={'10px'}>
+      <Box fontSize={'32px'} marginTop={'10px'} fontFamily="monospace">
         {ticket.value}
       </Box>
     </Box>
