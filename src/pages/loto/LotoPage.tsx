@@ -1,6 +1,6 @@
 import { Box, Button } from '@mui/material'
 import MainMenu from 'common/MainMenu'
-import { sample, uniq } from 'lodash'
+import { flatten, sample, uniq } from 'lodash'
 import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { useEffect, useRef, useState } from 'react'
@@ -66,30 +66,46 @@ export default function LotoPage() {
         clearInterval(interval)
         setNextDigitState('idle')
         setFilter((prev) => [...prev, nextDigitRef.current])
-      }, 2000)
+      }, 3000)
     }
   }, [nextDigitState, nextDigit])
 
   const filterText = filter.join('')
 
   let filteredTickets = tickets
+  let matchesPerTicket: { [k: string]: number[] } = {}
+  for (const ticket of tickets) {
+    matchesPerTicket[ticket.owner] = []
+  }
+
   if (filterText.length > 0) {
-    filteredTickets = tickets.filter((ticket) =>
-      ticket.value.startsWith(filterText)
-    )
+    // check that each ticket contains digets in any order withour repeats
+    filteredTickets = tickets.filter((ticket) => {
+      const match = getMatches(ticket.value.split(''), filter)
+      matchesPerTicket[ticket.owner] = match
+      const matchesAmount = match.filter((m) => m === 1).length
+      return matchesAmount === filter.length
+    })
   }
 
   useEffect(() => {
-    const filteredOptions = uniq(
-      filteredTickets.map((ticket) => ticket.value[filterText.length])
-    )
-    digitOptions.current = filteredOptions
     if (filteredTickets.length === 1) {
       setState('win')
     }
-  }, [filteredTickets, filterText])
+  }, [filteredTickets.length])
 
-  console.log('filteredTickets', filteredTickets, filterText, nextDigitState)
+  const ticketsDigits = filteredTickets.map((ticket) => {
+    const match = matchesPerTicket[ticket.owner]
+    if (match.length === 0) {
+      return ticket.value.split('')
+    }
+    const unmatchedDigits = ticket.value
+      .split('')
+      .filter((_, i) => match[i] === 0)
+    return unmatchedDigits
+  })
+  const filteredOptions = uniq(flatten(ticketsDigits))
+  digitOptions.current = filteredOptions
 
   const displayValue =
     nextDigitState === 'rolling' ? filterText + nextDigit : filterText
@@ -171,9 +187,15 @@ export default function LotoPage() {
             </Box>
           )}
 
-          <Box display={'flex'} flexWrap={'wrap'}>
+          <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
             {filteredTickets.map((ticket, i) => {
-              return <TicketBox key={i} ticket={ticket} />
+              return (
+                <TicketBox
+                  key={i}
+                  ticket={ticket}
+                  matches={matchesPerTicket[ticket.owner]}
+                />
+              )
             })}
           </Box>
         </Box>
@@ -198,4 +220,19 @@ function generateTicket() {
   const d4 = sample(DIGITS)
   const d5 = sample(DIGITS)
   return `${d1}${d2}${d3}${d4}${d5}`
+}
+
+function getMatches(value: string[], filter: string[]) {
+  let matches: number[] = []
+  const filterCopy = [...filter]
+  for (const digit of value) {
+    const index = filterCopy.indexOf(digit)
+    if (index === -1) {
+      matches.push(0)
+      continue
+    }
+    matches.push(1)
+    filterCopy.splice(index, 1)
+  }
+  return matches
 }
