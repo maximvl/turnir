@@ -3,7 +3,7 @@ import MainMenu from 'common/MainMenu'
 import { sample, uniq } from 'lodash'
 import { fetchVotes } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket } from './types'
@@ -17,25 +17,13 @@ export default function LotoPage() {
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
   const [filter, setFilter] = useState<string[]>([])
+  const [nextDigit, setNextDigit] = useState<string>('-')
   const [nextDigitState, setNextDigitState] = useState<
     'idle' | 'roll_start' | 'rolling'
   >('idle')
 
-  useEffect(() => {
-    if (nextDigitState === 'roll_start') {
-      setNextDigitState('rolling')
-      const filterSize = filter.length
-      setFilter((prev) => [...prev, '-'])
-      const interval = setInterval(() => {
-        const nextDigit = sample(DIGITS) as string
-        setFilter((prev) => [...prev.slice(0, filterSize), nextDigit])
-      }, 100)
-      setTimeout(() => {
-        clearInterval(interval)
-        setNextDigitState('idle')
-      }, 2000)
-    }
-  }, [nextDigitState, filter])
+  const digitOptions = useRef(DIGITS)
+  const nextDigitRef = useRef(nextDigit)
 
   const { data: chatMessages } = useQuery(
     ['loto', 0, lastTs],
@@ -63,23 +51,48 @@ export default function LotoPage() {
     }
   }
 
+  useEffect(() => {
+    if (nextDigitState === 'roll_start') {
+      setNextDigitState('rolling')
+      const interval = setInterval(() => {
+        const optionsExcludingCurrent = digitOptions.current.filter(
+          (digit) => digit !== nextDigitRef.current
+        )
+        const nextDigit = sample(optionsExcludingCurrent) as string
+        setNextDigit(nextDigit)
+        nextDigitRef.current = nextDigit
+      }, 100)
+      setTimeout(() => {
+        clearInterval(interval)
+        setNextDigitState('idle')
+        setFilter((prev) => [...prev, nextDigitRef.current])
+      }, 2000)
+    }
+  }, [nextDigitState, nextDigit])
+
   const filterText = filter.join('')
 
   let filteredTickets = tickets
   if (filterText.length > 0) {
-    if (nextDigitState === 'idle' || nextDigitState === 'roll_start') {
-      filteredTickets = tickets.filter((ticket) =>
-        ticket.value.startsWith(filterText)
-      )
-    } else {
-      const filterBeforeLast = filter.slice(0, filter.length - 1).join('')
-      filteredTickets = tickets.filter((ticket) =>
-        ticket.value.startsWith(filterBeforeLast)
-      )
-    }
+    filteredTickets = tickets.filter((ticket) =>
+      ticket.value.startsWith(filterText)
+    )
   }
 
+  useEffect(() => {
+    const filteredOptions = uniq(
+      filteredTickets.map((ticket) => ticket.value[filterText.length])
+    )
+    digitOptions.current = filteredOptions
+    if (filteredTickets.length === 1) {
+      setState('win')
+    }
+  }, [filteredTickets, filterText])
+
   console.log('filteredTickets', filteredTickets, filterText, nextDigitState)
+
+  const displayValue =
+    nextDigitState === 'rolling' ? filterText + nextDigit : filterText
 
   return (
     <Box>
@@ -123,10 +136,10 @@ export default function LotoPage() {
             </>
           )}
 
-          {state === 'playing' && (
+          {['playing', 'win'].includes(state) && (
             <Box marginTop={'40px'}>
               <Box display="flex" alignItems="center" justifyContent={'center'}>
-                <span>Выигрышная комбинация:</span>
+                <span style={{ fontSize: '24px' }}>Выигрышная комбинация:</span>
                 <span
                   style={{
                     fontSize: '48px',
@@ -134,7 +147,7 @@ export default function LotoPage() {
                     fontFamily: 'monospace',
                   }}
                 >
-                  {fillWithDashes(filterText)}
+                  {fillWithDashes(displayValue)}
                 </span>
               </Box>
               <Box
@@ -142,15 +155,18 @@ export default function LotoPage() {
                 marginTop={'20px'}
                 marginBottom={'40px'}
               >
-                <Button
-                  variant="outlined"
-                  onClick={() => setNextDigitState('roll_start')}
-                  disabled={
-                    filterText.length === 5 || nextDigitState !== 'idle'
-                  }
-                >
-                  Следующая цифра
-                </Button>
+                {state === 'playing' && (
+                  <Button
+                    variant="outlined"
+                    onClick={() => setNextDigitState('roll_start')}
+                    disabled={
+                      filterText.length === 5 || nextDigitState !== 'idle'
+                    }
+                  >
+                    Следующая цифра
+                  </Button>
+                )}
+                {state === 'win' && <Box fontSize={'32px'}>Победитель</Box>}
               </Box>
             </Box>
           )}
