@@ -69,7 +69,12 @@ export default function LotoPage() {
       if (newOwners.length > 0) {
         setLastTs(lastVote.ts)
         setTickets([
-          ...newOwners.map((owner) => ({ owner, value: generateTicket() })),
+          ...newOwners.map((owner) => ({
+            owner,
+            value: generateTicket(),
+            color: sample(['#634f5f', '#a46877', '#738a90', '#0c5159']),
+            variant: sample([1, 2, 3, 4]),
+          })),
           ...tickets,
         ])
       }
