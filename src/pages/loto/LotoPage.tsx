@@ -72,7 +72,12 @@ export default function LotoPage() {
           ...newOwners.map((owner) => ({
             owner,
             value: generateTicket(),
-            color: sample(['#634f5f', '#a46877', '#738a90', '#0c5159']),
+            color: sample([
+              '#634f5f', // dark red
+              '#654b3c', // brown
+              '#4a4857', // greyish
+              '#0c5159', // dark green
+            ]),
             variant: sample([1, 2, 3, 4]),
           })),
           ...tickets,
