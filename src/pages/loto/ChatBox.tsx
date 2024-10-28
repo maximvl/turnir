@@ -14,6 +14,7 @@ export default function ChatBox({ username, messages }: Props) {
         height={'200px'}
         width={'500px'}
         padding={'10px'}
+        overflow={'auto'}
       >
         {messages.map((msg, index) => {
           return (
