@@ -2,7 +2,7 @@ import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
 import { flatten, sample, uniq } from 'lodash'
-import { fetchVotes } from 'pages/turnir/api'
+import { fetchVotes, PollVote } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -10,6 +10,7 @@ import bingo from 'images/bingo.gif'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket } from './types'
+import ChatBox from './ChatBox'
 
 const VOTES_REFETCH_INTERVAL = 2000
 
@@ -24,6 +25,8 @@ export default function LotoPage() {
   const [nextDigitState, setNextDigitState] = useState<
     'idle' | 'roll_start' | 'rolling'
   >('idle')
+
+  const [winnerMessages, setWinnerMessages] = useState<PollVote[]>([])
 
   const digitOptions = useRef(DIGITS)
   const nextDigitRef = useRef(nextDigit)
@@ -41,11 +44,15 @@ export default function LotoPage() {
     (args) => fetchVotes(args),
     {
       refetchInterval: VOTES_REFETCH_INTERVAL,
-      enabled: state === 'voting',
+      enabled: state === 'voting' || state === 'win',
     }
   )
 
-  if (chatMessages?.poll_votes && chatMessages.poll_votes.length > 0) {
+  if (
+    state === 'voting' &&
+    chatMessages?.poll_votes &&
+    chatMessages.poll_votes.length > 0
+  ) {
     const filteredVotes = chatMessages.poll_votes.filter(
       (vote) => vote.message.toLowerCase() === '+лото'
     )
@@ -111,6 +118,29 @@ export default function LotoPage() {
       setState('win')
     }
   }, [filteredTickets.length, state])
+
+  const winner = filteredTickets[0]
+
+  if (
+    state === 'win' &&
+    chatMessages?.poll_votes &&
+    chatMessages.poll_votes.length > 0 &&
+    winner
+  ) {
+    const messagesByWinner = chatMessages.poll_votes.filter(
+      (vote) => vote.username === winner.owner
+    )
+    if (messagesByWinner.length > 0) {
+      const currentMessagesIds = winnerMessages.map((m) => m.id)
+      const newMessages = messagesByWinner.filter(
+        (m) => !currentMessagesIds.includes(m.id)
+      )
+      if (newMessages.length > 0) {
+        setWinnerMessages([...winnerMessages, ...newMessages])
+        setLastTs(messagesByWinner[messagesByWinner.length - 1].ts)
+      }
+    }
+  }
 
   const ticketsDigits = filteredTickets.map((ticket) => {
     const match = matchesPerTicket[ticket.owner]
@@ -222,13 +252,25 @@ export default function LotoPage() {
               })}
             </Box>
           )}
-          {state === 'win' && (
-            <Box display={'flex'} justifyContent={'center'}>
-              <TicketBox
-                ticket={filteredTickets[0]}
-                matches={matchesPerTicket[filteredTickets[0].owner]}
-              />
-            </Box>
+          {state === 'win' && winner && (
+            <>
+              <Box display={'flex'} justifyContent={'center'}>
+                <TicketBox
+                  ticket={winner}
+                  matches={matchesPerTicket[winner.owner]}
+                />
+              </Box>
+              <Box
+                display={'flex'}
+                justifyContent={'center'}
+                marginTop={'20px'}
+              >
+                <ChatBox
+                  username={winner.owner}
+                  messages={winnerMessages.map((m) => m.message)}
+                />
+              </Box>
+            </>
           )}
         </Box>
       </Box>
