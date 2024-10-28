@@ -28,18 +28,21 @@ export default function TicketBox({ ticket, matches }: Props) {
 
       <Box
         position="absolute"
-        top={'0px'}
-        left={'0px'}
-        // border={'1px solid grey'}
+        top={'8px'}
+        left={'12px'}
+        width={'126px'}
+        height={'64px'}
+        border={'2px solid black'}
         borderRadius={'10px'}
-        paddingLeft={'27px'}
+        paddingLeft={'12px'}
         paddingRight={'10px'}
-        paddingTop={'10px'}
+        paddingTop={'4px'}
         paddingBottom={'5px'}
         lineHeight={'1.0'}
+        overflow={'hidden'}
       >
         {ticket.owner}
-        <Box fontSize={'32px'} marginTop={'10px'} fontFamily="monospace">
+        <Box fontSize={'32px'} marginTop={'5px'} fontFamily="monospace">
           {digits.map((value, index) => {
             if (matches[index]) {
               return (
