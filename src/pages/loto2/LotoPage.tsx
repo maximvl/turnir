@@ -6,7 +6,10 @@ import { fetchVotes, PollVote } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
-import bingo from 'images/bingo.gif'
+import bingo1 from 'images/bingo1.gif'
+import bingo2 from 'images/bingo2.gif'
+import bingo3 from 'images/bingo3.webp'
+import bingo4 from 'images/bingo4.webp'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket } from './types'
@@ -19,6 +22,8 @@ const VOTES_REFETCH_INTERVAL = 2000
 const DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
   (i + 1).toString().padStart(2, '0')
 )
+
+const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 export default function LotoPage() {
   const [state, setState] = useState<'voting' | 'playing' | 'win'>('voting')
@@ -313,7 +318,7 @@ export default function LotoPage() {
                 )}
                 {state === 'win' && (
                   <Box>
-                    <img src={bingo} alt="bingo" width={'200px'} />
+                    <img src={BingoImage} alt="bingo" width={'200px'} />
                   </Box>
                 )}
               </Box>
