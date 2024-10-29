@@ -28,7 +28,7 @@ export default function MainMenu({ title }: Props) {
 
   const openLotoPage = () => {
     music.setMusicPlaying(MusicType.Loto)
-    navigate('/loto')
+    navigate('/loto2')
   }
 
   return (
@@ -48,7 +48,7 @@ export default function MainMenu({ title }: Props) {
         <Box display="flex">
           <Button onClick={openTurnirPage}>Турнир</Button>
           <Button onClick={openVotingPage}>Голосование</Button>
-          <Button onClick={openLotoPage}>Лото</Button>
+          <Button onClick={openLotoPage}>Лото 2.0</Button>
         </Box>
         <Box display="flex" marginRight={'30px'}>
           <Box display="flex" alignItems="flex-end" width="220px">

@@ -8,6 +8,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import MusicContextProvider from 'common/hooks/MusicContext'
 import VotingPage from 'pages/voting/VotingPage'
 import LotoPage from 'pages/loto/LotoPage'
+import LotoPage2 from 'pages/loto2/LotoPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
   {
     path: '/loto',
     element: <LotoPage />,
+  },
+  {
+    path: '/loto2',
+    element: <LotoPage2 />,
   },
 ])
 
