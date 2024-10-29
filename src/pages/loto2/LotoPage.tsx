@@ -286,11 +286,16 @@ export default function LotoPage() {
               </Box>
               <Box textAlign={'center'}>
                 {(state === 'playing' || state === 'win') && (
-                  <Box fontSize={'48px'}>
-                    {nextNumber}
-                    {nextNumberText &&
-                      nextDigitState === 'idle' &&
-                      ` — ${capitalize(nextNumberText)}`}
+                  <Box
+                    fontSize={'48px'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    textAlign={'center'}
+                  >
+                    <span>{nextNumber}</span>
+                    {nextNumberText && nextDigitState === 'idle' && (
+                      <Box fontSize={'18px'}>{nextNumberText}</Box>
+                    )}
                   </Box>
                 )}
                 {state === 'playing' && (
