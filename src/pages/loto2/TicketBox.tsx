@@ -5,6 +5,11 @@ import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
 import { ReactComponent as TicketImg3 } from 'images/ticket3.svg'
 import { ReactComponent as TicketImg4 } from 'images/ticket4.svg'
 
+type MatchRange = {
+  start: number
+  end: number
+}
+
 type Props = {
   ticket: Ticket
   matches: number[]
@@ -18,9 +23,32 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   //   ticket.variant - 1
   // ]
 
-  const highlightColor = isWinner
-    ? theme.palette.warning.main
-    : theme.palette.error.main
+  let maxRange: MatchRange | null = null
+  if (isWinner) {
+    const matchRanges: MatchRange[] = []
+    // fill match ranges
+    let currentRange: MatchRange | null = null
+    for (let i = 0; i < matches.length; i++) {
+      if (matches[i] === 1) {
+        if (currentRange === null) {
+          currentRange = { start: i, end: i }
+        } else {
+          currentRange.end = i
+        }
+      } else {
+        if (currentRange !== null) {
+          matchRanges.push(currentRange)
+          currentRange = null
+        }
+      }
+    }
+    maxRange = matchRanges.reduce((prev, current) =>
+      prev.end - prev.start > current.end - current.start ? prev : current
+    )
+  }
+
+  const highlightColor = theme.palette.error.main
+  const winnerColor = theme.palette.warning.main
 
   return (
     <Box position="relative">
@@ -32,9 +60,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         style={{ backgroundColor: ticket.color }}
         // width={'140px'}
         // height={'64px'}
-        border={
-          isWinner ? `2px solid ${highlightColor}` : '2px solid transparent'
-        }
+        border={isWinner ? `2px solid ${winnerColor}` : '2px solid transparent'}
         borderRadius={'10px'}
         // paddingLeft={'12px'}
         // paddingRight={'10px'}
@@ -64,16 +90,15 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         >
           {ticket.value.map((value, index) => {
             const addSpace = index !== 0
+            let style = {}
             if (matches[index]) {
-              return (
-                <span key={index} style={{ color: highlightColor }}>
-                  {addSpace && <span>&nbsp;</span>}
-                  {value}
-                </span>
-              )
+              style = { color: highlightColor }
+            }
+            if (maxRange && maxRange.start <= index && index <= maxRange.end) {
+              style = { color: winnerColor }
             }
             return (
-              <span key={index}>
+              <span key={index} style={style}>
                 {addSpace && <span>&nbsp;</span>}
                 {value}
               </span>
