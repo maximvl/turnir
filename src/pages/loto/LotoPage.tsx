@@ -68,20 +68,25 @@ export default function LotoPage() {
 
       if (newOwners.length > 0) {
         setLastTs(lastVote.ts)
-        setTickets([
-          ...newOwners.map((owner) => ({
-            owner,
-            value: generateTicket(),
-            color: sample([
-              '#634f5f', // dark red
-              '#654b3c', // brown
-              '#4a4857', // greyish
-              '#0c5159', // dark green
-            ]),
-            variant: sample([1, 2, 3, 4]),
-          })),
-          ...tickets,
-        ])
+        const newOwnersTickets = newOwners.map((owner) => ({
+          owner,
+          value: generateTicket(),
+          color: sample([
+            '#634f5f', // dark red
+            '#654b3c', // brown
+            '#4a4857', // greyish
+            '#0c5159', // dark green
+          ]),
+          variant: sample([1, 2, 3, 4]),
+        }))
+
+        const newOwnersTicketsFiltered = newOwnersTickets.filter(
+          (ticket) => ticket.value !== null
+        ) as Ticket[]
+
+        if (newOwnersTicketsFiltered.length > 0) {
+          setTickets([...newOwnersTicketsFiltered, ...tickets])
+        }
       }
     }
   }
@@ -296,15 +301,21 @@ function fillWithDashes(value: string) {
   return value + '-'.repeat(maxSize - value.length)
 }
 
-function generateTicket() {
-  // returns random number of 5 digits
-  const d1 = sample(DIGITS)
-  const d2 = sample(DIGITS)
-  const d3 = sample(DIGITS)
-  const d4 = sample(DIGITS)
-  const d5 = sample(DIGITS)
-  return `${d1}${d2}${d3}${d4}${d5}`
-}
+// const unique5DigitCombinations = generateUnique5DigitCombinations()
+
+// function generateTicket() {
+//   return sample(unique5DigitCombinations)
+// }
+
+// function generateTicket() {
+//   // returns random number of 5 digits
+//   const d1 = sample(DIGITS)
+//   const d2 = sample(DIGITS)
+//   const d3 = sample(DIGITS)
+//   const d4 = sample(DIGITS)
+//   const d5 = sample(DIGITS)
+//   return `${d1}${d2}${d3}${d4}${d5}`
+// }
 
 function getMatches(value: string[], filter: string[]) {
   let matches: number[] = []
@@ -319,4 +330,93 @@ function getMatches(value: string[], filter: string[]) {
     filterCopy.splice(index, 1)
   }
   return matches
+}
+
+// function generateUnique5DigitCombinations(): string[] {
+//   const results: string[] = []
+//   const digits = Array.from({ length: 10 }, (_, i) => i.toString())
+
+//   function backtrack(start: number, current: string[]) {
+//     if (current.length === 5) {
+//       results.push(current.join(''))
+//       return
+//     }
+
+//     for (let i = start; i < digits.length; i++) {
+//       current.push(digits[i])
+//       backtrack(i + 1, current) // move to the next digit to avoid repetition
+//       current.pop() // backtrack
+//     }
+//   }
+
+//   backtrack(0, [])
+//   return results
+// }
+
+// function generateUnique5DigitCombinationsWithRepetition(): string[] {
+//   const results: Set<string> = new Set()
+//   const digits = Array.from({ length: 10 }, (_, i) => i.toString())
+
+//   function backtrack(current: string[], start: number) {
+//     if (current.length === 5) {
+//       results.add(current.sort().join('')) // Sort to ensure uniqueness
+//       return
+//     }
+
+//     for (let i = start; i < digits.length; i++) {
+//       current.push(digits[i])
+//       backtrack(current, i) // Allow current digit to be reused
+//       current.pop() // backtrack
+//     }
+//   }
+
+//   backtrack([], 0)
+//   return Array.from(results)
+// }
+
+function generateUnique5DigitCombinationsWithLimitedRepetitions(): string[] {
+  const results: Set<string> = new Set()
+  const digits = Array.from({ length: 10 }, (_, i) => i.toString())
+
+  function backtrack(
+    current: string[],
+    start: number,
+    digitCount: Record<string, number>
+  ) {
+    if (current.length === 5) {
+      results.add(current.slice().sort().join('')) // Sort to ensure uniqueness
+      return
+    }
+
+    for (let i = start; i < digits.length; i++) {
+      const digit = digits[i]
+      if ((digitCount[digit] || 0) < 2) {
+        // Check if the digit can still be added
+        current.push(digit)
+        digitCount[digit] = (digitCount[digit] || 0) + 1
+
+        backtrack(current, i, digitCount)
+
+        // Backtrack
+        current.pop()
+        digitCount[digit] -= 1
+      }
+    }
+  }
+
+  backtrack([], 0, {})
+  return Array.from(results)
+}
+
+const ticketCombinations =
+  generateUnique5DigitCombinationsWithLimitedRepetitions()
+// console.log(ticketCombinations)
+
+function generateTicket() {
+  if (ticketCombinations.length > 0) {
+    const ticket = sample(ticketCombinations) as string
+    ticketCombinations.splice(ticketCombinations.indexOf(ticket), 1)
+    return ticket
+  }
+  return null
 }
