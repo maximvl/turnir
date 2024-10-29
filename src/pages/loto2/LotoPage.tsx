@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
-import { sample, sampleSize, uniq } from 'lodash'
+import { capitalize, sample, sampleSize, uniq } from 'lodash'
 import { fetchVotes, PollVote } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
@@ -11,6 +11,7 @@ import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket } from './types'
 import ChatBox from './ChatBox'
+import { NumberToFancyName } from './utils'
 
 const VOTES_REFETCH_INTERVAL = 2000
 
@@ -203,6 +204,7 @@ export default function LotoPage() {
   // }
 
   const drawnNumbersText = drawnNumbers.join(' ')
+  const nextNumberText = NumberToFancyName[nextNumber]
 
   const displayValue =
     nextDigitState === 'rolling'
@@ -221,7 +223,11 @@ export default function LotoPage() {
         <Box>
           {state === 'voting' && (
             <>
-              <Box display={'flex'} justifyContent={'center'}>
+              <Box
+                display={'flex'}
+                justifyContent={'center'}
+                marginBottom={'20px'}
+              >
                 <InfoPanel>
                   {!music.musicPlaying && <p>Кликни чтобы запустить музыку</p>}
                   <p>
@@ -236,7 +242,7 @@ export default function LotoPage() {
                 display={'flex'}
                 alignItems={'center'}
                 justifyContent={'center'}
-                marginTop={'40px'}
+                // marginTop={'40px'}
                 marginBottom={'20px'}
               >
                 Участники: {tickets.length}
@@ -253,11 +259,11 @@ export default function LotoPage() {
           )}
 
           {['playing', 'win'].includes(state) && (
-            <Box marginTop={'40px'}>
+            <Box>
               <Box>
                 <Box display={'flex'} justifyContent={'center'}>
                   <InfoPanel>
-                    <p>Побеждает тот кто соберет 3 числа в ряд</p>
+                    <p>Побеждает тот кто соберет 3 или больше чисел в ряд</p>
                   </InfoPanel>
                 </Box>
                 {/* <span style={{ fontSize: '24px' }}>Номера:</span> */}
@@ -268,27 +274,37 @@ export default function LotoPage() {
                 >
                   <span
                     style={{
-                      fontSize: '48px',
+                      fontSize: '32px',
                       marginLeft: '20px',
                       fontFamily: 'monospace',
                       width: '900px',
                     }}
                   >
-                    {displayValue}
+                    {drawnNumbersText}
                   </span>
                 </Box>
               </Box>
               <Box textAlign={'center'}>
-                {state === 'playing' && (
-                  <Box marginBottom={'60px'} marginTop={'20px'}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => setNextDigitState('roll_start')}
-                      disabled={nextDigitState !== 'idle'}
-                    >
-                      Следующее число
-                    </Button>
+                {(state === 'playing' || state === 'win') && (
+                  <Box fontSize={'48px'}>
+                    {nextNumber}
+                    {nextNumberText &&
+                      nextDigitState === 'idle' &&
+                      ` — ${capitalize(nextNumberText)}`}
                   </Box>
+                )}
+                {state === 'playing' && (
+                  <>
+                    <Box marginBottom={'40px'} marginTop={'20px'}>
+                      <Button
+                        variant="outlined"
+                        onClick={() => setNextDigitState('roll_start')}
+                        disabled={nextDigitState !== 'idle'}
+                      >
+                        Следующее число
+                      </Button>
+                    </Box>
+                  </>
                 )}
                 {state === 'win' && (
                   <Box>

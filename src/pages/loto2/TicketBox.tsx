@@ -42,6 +42,10 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         }
       }
     }
+    if (currentRange !== null) {
+      matchRanges.push(currentRange)
+    }
+
     maxRange = matchRanges.reduce((prev, current) =>
       prev.end - prev.start > current.end - current.start ? prev : current
     )
