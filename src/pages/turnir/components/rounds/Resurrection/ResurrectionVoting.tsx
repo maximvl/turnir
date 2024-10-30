@@ -4,7 +4,7 @@ import { MusicContext } from 'common/hooks/MusicContext'
 import { isEmpty } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
 import { Item, MusicType } from 'pages/turnir/types'
-import { PollVote } from 'pages/turnir/api'
+import { ChatMessage } from 'pages/turnir/api'
 import PollResults from '../ViewerChoice/PollResults'
 import VotesLog from '../ViewerChoice/VotesLog'
 
@@ -16,11 +16,11 @@ type Props = {
 type State = 'voting' | 'show_results'
 
 const voteFormatter = (
-  vote: PollVote,
+  vote: ChatMessage,
   formattedTime: string,
   optionName: string
 ) => {
-  return `${formattedTime}: ${vote.username} голосует за ${vote.message} (${optionName})`
+  return `${formattedTime}: ${vote.user.username} голосует за ${vote.message} (${optionName})`
 }
 
 export default function ResurrectionVoting({

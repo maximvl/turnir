@@ -9,16 +9,48 @@ export function createItem(index: string, title: string = ''): Item {
 
 const URL_PREFIX = '/v2'
 
-export type PollVote = {
-  id: number
-  ts: number
-  username: string
-  user_id: number
-  message: string
+type VkUserRole = {
+  id: string
+  name: string
+  largeUrl: string
+  priority: number
 }
 
-export type PollVotes = {
-  poll_votes: null | PollVote[]
+type VkUserBadgeAchievement = {
+  name: string
+  type: string
+}
+
+type VkUserBadge = {
+  id: string
+  name: string
+  largeUrl: string
+  achievemnt: VkUserBadgeAchievement
+}
+
+type VkUserFields = {
+  nickColor: number
+  isChatModerator: boolean
+  isChannelModerator: boolean
+  roles: VkUserRole[]
+  badges: VkUserBadge[]
+}
+
+type ChatUser = {
+  id: number
+  username: string
+  vk_fields?: VkUserFields
+}
+
+export type ChatMessage = {
+  id: number
+  ts: number
+  message: string
+  user: ChatUser
+}
+
+export type ChatMessagesResponse = {
+  chat_messages: null | ChatMessage[]
 }
 
 export type FetchVotesParams = {
@@ -27,21 +59,23 @@ export type FetchVotesParams = {
 
 export async function fetchVotes({
   queryKey,
-}: FetchVotesParams): Promise<PollVotes> {
+}: FetchVotesParams): Promise<ChatMessagesResponse> {
   const [, , ts] = queryKey
   if (MOCK_API) {
     const makeMessage = () => {
       const user_id = random(1, 100)
       return {
         id: 93152579,
-        message: random(1, 5).toString(),
+        message: '+лото',
         ts: Math.round(new Date().getTime() / 1000),
-        user_id: user_id,
-        username: user_id.toString(),
+        user: {
+          id: user_id,
+          username: user_id.toString(),
+        },
       }
     }
-    const messages: PollVote[] = Array.from({ length: 10 }, makeMessage)
-    return { poll_votes: messages }
+    const messages: ChatMessage[] = Array.from({ length: 10 }, makeMessage)
+    return { chat_messages: messages }
   }
   return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) =>
     res.json()

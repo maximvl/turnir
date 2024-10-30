@@ -2,7 +2,7 @@ import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
 import { Item } from 'pages/turnir/types'
-import { fetchVotes, PollVote } from 'pages/turnir/api'
+import { fetchVotes, ChatMessage } from 'pages/turnir/api'
 
 type Props = {
   items: Item[]
@@ -18,7 +18,7 @@ const VOTES_REFETCH_INTERVAL = 2000
 
 export default function useChatVoting({ items }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({})
-  const [voteMessages, setVoteMessages] = useState<PollVote[]>([])
+  const [voteMessages, setVoteMessages] = useState<ChatMessage[]>([])
 
   const [state, setState] = useState<VotingState>('initial')
   const [lastTs, setLastTs] = useState<number>(() =>
@@ -47,30 +47,30 @@ export default function useChatVoting({ items }: Props) {
     enabled: state === 'voting',
   })
 
-  if (!error && !isLoading && !isEmpty(votes?.poll_votes)) {
+  if (!error && !isLoading && !isEmpty(votes?.chat_messages)) {
     // todo remove duplicates votes for same user id
     // use only the latest one
     const votesSorted =
-      votes?.poll_votes?.sort((a, b) => {
+      votes?.chat_messages?.sort((a, b) => {
         return a.ts - b.ts
       }) || []
 
-    const votesPerUser: { [key: number]: PollVote } = {}
+    const votesPerUser: { [key: number]: ChatMessage } = {}
     const itemIds = new Set(items.map((item) => item.id))
     for (const vote of votesSorted) {
       if (!itemIds.has(vote.message)) {
         continue
       }
-      votesPerUser[vote.user_id] = vote
+      votesPerUser[vote.user.id] = vote
     }
 
     const newVotes = Object.values(votesPerUser).filter((vote) => {
-      return vote.message !== votesMap[vote.user_id]
+      return vote.message !== votesMap[vote.user.id]
     })
 
     if (!isEmpty(newVotes)) {
       const newVotesMap = newVotes.reduce((acc, vote) => {
-        acc[vote.user_id] = vote.message
+        acc[vote.user.id] = vote.message
         return acc
       }, {} as VotesDict)
       const tsSorted = newVotes.map((vote) => vote.ts).sort()

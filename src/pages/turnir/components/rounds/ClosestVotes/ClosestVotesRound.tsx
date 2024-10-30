@@ -7,7 +7,7 @@ import PollResults from '../ViewerChoice/PollResults'
 import VotesLog from '../ViewerChoice/VotesLog'
 import InfoPanel from '../shared/InfoPanel'
 import { MusicContext } from 'common/hooks/MusicContext'
-import { PollVote } from 'pages/turnir/api'
+import { ChatMessage } from 'pages/turnir/api'
 
 type Props = {
   items: Item[]
@@ -17,11 +17,11 @@ type Props = {
 type State = 'voting' | 'streamer_choice' | 'show_results'
 
 const voteFormatter = (
-  vote: PollVote,
+  vote: ChatMessage,
   formattedTime: string,
   optionName: string
 ) => {
-  return `${formattedTime}: ${vote.username} голосует ${vote.message} (${optionName})`
+  return `${formattedTime}: ${vote.user.username} голосует ${vote.message} (${optionName})`
 }
 
 export default function ClosestVotesRound({ items, onItemElimination }: Props) {

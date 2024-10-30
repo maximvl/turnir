@@ -5,17 +5,17 @@ import ViewerChoiceRound from 'pages/turnir/components/rounds/ViewerChoice/Viewe
 import { isEmpty, toString } from 'lodash'
 import { useState } from 'react'
 import { Item, ItemStatus } from 'pages/turnir/types'
-import { createItem, PollVote } from 'pages/turnir/api'
+import { createItem, ChatMessage } from 'pages/turnir/api'
 import MainMenu from 'common/MainMenu'
 
 type VotingStatus = 'idle' | 'voting'
 
 const logFormatter = (
-  vote: PollVote,
+  vote: ChatMessage,
   formattedTime: string,
   optionTitle: string
 ) => {
-  return `${formattedTime}: ${vote.username} голосует ${vote.message} (${optionTitle})`
+  return `${formattedTime}: ${vote.user.username} голосует ${vote.message} (${optionTitle})`
 }
 
 export default function VotingPage() {

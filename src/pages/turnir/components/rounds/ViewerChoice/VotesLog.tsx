@@ -1,13 +1,13 @@
 import { Box, Button } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Item } from 'pages/turnir/types'
-import { PollVote } from 'pages/turnir/api'
+import { ChatMessage } from 'pages/turnir/api'
 
 type Props = {
-  votes: PollVote[]
+  votes: ChatMessage[]
   items: Item[]
   logFormatter?: (
-    vote: PollVote,
+    vote: ChatMessage,
     formattedTime: string,
     optionName: string
   ) => string
@@ -16,11 +16,11 @@ type Props = {
 }
 
 const voteFormatter = (
-  vote: PollVote,
+  vote: ChatMessage,
   formattedTime: string,
   optionName: string
 ) => {
-  return `${formattedTime}: ${vote.username} голосует против ${vote.message} (${optionName})`
+  return `${formattedTime}: ${vote.user.username} голосует против ${vote.message} (${optionName})`
 }
 
 export default function VotesLog({

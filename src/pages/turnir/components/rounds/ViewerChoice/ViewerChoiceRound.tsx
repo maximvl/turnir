@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { Item, MusicType } from 'pages/turnir/types'
 import PollResults from './PollResults'
-import { PollVote } from 'pages/turnir/api'
+import { ChatMessage } from 'pages/turnir/api'
 import VotesLog from './VotesLog'
 import { isEmpty } from 'lodash'
 import useChatVoting from '../../../hooks/useChatVoting'
@@ -12,7 +12,7 @@ type Props = {
   items: Item[]
   onItemElimination: (index: string) => void
   logFormatter?: (
-    vote: PollVote,
+    vote: ChatMessage,
     formattedTime: string,
     optionTitle: string
   ) => string

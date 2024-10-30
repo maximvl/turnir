@@ -2,7 +2,7 @@ import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
 import { flatten, sample, uniq } from 'lodash'
-import { fetchVotes, PollVote } from 'pages/turnir/api'
+import { fetchVotes, ChatMessage } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -26,7 +26,7 @@ export default function LotoPage() {
     'idle' | 'roll_start' | 'rolling'
   >('idle')
 
-  const [winnerMessages, setWinnerMessages] = useState<PollVote[]>([])
+  const [winnerMessages, setWinnerMessages] = useState<ChatMessage[]>([])
 
   const digitOptions = useRef(DIGITS)
   const nextDigitRef = useRef(nextDigit)
@@ -50,19 +50,19 @@ export default function LotoPage() {
 
   if (
     state === 'voting' &&
-    chatMessages?.poll_votes &&
-    chatMessages.poll_votes.length > 0
+    chatMessages?.chat_messages &&
+    chatMessages.chat_messages.length > 0
   ) {
-    const filteredVotes = chatMessages.poll_votes.filter(
-      (vote) => vote.message.toLowerCase() === '+лото'
+    const filteredVotes = chatMessages.chat_messages.filter(
+      (msg) => msg.message.toLowerCase() === '+лото'
     )
     if (filteredVotes.length > 0) {
       const lastVote =
-        chatMessages.poll_votes[chatMessages.poll_votes.length - 1]
+        chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
       const currentOwners = tickets.map((ticket) => ticket.owner)
 
       let newOwners: string[] = []
-      newOwners = filteredVotes.map((vote) => vote.username)
+      newOwners = filteredVotes.map((vote) => vote.user.username)
       newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
       newOwners = uniq(newOwners)
 
@@ -138,12 +138,12 @@ export default function LotoPage() {
 
   if (
     state === 'win' &&
-    chatMessages?.poll_votes &&
-    chatMessages.poll_votes.length > 0 &&
+    chatMessages?.chat_messages &&
+    chatMessages.chat_messages.length > 0 &&
     winner
   ) {
-    const messagesByWinner = chatMessages.poll_votes.filter(
-      (vote) => vote.username === winner.owner
+    const messagesByWinner = chatMessages.chat_messages.filter(
+      (vote) => vote.user.username === winner.owner
     )
     if (messagesByWinner.length > 0) {
       const currentMessagesIds = winnerMessages.map((m) => m.id)
