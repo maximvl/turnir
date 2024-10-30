@@ -36,7 +36,7 @@ type VkUserFields = {
   badges: VkUserBadge[]
 }
 
-type ChatUser = {
+export type ChatUser = {
   id: number
   username: string
   vk_fields?: VkUserFields
@@ -62,6 +62,19 @@ export async function fetchVotes({
 }: FetchVotesParams): Promise<ChatMessagesResponse> {
   const [, , ts] = queryKey
   if (MOCK_API) {
+    const makeBadge = () => {
+      return {
+        id: '232c3913-274a-4c02-8d23-6576f7d48e98',
+        name: 'Топ 1',
+        largeUrl:
+          'https://images.live.vkplay.ru/badge/232c3913-274a-4c02-8d23-6576f7d48e98/icon/size/large?change_time=1691761874',
+        achievemnt: {
+          name: 'Топ 1',
+          type: 'top1',
+        },
+      }
+    }
+
     const makeMessage = () => {
       const user_id = random(1, 100)
       return {
@@ -71,6 +84,13 @@ export async function fetchVotes({
         user: {
           id: user_id,
           username: user_id.toString(),
+          vk_fields: {
+            nickColor: 0,
+            isChatModerator: false,
+            isChannelModerator: false,
+            badges: [makeBadge(), makeBadge(), makeBadge()],
+            roles: [],
+          },
         },
       }
     }

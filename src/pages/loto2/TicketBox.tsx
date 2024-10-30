@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@mui/material'
+import { Box, Tooltip, useTheme } from '@mui/material'
 import { Ticket2 as Ticket } from './types'
 import { ReactComponent as TicketImg1 } from 'images/ticket1.svg'
 import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
@@ -54,6 +54,9 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const highlightColor = theme.palette.error.main
   const winnerColor = theme.palette.warning.main
 
+  const badges = ticket.owner.vk_fields?.badges || []
+  const roles = ticket.owner.vk_fields?.roles || []
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -76,13 +79,42 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         // overflow={'hidden'}
         // whiteSpace="nowrap"
       >
-        <Box
-        // overflow={'hidden'}
-        // height={'17px'}
-        // paddingLeft={'5px'}
-        // textOverflow="ellipsis"
-        >
-          {ticket.owner}
+        <Box display={'flex'} alignItems={'center'}>
+          {badges.map((badge, index) => {
+            return (
+              <Tooltip
+                title={badge.name}
+                placement="top"
+                style={{ marginRight: '5px' }}
+                key={index}
+              >
+                <img
+                  key={index}
+                  src={badge.largeUrl}
+                  width={'16px'}
+                  alt={'badge'}
+                />
+              </Tooltip>
+            )
+          })}
+          {roles.map((role, index) => {
+            return (
+              <Tooltip
+                title={role.name}
+                placement="top"
+                style={{ marginRight: '5px' }}
+                key={index}
+              >
+                <img
+                  key={index}
+                  src={role.largeUrl}
+                  width={'16px'}
+                  alt={'role'}
+                />
+              </Tooltip>
+            )
+          })}
+          <span>{ticket.owner.username}</span>
         </Box>
         <Box
           fontSize={'32px'}

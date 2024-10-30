@@ -1,8 +1,8 @@
 import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
-import { capitalize, sample, sampleSize, uniq } from 'lodash'
-import { fetchVotes, ChatMessage } from 'pages/turnir/api'
+import { capitalize, sample, sampleSize, uniq, uniqBy } from 'lodash'
+import { fetchVotes, ChatMessage, ChatUser } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -69,12 +69,13 @@ export default function LotoPage() {
     if (filteredVotes.length > 0) {
       const lastVote =
         chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
-      const currentOwners = tickets.map((ticket) => ticket.owner)
 
-      let newOwners: string[] = []
-      newOwners = filteredVotes.map((vote) => vote.user.username)
-      newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
-      newOwners = uniq(newOwners)
+      const currentOwners = tickets.map((ticket) => ticket.owner.id)
+
+      let newOwners: ChatUser[] = []
+      newOwners = filteredVotes.map((vote) => vote.user)
+      newOwners = newOwners.filter((owner) => !currentOwners.includes(owner.id))
+      newOwners = uniqBy(newOwners, (owner) => owner.id)
 
       if (newOwners.length > 0) {
         setLastTs(lastVote.ts)
@@ -120,7 +121,7 @@ export default function LotoPage() {
 
   let matchesPerTicket: { [owner: string]: number[] } = {}
   for (const ticket of tickets) {
-    matchesPerTicket[ticket.owner] = []
+    matchesPerTicket[ticket.owner.id] = []
   }
 
   if (drawnNumbers.length > 0) {
@@ -129,12 +130,12 @@ export default function LotoPage() {
       const matches = ticket.value.map((number) =>
         drawnNumbers.includes(number) ? 1 : 0
       )
-      matchesPerTicket[ticket.owner] = matches
+      matchesPerTicket[ticket.owner.id] = matches
     }
   }
 
   const consequentMatchesPerTicket = tickets.map((ticket) => {
-    const matches = matchesPerTicket[ticket.owner]
+    const matches = matchesPerTicket[ticket.owner.id]
     let maxConsequentMatches = 0
     let currentConsequentMatches = 0
     for (const match of matches) {
@@ -152,7 +153,7 @@ export default function LotoPage() {
 
   const consequentMatchesMap = consequentMatchesPerTicket.reduce(
     (acc, val) => {
-      acc[val.owner] = val.matches
+      acc[val.owner.id] = val.matches
       return acc
     },
     {} as { [owner: string]: number }
@@ -160,8 +161,8 @@ export default function LotoPage() {
 
   // order tickets by consequent matches then by total matches
   const orderedTickets = [...tickets].sort((a, b) => {
-    const aMatches = consequentMatchesMap[a.owner]
-    const bMatches = consequentMatchesMap[b.owner]
+    const aMatches = consequentMatchesMap[a.owner.id]
+    const bMatches = consequentMatchesMap[b.owner.id]
     if (aMatches === bMatches) {
       return (
         b.value.filter((n) => drawnNumbers.includes(n)).length -
@@ -173,10 +174,10 @@ export default function LotoPage() {
 
   const highestMatches =
     orderedTickets.length > 0
-      ? consequentMatchesMap[orderedTickets[0].owner]
+      ? consequentMatchesMap[orderedTickets[0].owner.id]
       : 0
   const ticketsWithHighestMatches = orderedTickets.filter(
-    (ticket) => consequentMatchesMap[ticket.owner] === highestMatches
+    (ticket) => consequentMatchesMap[ticket.owner.id] === highestMatches
   )
 
   useEffect(() => {
@@ -332,7 +333,7 @@ export default function LotoPage() {
                 <Box key={i} marginTop={'20px'} marginRight={'20px'}>
                   <TicketBox
                     ticket={ticket}
-                    matches={matchesPerTicket[ticket.owner]}
+                    matches={matchesPerTicket[ticket.owner.id]}
                     isWinner={isWinner}
                   />
                 </Box>

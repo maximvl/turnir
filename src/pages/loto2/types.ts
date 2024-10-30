@@ -1,3 +1,5 @@
+import { ChatUser } from 'pages/turnir/api'
+
 export type Ticket = {
   owner: string
   value: string
@@ -6,7 +8,7 @@ export type Ticket = {
 }
 
 export type Ticket2 = {
-  owner: string
+  owner: ChatUser
   value: string[]
   color: string
   variant: number
