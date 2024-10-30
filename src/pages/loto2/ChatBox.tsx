@@ -1,18 +1,18 @@
 import { Box } from '@mui/material'
+import { ChatMessage } from 'pages/turnir/api'
 
 type Props = {
-  username: string
-  messages: string[]
+  messages: ChatMessage[]
 }
 
-export default function ChatBox({ username, messages }: Props) {
+export default function ChatBox({ messages }: Props) {
   return (
     <Box>
-      <Box>Сообщения {username}</Box>
+      {/* <Box>Сообщения {username}</Box> */}
       <Box
         style={{ backgroundColor: '#222222' }}
         height={'200px'}
-        width={'500px'}
+        // width={'500px'}
         padding={'10px'}
         overflow={'auto'}
       >
@@ -20,7 +20,7 @@ export default function ChatBox({ username, messages }: Props) {
           return (
             <Box key={index}>
               <span>
-                {username}: {msg}
+                {msg.user.username}: {msg.message}
               </span>
             </Box>
           )

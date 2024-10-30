@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
-import { capitalize, sample, sampleSize, uniq, uniqBy } from 'lodash'
+import { sample, sampleSize, uniqBy } from 'lodash'
 import { fetchVotes, ChatMessage, ChatUser } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
@@ -40,6 +40,8 @@ export default function LotoPage() {
 
   const [winnerMessages, setWinnerMessages] = useState<ChatMessage[]>([])
   const nextNumberRef = useRef(nextNumber)
+
+  const [showWinnerChat, setShowWinnerChat] = useState(false)
 
   const music = useContext(MusicContext)
 
@@ -188,34 +190,29 @@ export default function LotoPage() {
 
   const winners = state === 'win' ? ticketsWithHighestMatches : []
 
-  // if (
-  //   state === 'win' &&
-  //   chatMessages?.poll_votes &&
-  //   chatMessages.poll_votes.length > 0 &&
-  //   winner
-  // ) {
-  //   const messagesByWinner = chatMessages.poll_votes.filter(
-  //     (vote) => vote.username === winner.owner
-  //   )
-  //   if (messagesByWinner.length > 0) {
-  //     const currentMessagesIds = winnerMessages.map((m) => m.id)
-  //     const newMessages = messagesByWinner.filter(
-  //       (m) => !currentMessagesIds.includes(m.id)
-  //     )
-  //     if (newMessages.length > 0) {
-  //       setWinnerMessages([...winnerMessages, ...newMessages])
-  //       setLastTs(messagesByWinner[messagesByWinner.length - 1].ts)
-  //     }
-  //   }
-  // }
+  if (
+    state === 'win' &&
+    chatMessages?.chat_messages &&
+    chatMessages.chat_messages.length > 0 &&
+    winners.length > 0
+  ) {
+    const messagesFromWinners = chatMessages.chat_messages.filter((vote) =>
+      winners.some((w) => vote.user.id === w.owner.id)
+    )
+    if (messagesFromWinners.length > 0) {
+      const currentMessagesIds = winnerMessages.map((m) => m.id)
+      const newMessages = messagesFromWinners.filter(
+        (m) => !currentMessagesIds.includes(m.id)
+      )
+      if (newMessages.length > 0) {
+        setWinnerMessages([...winnerMessages, ...newMessages])
+        setLastTs(messagesFromWinners[messagesFromWinners.length - 1].ts)
+      }
+    }
+  }
 
   const drawnNumbersText = drawnNumbers.join(' ')
   const nextNumberText = NumberToFancyName[nextNumber]
-
-  const displayValue =
-    nextDigitState === 'rolling'
-      ? drawnNumbersText + ` ${nextNumber}`
-      : drawnNumbersText
 
   return (
     <Box onClick={startMusic}>
@@ -336,6 +333,16 @@ export default function LotoPage() {
                     matches={matchesPerTicket[ticket.owner.id]}
                     isWinner={isWinner}
                   />
+                  {isWinner && (
+                    <>
+                      <Button
+                        onClick={() => setShowWinnerChat(!showWinnerChat)}
+                      >
+                        Показать чат
+                      </Button>
+                      {showWinnerChat && <ChatBox messages={winnerMessages} />}
+                    </>
+                  )}
                 </Box>
               )
             })}
@@ -375,6 +382,6 @@ function generateTicket() {
 
 function drawNumber(next: string) {
   DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
-  console.log('DrawingNumbers', DrawingNumbers)
+  // console.log('DrawingNumbers', DrawingNumbers)
   return next
 }
