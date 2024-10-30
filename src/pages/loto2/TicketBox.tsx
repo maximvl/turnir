@@ -4,6 +4,7 @@ import { ReactComponent as TicketImg1 } from 'images/ticket1.svg'
 import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
 import { ReactComponent as TicketImg3 } from 'images/ticket3.svg'
 import { ReactComponent as TicketImg4 } from 'images/ticket4.svg'
+import AnimeBackground from 'images/sakura1.webp'
 
 type MatchRange = {
   start: number
@@ -57,6 +58,8 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const badges = ticket.owner.vk_fields?.badges || []
   const roles = ticket.owner.vk_fields?.roles || []
 
+  const isAnime = roles.some((role) => role.name === 'Анимеёб')
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -64,7 +67,11 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         // position="absolute"
         // top={'8px'}
         // left={'15px'}
-        style={{ backgroundColor: ticket.color }}
+        style={{
+          backgroundColor: ticket.color,
+          backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
+          backgroundSize: 'cover',
+        }}
         // width={'140px'}
         // height={'64px'}
         border={isWinner ? `2px solid ${winnerColor}` : '2px solid transparent'}
