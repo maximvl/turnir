@@ -103,6 +103,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
           style={{
             backgroundColor: isAnime ? 'black' : ticket.color,
           }}
+          fontSize={'24px'}
         >
           {badges.map((badge, index) => {
             return (
@@ -115,7 +116,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
                 <img
                   key={index}
                   src={badge.largeUrl}
-                  width={'16px'}
+                  width={'24px'}
                   alt={'badge'}
                 />
               </Tooltip>
@@ -132,7 +133,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
                 <img
                   key={index}
                   src={role.largeUrl}
-                  width={'16px'}
+                  width={'24px'}
                   alt={'role'}
                 />
               </Tooltip>
@@ -141,7 +142,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
           <span style={{ color: userColor }}>{ticket.owner.username}</span>
         </Box>
         <Box
-          fontSize={'32px'}
+          fontSize={'24px'}
           marginTop={'5px'}
           fontFamily="monospace"
           display={'flex'}

@@ -226,7 +226,7 @@ export default function LotoPage() {
         paddingLeft={'100px'}
         paddingRight={'100px'}
       >
-        <Box>
+        <Box marginBottom={'200px'}>
           {state === 'voting' && (
             <>
               <Box
