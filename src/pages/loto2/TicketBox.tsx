@@ -5,6 +5,7 @@ import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
 import { ReactComponent as TicketImg3 } from 'images/ticket3.svg'
 import { ReactComponent as TicketImg4 } from 'images/ticket4.svg'
 import AnimeBackground from 'images/sakura1.webp'
+import { VkColorsMap } from './utils'
 
 type MatchRange = {
   start: number
@@ -59,6 +60,9 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const roles = ticket.owner.vk_fields?.roles || []
 
   const isAnime = roles.some((role) => role.name === 'Анимеёб')
+
+  const userColor =
+    VkColorsMap[ticket.owner.vk_fields?.nickColor ?? -1] || 'white'
 
   return (
     <Box position="relative">
@@ -121,7 +125,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
               </Tooltip>
             )
           })}
-          <span>{ticket.owner.username}</span>
+          <span style={{ color: userColor }}>{ticket.owner.username}</span>
         </Box>
         <Box
           fontSize={'32px'}

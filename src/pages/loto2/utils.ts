@@ -42,3 +42,22 @@ export const NumberToFancyName: { [k: string]: string } = {
   '90': 'Дедушка',
   '99': 'Шанс что не будет подруба',
 }
+
+export const VkColorsMap: { [key: number]: string } = {
+  0: '#D66E34',
+  1: '#B8AAFF',
+  2: '#1D90FF',
+  3: '#9961F9',
+  4: '#59A840',
+  5: '#E73629',
+  6: '#DE6489',
+  7: '#20BBA1',
+  8: '#F8B301',
+  9: '#0099BB',
+  10: '#7BBEFF',
+  11: '#E542FF',
+  12: '#A36C59',
+  13: '#8BA259',
+  14: '#00A9FF',
+  15: '#A20BFF',
+}
