@@ -1,4 +1,5 @@
 import { Box, Tooltip, useTheme } from '@mui/material'
+import { Fragment } from 'react'
 import { Ticket2 as Ticket } from './types'
 import { ReactComponent as TicketImg1 } from 'images/ticket1.svg'
 import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
@@ -26,8 +27,9 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   // ]
 
   let maxRange: MatchRange | null = null
-  if (isWinner) {
-    const matchRanges: MatchRange[] = []
+  const matchRanges: MatchRange[] = []
+  const hasMatches = matches.some((match) => match === 1)
+  if (isWinner || hasMatches) {
     // fill match ranges
     let currentRange: MatchRange | null = null
     for (let i = 0; i < matches.length; i++) {
@@ -61,6 +63,10 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
 
   const isAnime = roles.some((role) => role.name === 'Анимеёб')
 
+  const darkTextColor = '#1E3E62'
+  const darkTextHighlight = '#800000'
+  const darkTextWin = '#3C0753'
+
   const userColor =
     VkColorsMap[ticket.owner.vk_fields?.nickColor ?? -1] || 'white'
 
@@ -78,7 +84,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         }}
         // width={'140px'}
         // height={'64px'}
-        border={isWinner ? `2px solid ${winnerColor}` : '2px solid transparent'}
+        border={isWinner ? `2px solid ${winnerColor}` : '2px solid #333333'}
         borderRadius={'10px'}
         // paddingLeft={'12px'}
         // paddingRight={'10px'}
@@ -90,7 +96,14 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         // overflow={'hidden'}
         // whiteSpace="nowrap"
       >
-        <Box display={'flex'} alignItems={'center'}>
+        <Box
+          display={'flex'}
+          alignItems={'center'}
+          width={'fit-content'}
+          style={{
+            backgroundColor: isAnime ? 'black' : ticket.color,
+          }}
+        >
           {badges.map((badge, index) => {
             return (
               <Tooltip
@@ -137,18 +150,47 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
         >
           {ticket.value.map((value, index) => {
             const addSpace = index !== 0
-            let style = {}
+            let style: { [k: string]: string } = {}
+            if (isAnime) {
+              style = { color: darkTextColor }
+            }
+
             if (matches[index]) {
-              style = { color: highlightColor }
+              style = { color: highlightColor, textDecoration: 'line-through' }
+              if (isAnime) {
+                style.color = darkTextHighlight
+              }
             }
-            if (maxRange && maxRange.start <= index && index <= maxRange.end) {
-              style = { color: winnerColor }
+            if (
+              isWinner &&
+              maxRange &&
+              maxRange.start <= index &&
+              index <= maxRange.end
+            ) {
+              style = { color: winnerColor, textDecoration: 'line-through' }
+              if (isAnime) {
+                style.color = darkTextWin
+              }
             }
+
+            const isWithinRange = matchRanges.some(
+              (range) => range.start < index && index <= range.end
+            )
+
             return (
-              <span key={index} style={style}>
-                {addSpace && <span>&nbsp;</span>}
-                {value}
-              </span>
+              <Fragment key={index}>
+                {addSpace && (
+                  <span
+                    style={{
+                      color: style.color || 'white',
+                      textDecoration: isWithinRange ? 'line-through' : '',
+                    }}
+                  >
+                    &nbsp;
+                  </span>
+                )}
+                <span style={style}>{value}</span>
+              </Fragment>
             )
           })}
         </Box>
