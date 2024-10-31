@@ -14,9 +14,12 @@ import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket } from './types'
 import ChatBox from './ChatBox'
-import { NumberToFancyName } from './utils'
+import { genTicket, NumberToFancyName } from './utils'
 
 const VOTES_REFETCH_INTERVAL = 2000
+
+const CHAT_BOT_NAME = 'ChatBot'
+const LOTO_MATCH = 'лото'
 
 // numbers from 01 to 99
 const DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
@@ -56,7 +59,7 @@ export default function LotoPage() {
     ['loto', 0, lastTs],
     ({ queryKey }) => {
       if (state === 'voting') {
-        return fetchVotes({ ts: queryKey[2] as number, textFilter: 'лото' })
+        return fetchVotes({ ts: queryKey[2] as number, textFilter: LOTO_MATCH })
       }
       return fetchVotes({ ts: queryKey[2] as number })
     },
@@ -72,7 +75,7 @@ export default function LotoPage() {
     chatMessages.chat_messages.length > 0
   ) {
     const lotoMessages = chatMessages.chat_messages.filter((msg) =>
-      msg.message.toLowerCase().includes('лото')
+      msg.message.toLowerCase().includes(LOTO_MATCH)
     )
     if (lotoMessages.length > 0) {
       const lastMsg =
@@ -80,12 +83,12 @@ export default function LotoPage() {
 
       const lotoMessagesFromBot = lotoMessages.filter(
         (msg) =>
-          msg.user.username === 'ChatBot' &&
+          msg.user.username === CHAT_BOT_NAME &&
           msg.vk_fields &&
           msg.vk_fields.mentions.length > 0
       )
       const lotoMessagesFromUsers = lotoMessages.filter(
-        (msg) => msg.user.username !== 'ChatBot'
+        (msg) => msg.user.username !== CHAT_BOT_NAME
       )
 
       const currentOwners = ticketsFromChat.map((ticket) => ticket.owner.id)
@@ -97,17 +100,9 @@ export default function LotoPage() {
 
       if (newOwners.length > 0) {
         setLastTs(lastMsg.ts)
-        const newOwnersTickets = newOwners.map((owner) => ({
-          owner,
-          value: generateTicket(),
-          color: sample([
-            '#634f5f', // dark red
-            '#654b3c', // brown
-            '#4a4857', // greyish
-            '#0c5159', // dark green
-          ]),
-          variant: sample([1, 2, 3, 4]),
-        }))
+        const newOwnersTickets = newOwners.map((owner) =>
+          genTicket({ owner, drawOptions: DrawingNumbers })
+        )
 
         const newOwnersTicketsFiltered = newOwnersTickets.filter(
           (ticket) => ticket.value !== null

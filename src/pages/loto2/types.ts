@@ -8,6 +8,7 @@ export type Ticket = {
 }
 
 export type Ticket2 = {
+  id: string
   owner: ChatUser
   value: string[]
   color: string

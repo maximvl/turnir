@@ -1,3 +1,28 @@
+import { sample, sampleSize } from 'lodash'
+import { ChatUser } from 'pages/turnir/api'
+import { Ticket2 as Ticket } from './types'
+
+type Props = {
+  owner: ChatUser
+  drawOptions: string[]
+}
+
+export function genTicket({ owner, drawOptions }: Props): Ticket {
+  const value = sampleSize(drawOptions, 8)
+  return {
+    id: Math.random().toString(36).substring(2, 9),
+    owner,
+    value,
+    color: sample([
+      '#634f5f', // dark red
+      '#654b3c', // brown
+      '#4a4857', // greyish
+      '#0c5159', // dark green
+    ]),
+    variant: sample([1, 2, 3, 4]),
+  } as Ticket
+}
+
 export const NumberToFancyName: { [k: string]: string } = {
   '01': 'Кол',
   '02': 'Гусь',
