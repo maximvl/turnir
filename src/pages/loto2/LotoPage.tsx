@@ -33,7 +33,7 @@ export default function LotoPage() {
   // const [filter, setFilter] = useState<string[]>([])
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
-  const [nextNumber, setNextNumber] = useState<string>('00')
+  const [nextNumber, setNextNumber] = useState<string>('')
   const [nextDigitState, setNextDigitState] = useState<
     'idle' | 'roll_start' | 'rolling'
   >('idle')
@@ -305,6 +305,9 @@ export default function LotoPage() {
                     textAlign={'center'}
                   >
                     <span>{nextNumber}</span>
+                    {nextNumber.length === 0 && nextDigitState === 'idle' && (
+                      <Box marginTop={'40px'}></Box>
+                    )}
                     {nextNumberText && nextDigitState === 'idle' && (
                       <Box fontSize={'18px'}>{nextNumberText}</Box>
                     )}
