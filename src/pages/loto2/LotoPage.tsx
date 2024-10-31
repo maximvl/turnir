@@ -12,7 +12,7 @@ import bingo3 from 'images/bingo3.webp'
 import bingo4 from 'images/bingo4.webp'
 import { useQuery } from 'react-query'
 import TicketBox from './TicketBox'
-import { Ticket2 as Ticket } from './types'
+import { Ticket2 as Ticket, TicketId } from './types'
 import ChatBox from './ChatBox'
 import { genTicket, NumberToFancyName } from './utils'
 
@@ -136,9 +136,9 @@ export default function LotoPage() {
     document.title = `Лото - ${ticketsFromChat.length} участников`
   }, [ticketsFromChat.length])
 
-  let matchesPerTicket: { [owner: string]: number[] } = {}
+  let matchesPerTicket: { [id: TicketId]: number[] } = {}
   for (const ticket of ticketsFromChat) {
-    matchesPerTicket[ticket.owner.id] = []
+    matchesPerTicket[ticket.id] = []
   }
 
   if (drawnNumbers.length > 0) {
@@ -147,12 +147,12 @@ export default function LotoPage() {
       const matches = ticket.value.map((number) =>
         drawnNumbers.includes(number) ? 1 : 0
       )
-      matchesPerTicket[ticket.owner.id] = matches
+      matchesPerTicket[ticket.id] = matches
     }
   }
 
   const consequentMatchesPerTicket = ticketsFromChat.map((ticket) => {
-    const matches = matchesPerTicket[ticket.owner.id]
+    const matches = matchesPerTicket[ticket.id]
     let maxConsequentMatches = 0
     let currentConsequentMatches = 0
     for (const match of matches) {
@@ -165,21 +165,21 @@ export default function LotoPage() {
         currentConsequentMatches = 0
       }
     }
-    return { owner: ticket.owner, matches: maxConsequentMatches }
+    return { id: ticket.id, matches: maxConsequentMatches }
   })
 
   const consequentMatchesMap = consequentMatchesPerTicket.reduce(
     (acc, val) => {
-      acc[val.owner.id] = val.matches
+      acc[val.id] = val.matches
       return acc
     },
-    {} as { [owner: string]: number }
+    {} as { [id: string]: number }
   )
 
   // order tickets by consequent matches then by total matches
   const orderedTickets = [...ticketsFromChat].sort((a, b) => {
-    const aMatches = consequentMatchesMap[a.owner.id]
-    const bMatches = consequentMatchesMap[b.owner.id]
+    const aMatches = consequentMatchesMap[a.id]
+    const bMatches = consequentMatchesMap[b.id]
     if (aMatches === bMatches) {
       return (
         b.value.filter((n) => drawnNumbers.includes(n)).length -
@@ -190,11 +190,9 @@ export default function LotoPage() {
   })
 
   const highestMatches =
-    orderedTickets.length > 0
-      ? consequentMatchesMap[orderedTickets[0].owner.id]
-      : 0
+    orderedTickets.length > 0 ? consequentMatchesMap[orderedTickets[0].id] : 0
   const ticketsWithHighestMatches = orderedTickets.filter(
-    (ticket) => consequentMatchesMap[ticket.owner.id] === highestMatches
+    (ticket) => consequentMatchesMap[ticket.id] === highestMatches
   )
 
   useEffect(() => {
@@ -202,6 +200,12 @@ export default function LotoPage() {
       setState('win')
     }
   }, [highestMatches, state])
+
+  useEffect(() => {
+    if (state === 'win') {
+      setShowWinnerChat((val) => !val)
+    }
+  }, [state])
 
   const winners = state === 'win' ? ticketsWithHighestMatches : []
 
@@ -348,7 +352,7 @@ export default function LotoPage() {
                 <Box key={i} marginTop={'20px'} marginRight={'20px'}>
                   <TicketBox
                     ticket={ticket}
-                    matches={matchesPerTicket[ticket.owner.id]}
+                    matches={matchesPerTicket[ticket.id]}
                     isWinner={isWinner}
                   />
                   {isWinner && (

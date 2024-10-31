@@ -7,8 +7,10 @@ export type Ticket = {
   variant: number
 }
 
+export type TicketId = string
+
 export type Ticket2 = {
-  id: string
+  id: TicketId
   owner: ChatUser
   value: string[]
   color: string
