@@ -54,13 +54,14 @@ export type ChatMessagesResponse = {
 }
 
 export type FetchVotesParams = {
-  queryKey: (string | number)[]
+  ts: number
+  textFilter?: string
 }
 
 export async function fetchVotes({
-  queryKey,
+  ts,
+  textFilter,
 }: FetchVotesParams): Promise<ChatMessagesResponse> {
-  const [, , ts] = queryKey
   if (MOCK_API) {
     const makeBadge = () => {
       return {
@@ -97,8 +98,14 @@ export async function fetchVotes({
     const messages: ChatMessage[] = Array.from({ length: 10 }, makeMessage)
     return { chat_messages: messages }
   }
-  return fetch(`${URL_PREFIX}/turnir-api/votes?ts=${ts}`).then((res) =>
-    res.json()
+
+  const params = new URLSearchParams()
+  params.set('ts', ts.toString())
+  if (textFilter && textFilter.length > 0) {
+    params.set('text_filter', textFilter)
+  }
+  return fetch(`${URL_PREFIX}/turnir-api/votes?${params.toString()}`).then(
+    (res) => res.json()
   )
 }
 

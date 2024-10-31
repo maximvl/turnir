@@ -41,7 +41,7 @@ export default function LotoPage() {
 
   const { data: chatMessages } = useQuery(
     ['loto', 0, lastTs],
-    (args) => fetchVotes(args),
+    ({ queryKey }) => fetchVotes({ ts: queryKey[2] as number }),
     {
       refetchInterval: VOTES_REFETCH_INTERVAL,
       enabled: state === 'voting' || state === 'win',

@@ -42,10 +42,14 @@ export default function useChatVoting({ items }: Props) {
     data: votes,
     error,
     isLoading,
-  } = useQuery(['votes', items.length, lastTs], (args) => fetchVotes(args), {
-    refetchInterval: VOTES_REFETCH_INTERVAL,
-    enabled: state === 'voting',
-  })
+  } = useQuery(
+    ['votes', items.length, lastTs],
+    ({ queryKey }) => fetchVotes({ ts: queryKey[2] as number }),
+    {
+      refetchInterval: VOTES_REFETCH_INTERVAL,
+      enabled: state === 'voting',
+    }
+  )
 
   if (!error && !isLoading && !isEmpty(votes?.chat_messages)) {
     // todo remove duplicates votes for same user id
