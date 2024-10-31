@@ -34,7 +34,6 @@ export default function LotoPage() {
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
 
-  // const [filter, setFilter] = useState<string[]>([])
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
   const [nextNumber, setNextNumber] = useState<string>('')
@@ -81,36 +80,37 @@ export default function LotoPage() {
       const lastMsg =
         chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
 
-      const lotoMessagesFromBot = lotoMessages.filter(
+      const lotoMessagesFromUsers = lotoMessages.filter(
+        (msg) => msg.user.username !== CHAT_BOT_NAME
+      )
+      const newTicketsFromChat = getNewTickets(
+        ticketsFromChat,
+        lotoMessagesFromUsers
+      )
+      if (newTicketsFromChat.length > 0) {
+        setLastTs(lastMsg.ts)
+        setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
+      }
+
+      const lotoMessagesFromBotRow = lotoMessages.filter(
         (msg) =>
           msg.user.username === CHAT_BOT_NAME &&
           msg.vk_fields &&
           msg.vk_fields.mentions.length > 0
       )
-      const lotoMessagesFromUsers = lotoMessages.filter(
-        (msg) => msg.user.username !== CHAT_BOT_NAME
+      const lotoMessagesFromBot = lotoMessagesFromBotRow.map((msg) => {
+        msg.user.username = msg.vk_fields?.mentions[0].displayName as string
+        msg.user.id = msg.vk_fields?.mentions[0].id as number
+        return msg
+      })
+
+      const newTicketsFromPoints = getNewTickets(
+        ticketsFromPoints,
+        lotoMessagesFromBot
       )
-
-      const currentOwners = ticketsFromChat.map((ticket) => ticket.owner.id)
-
-      let newOwners: ChatUser[] = []
-      newOwners = lotoMessagesFromUsers.map((msg) => msg.user)
-      newOwners = newOwners.filter((owner) => !currentOwners.includes(owner.id))
-      newOwners = uniqBy(newOwners, (owner) => owner.id)
-
-      if (newOwners.length > 0) {
+      if (newTicketsFromPoints.length > 0) {
         setLastTs(lastMsg.ts)
-        const newOwnersTickets = newOwners.map((owner) =>
-          genTicket({ owner, drawOptions: DrawingNumbers })
-        )
-
-        const newOwnersTicketsFiltered = newOwnersTickets.filter(
-          (ticket) => ticket.value !== null
-        ) as Ticket[]
-
-        if (newOwnersTicketsFiltered.length > 0) {
-          setTicketsFromChat([...newOwnersTicketsFiltered, ...ticketsFromChat])
-        }
+        setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
     }
   }
@@ -406,4 +406,31 @@ function drawNumber(next: string) {
   DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
   // console.log('DrawingNumbers', DrawingNumbers)
   return next
+}
+
+// Как сделать отображение новых наград публичными/приватными?
+// Нужно ввести в чате своего канала соответствующую команду:
+// Сделать отображения публичными: /rewardalert public
+// Сделать отображения приватными: /rewardalert private
+
+function getNewTickets(currentTickets: Ticket[], newMessages: ChatMessage[]) {
+  const currentOwners = currentTickets.map((ticket) => ticket.owner.id)
+
+  let newOwners: ChatUser[] = []
+  newOwners = newMessages.map((msg) => msg.user)
+  newOwners = newOwners.filter((owner) => !currentOwners.includes(owner.id))
+  newOwners = uniqBy(newOwners, (owner) => owner.id)
+
+  if (newOwners.length > 0) {
+    const newOwnersTickets = newOwners.map((owner) =>
+      genTicket({ owner, drawOptions: DrawingNumbers })
+    )
+
+    const newOwnersTicketsFiltered = newOwnersTickets.filter(
+      (ticket) => ticket.value !== null
+    ) as Ticket[]
+
+    return newOwnersTicketsFiltered
+  }
+  return []
 }
