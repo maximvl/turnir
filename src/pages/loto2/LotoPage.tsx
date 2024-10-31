@@ -126,6 +126,10 @@ export default function LotoPage() {
     }
   }, [nextDigitState, nextNumber])
 
+  useEffect(() => {
+    document.title = `Лото - ${tickets.length} участников`
+  }, [tickets.length])
+
   let matchesPerTicket: { [owner: string]: number[] } = {}
   for (const ticket of tickets) {
     matchesPerTicket[ticket.owner.id] = []
