@@ -27,7 +27,8 @@ const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 export default function LotoPage() {
   const [state, setState] = useState<'voting' | 'playing' | 'win'>('voting')
-  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
+  const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
 
   // const [filter, setFilter] = useState<string[]>([])
@@ -55,7 +56,7 @@ export default function LotoPage() {
     ['loto', 0, lastTs],
     ({ queryKey }) => {
       if (state === 'voting') {
-        return fetchVotes({ ts: queryKey[2] as number, textFilter: '+лото' })
+        return fetchVotes({ ts: queryKey[2] as number, textFilter: 'лото' })
       }
       return fetchVotes({ ts: queryKey[2] as number })
     },
@@ -70,22 +71,32 @@ export default function LotoPage() {
     chatMessages?.chat_messages &&
     chatMessages.chat_messages.length > 0
   ) {
-    const filteredVotes = chatMessages.chat_messages.filter(
-      (vote) => vote.message.toLowerCase() === '+лото'
+    const lotoMessages = chatMessages.chat_messages.filter((msg) =>
+      msg.message.toLowerCase().includes('лото')
     )
-    if (filteredVotes.length > 0) {
-      const lastVote =
+    if (lotoMessages.length > 0) {
+      const lastMsg =
         chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
 
-      const currentOwners = tickets.map((ticket) => ticket.owner.id)
+      const lotoMessagesFromBot = lotoMessages.filter(
+        (msg) =>
+          msg.user.username === 'ChatBot' &&
+          msg.vk_fields &&
+          msg.vk_fields.mentions.length > 0
+      )
+      const lotoMessagesFromUsers = lotoMessages.filter(
+        (msg) => msg.user.username !== 'ChatBot'
+      )
+
+      const currentOwners = ticketsFromChat.map((ticket) => ticket.owner.id)
 
       let newOwners: ChatUser[] = []
-      newOwners = filteredVotes.map((vote) => vote.user)
+      newOwners = lotoMessagesFromUsers.map((msg) => msg.user)
       newOwners = newOwners.filter((owner) => !currentOwners.includes(owner.id))
       newOwners = uniqBy(newOwners, (owner) => owner.id)
 
       if (newOwners.length > 0) {
-        setLastTs(lastVote.ts)
+        setLastTs(lastMsg.ts)
         const newOwnersTickets = newOwners.map((owner) => ({
           owner,
           value: generateTicket(),
@@ -103,7 +114,7 @@ export default function LotoPage() {
         ) as Ticket[]
 
         if (newOwnersTicketsFiltered.length > 0) {
-          setTickets([...newOwnersTicketsFiltered, ...tickets])
+          setTicketsFromChat([...newOwnersTicketsFiltered, ...ticketsFromChat])
         }
       }
     }
@@ -127,17 +138,17 @@ export default function LotoPage() {
   }, [nextDigitState, nextNumber])
 
   useEffect(() => {
-    document.title = `Лото - ${tickets.length} участников`
-  }, [tickets.length])
+    document.title = `Лото - ${ticketsFromChat.length} участников`
+  }, [ticketsFromChat.length])
 
   let matchesPerTicket: { [owner: string]: number[] } = {}
-  for (const ticket of tickets) {
+  for (const ticket of ticketsFromChat) {
     matchesPerTicket[ticket.owner.id] = []
   }
 
   if (drawnNumbers.length > 0) {
     // for each ticket find matches with drawn numbers
-    for (const ticket of tickets) {
+    for (const ticket of ticketsFromChat) {
       const matches = ticket.value.map((number) =>
         drawnNumbers.includes(number) ? 1 : 0
       )
@@ -145,7 +156,7 @@ export default function LotoPage() {
     }
   }
 
-  const consequentMatchesPerTicket = tickets.map((ticket) => {
+  const consequentMatchesPerTicket = ticketsFromChat.map((ticket) => {
     const matches = matchesPerTicket[ticket.owner.id]
     let maxConsequentMatches = 0
     let currentConsequentMatches = 0
@@ -171,7 +182,7 @@ export default function LotoPage() {
   )
 
   // order tickets by consequent matches then by total matches
-  const orderedTickets = [...tickets].sort((a, b) => {
+  const orderedTickets = [...ticketsFromChat].sort((a, b) => {
     const aMatches = consequentMatchesMap[a.owner.id]
     const bMatches = consequentMatchesMap[b.owner.id]
     if (aMatches === bMatches) {
@@ -205,8 +216,8 @@ export default function LotoPage() {
     chatMessages.chat_messages.length > 0 &&
     winners.length > 0
   ) {
-    const messagesFromWinners = chatMessages.chat_messages.filter((vote) =>
-      winners.some((w) => vote.user.id === w.owner.id)
+    const messagesFromWinners = chatMessages.chat_messages.filter((msg) =>
+      winners.some((w) => msg.user.id === w.owner.id)
     )
     if (messagesFromWinners.length > 0) {
       const currentMessagesIds = winnerMessages.map((m) => m.id)
@@ -257,7 +268,7 @@ export default function LotoPage() {
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Участники: {tickets.length}
+                Участники: {ticketsFromChat.length}
                 <Button
                   variant="contained"
                   color="primary"

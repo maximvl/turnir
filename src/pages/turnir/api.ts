@@ -42,11 +42,21 @@ export type ChatUser = {
   vk_fields?: VkUserFields
 }
 
+export type VkMention = {
+  id: number
+  displayName: string
+}
+
+type VkChatFields = {
+  mentions: VkMention[]
+}
+
 export type ChatMessage = {
   id: number
   ts: number
   message: string
   user: ChatUser
+  vk_fields?: VkChatFields
 }
 
 export type ChatMessagesResponse = {
