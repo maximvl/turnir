@@ -17,15 +17,9 @@ type Props = {
   ticket: Ticket
   matches: number[]
   isWinner?: boolean
-  isFromPoints?: boolean
 }
 
-export default function TicketBox({
-  ticket,
-  matches,
-  isWinner,
-  isFromPoints,
-}: Props) {
+export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const theme = useTheme()
 
   // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
@@ -98,7 +92,10 @@ export default function TicketBox({
           backgroundColor: ticket.color,
           backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
           backgroundSize: 'cover',
-          background: isFromPoints ? gradients[ticket.variant] : ticket.color,
+          background:
+            ticket.source === 'points'
+              ? gradients[ticket.variant]
+              : ticket.color,
         }}
         // width={'140px'}
         // height={'64px'}

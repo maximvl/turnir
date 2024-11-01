@@ -5,9 +5,10 @@ import { Ticket2 as Ticket } from './types'
 type Props = {
   owner: ChatUser
   drawOptions: string[]
+  source: 'chat' | 'points'
 }
 
-export function genTicket({ owner, drawOptions }: Props): Ticket {
+export function genTicket({ owner, drawOptions, source }: Props): Ticket {
   const value = sampleSize(drawOptions, 8)
   return {
     id: Math.random().toString(36).substring(2, 9),
@@ -20,6 +21,7 @@ export function genTicket({ owner, drawOptions }: Props): Ticket {
       '#0c5159', // dark green
     ]),
     variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
+    source,
   } as Ticket
 }
 

@@ -15,4 +15,5 @@ export type Ticket2 = {
   value: string[]
   color: string
   variant: number
+  source: 'chat' | 'points'
 }

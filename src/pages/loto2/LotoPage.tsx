@@ -96,7 +96,8 @@ export default function LotoPage() {
       )
       const newTicketsFromChat = getNewTickets(
         ticketsFromChat,
-        lotoMessagesFromUsers
+        lotoMessagesFromUsers,
+        'chat'
       )
       if (newTicketsFromChat.length > 0) {
         setLastTs(lastMsg.ts - 10)
@@ -117,7 +118,8 @@ export default function LotoPage() {
 
       const newTicketsFromPoints = getNewTickets(
         ticketsFromPoints,
-        lotoMessagesFromBot
+        lotoMessagesFromBot,
+        'points'
       )
       if (newTicketsFromPoints.length > 0) {
         setLastTs(lastMsg.ts - 10)
@@ -435,7 +437,11 @@ function drawNumber(next: string) {
 // Сделать отображения публичными: /rewardalert public
 // Сделать отображения приватными: /rewardalert private
 
-function getNewTickets(currentTickets: Ticket[], newMessages: ChatMessage[]) {
+function getNewTickets(
+  currentTickets: Ticket[],
+  newMessages: ChatMessage[],
+  source: 'chat' | 'points'
+) {
   const currentOwners = currentTickets.map((ticket) => ticket.owner.id)
 
   let newOwners: ChatUser[] = []
@@ -445,7 +451,7 @@ function getNewTickets(currentTickets: Ticket[], newMessages: ChatMessage[]) {
 
   if (newOwners.length > 0) {
     const newOwnersTickets = newOwners.map((owner) =>
-      genTicket({ owner, drawOptions: DrawingNumbers })
+      genTicket({ owner, drawOptions: DrawingNumbers, source })
     )
 
     const newOwnersTicketsFiltered = newOwnersTickets.filter(
