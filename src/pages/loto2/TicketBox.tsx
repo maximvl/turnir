@@ -17,9 +17,15 @@ type Props = {
   ticket: Ticket
   matches: number[]
   isWinner?: boolean
+  isFromPoints?: boolean
 }
 
-export default function TicketBox({ ticket, matches, isWinner }: Props) {
+export default function TicketBox({
+  ticket,
+  matches,
+  isWinner,
+  isFromPoints,
+}: Props) {
   const theme = useTheme()
 
   // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
@@ -70,6 +76,17 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const userColor =
     VkColorsMap[ticket.owner.vk_fields?.nickColor ?? -1] || 'white'
 
+  const gradients = [
+    'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
+    'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(255,165,0,1) 100%)',
+    'radial-gradient(circle, rgba(32,178,170,1) 0%, rgba(255,127,80,1) 100%)',
+    'radial-gradient(circle, rgba(75,0,130,1) 0%, rgba(64,224,208,1) 100%)',
+    'radial-gradient(circle, rgba(0,255,127,1) 0%, rgba(138,43,226,1) 100%)',
+    'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(128,0,128,1) 100%)',
+    'radial-gradient(circle, rgba(0,100,100,1) 0%, rgba(138,54,15,1) 100%)',
+    'radial-gradient(circle, rgba(139,0,0,1) 0%, rgba(204,85,0,1) 100%)',
+  ]
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -81,6 +98,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
           backgroundColor: ticket.color,
           backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
           backgroundSize: 'cover',
+          background: isFromPoints ? gradients[ticket.variant] : ticket.color,
         }}
         // width={'140px'}
         // height={'64px'}
@@ -101,7 +119,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
           alignItems={'center'}
           width={'fit-content'}
           style={{
-            backgroundColor: isAnime ? 'black' : ticket.color,
+            backgroundColor: '#333333',
           }}
           fontSize={'24px'}
         >

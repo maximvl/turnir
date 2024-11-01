@@ -375,33 +375,6 @@ export default function LotoPage() {
   )
 }
 
-function fillWithDashes(value: string) {
-  const maxSize = 5
-  if (value.length > maxSize) {
-    return value
-  }
-  return value + '-'.repeat(maxSize - value.length)
-}
-
-function getMatches(value: string[], filter: string[]) {
-  let matches: number[] = []
-  const filterCopy = [...filter]
-  for (const digit of value) {
-    const index = filterCopy.indexOf(digit)
-    if (index === -1) {
-      matches.push(0)
-      continue
-    }
-    matches.push(1)
-    filterCopy.splice(index, 1)
-  }
-  return matches
-}
-
-function generateTicket() {
-  return sampleSize(DrawingNumbers, 8)
-}
-
 function drawNumber(next: string) {
   DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
   // console.log('DrawingNumbers', DrawingNumbers)

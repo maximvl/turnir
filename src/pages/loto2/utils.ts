@@ -19,7 +19,7 @@ export function genTicket({ owner, drawOptions }: Props): Ticket {
       '#4a4857', // greyish
       '#0c5159', // dark green
     ]),
-    variant: sample([1, 2, 3, 4]),
+    variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
   } as Ticket
 }
 
