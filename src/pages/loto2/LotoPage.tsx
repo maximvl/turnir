@@ -99,7 +99,7 @@ export default function LotoPage() {
         lotoMessagesFromUsers
       )
       if (newTicketsFromChat.length > 0) {
-        setLastTs(lastMsg.ts)
+        setLastTs(lastMsg.ts - 10)
         setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
       }
 
@@ -120,7 +120,7 @@ export default function LotoPage() {
         lotoMessagesFromBot
       )
       if (newTicketsFromPoints.length > 0) {
-        setLastTs(lastMsg.ts)
+        setLastTs(lastMsg.ts - 10)
         setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
     }
@@ -244,7 +244,7 @@ export default function LotoPage() {
       )
       if (newMessages.length > 0) {
         setWinnerMessages([...winnerMessages, ...newMessages])
-        setLastTs(messagesFromWinners[messagesFromWinners.length - 1].ts)
+        setLastTs(messagesFromWinners[messagesFromWinners.length - 1].ts - 10)
       }
     }
   }
@@ -260,10 +260,10 @@ export default function LotoPage() {
         paddingLeft={'100px'}
         paddingRight={'100px'}
       >
-        <Box marginBottom={'200px'}>
+        <Box marginBottom={'200px'} width={'100%'}>
           {state === 'voting' && (
             <>
-              <Box position={'absolute'}>
+              <Box position="absolute">
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
