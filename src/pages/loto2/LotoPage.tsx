@@ -1,4 +1,10 @@
-import { Box, Button } from '@mui/material'
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+} from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
 import { sample, uniqBy } from 'lodash'
@@ -47,6 +53,9 @@ export default function LotoPage() {
   const nextNumberRef = useRef(nextNumber)
 
   const [showWinnerChat, setShowWinnerChat] = useState(false)
+
+  const [enableChatTickets, setEnableChatTickets] = useState(true)
+  const [enablePointsTickets, setEnablePointsTickets] = useState(true)
 
   const music = useContext(MusicContext)
 
@@ -134,18 +143,26 @@ export default function LotoPage() {
     }
   }, [nextDigitState, nextNumber])
 
+  let totalTickets: Ticket[] = []
+  if (enableChatTickets) {
+    totalTickets = [...totalTickets, ...ticketsFromChat]
+  }
+  if (enablePointsTickets) {
+    totalTickets = [...totalTickets, ...ticketsFromPoints]
+  }
+
   useEffect(() => {
-    document.title = `Лото - ${ticketsFromChat.length} участников`
-  }, [ticketsFromChat.length])
+    document.title = `Лото - ${totalTickets.length} участников`
+  }, [totalTickets.length])
 
   let matchesPerTicket: { [id: TicketId]: number[] } = {}
-  for (const ticket of ticketsFromChat) {
+  for (const ticket of totalTickets) {
     matchesPerTicket[ticket.id] = []
   }
 
   if (drawnNumbers.length > 0) {
     // for each ticket find matches with drawn numbers
-    for (const ticket of ticketsFromChat) {
+    for (const ticket of totalTickets) {
       const matches = ticket.value.map((number) =>
         drawnNumbers.includes(number) ? 1 : 0
       )
@@ -153,7 +170,7 @@ export default function LotoPage() {
     }
   }
 
-  const consequentMatchesPerTicket = ticketsFromChat.map((ticket) => {
+  const consequentMatchesPerTicket = totalTickets.map((ticket) => {
     const matches = matchesPerTicket[ticket.id]
     let maxConsequentMatches = 0
     let currentConsequentMatches = 0
@@ -179,7 +196,7 @@ export default function LotoPage() {
   )
 
   // order tickets by consequent matches then by total matches
-  const orderedTickets = [...ticketsFromChat].sort((a, b) => {
+  const orderedTickets = [...totalTickets].sort((a, b) => {
     const aMatches = consequentMatchesMap[a.id]
     const bMatches = consequentMatchesMap[b.id]
     if (aMatches === bMatches) {
@@ -246,6 +263,30 @@ export default function LotoPage() {
         <Box marginBottom={'200px'}>
           {state === 'voting' && (
             <>
+              <Box position={'absolute'}>
+                <FormGroup>
+                  <FormControlLabel
+                    label="Билеты с чата"
+                    control={
+                      <Checkbox
+                        checked={enableChatTickets}
+                        onChange={() => setEnableChatTickets((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
+                  <FormControlLabel
+                    label="Билеты с поинтов"
+                    control={
+                      <Checkbox
+                        checked={enablePointsTickets}
+                        onChange={() => setEnablePointsTickets((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
+                </FormGroup>
+              </Box>
               <Box
                 display={'flex'}
                 justifyContent={'center'}
@@ -268,7 +309,7 @@ export default function LotoPage() {
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Участники: {ticketsFromChat.length}
+                Участники: {totalTickets.length}
                 <Button
                   variant="contained"
                   color="primary"
