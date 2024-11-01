@@ -12,7 +12,9 @@ export default function ChatBox({ messages }: Props) {
       <Box
         style={{ backgroundColor: '#222222' }}
         height={'200px'}
-        // width={'500px'}
+        // width={'inherit'}
+        maxWidth={'360px'}
+        // width={'600px'}
         padding={'10px'}
         overflow={'auto'}
       >
