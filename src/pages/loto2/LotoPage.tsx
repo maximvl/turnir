@@ -15,6 +15,7 @@ import TicketBox from './TicketBox'
 import { Ticket2 as Ticket, TicketId } from './types'
 import ChatBox from './ChatBox'
 import { genTicket, NumberToFancyName } from './utils'
+import DrawnNumber from './DrawnNumber'
 
 const VOTES_REFETCH_INTERVAL = 2000
 
@@ -289,35 +290,43 @@ export default function LotoPage() {
                   </InfoPanel>
                 </Box>
                 {/* <span style={{ fontSize: '24px' }}>Номера:</span> */}
-                <Box
-                  display={'flex'}
-                  justifyContent={'center'}
-                  textAlign={'center'}
-                >
-                  <span
-                    style={{
-                      fontSize: '32px',
-                      marginLeft: '20px',
-                      fontFamily: 'monospace',
-                      width: '900px',
-                    }}
+                <Box display={'flex'} justifyContent={'center'}>
+                  <Box
+                    display={'flex'}
+                    justifyContent={'center'}
+                    textAlign={'center'}
+                    width={'900px'}
+                    flexWrap={'wrap'}
                   >
-                    {drawnNumbersText}
-                  </span>
+                    {drawnNumbers.map((value, index) => {
+                      const isFirst = index === 0
+                      return (
+                        <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
+                          <DrawnNumber value={value} />
+                        </Box>
+                      )
+                    })}
+                  </Box>
                 </Box>
               </Box>
               <Box textAlign={'center'}>
                 {(state === 'playing' || state === 'win') && (
-                  <Box
-                    fontSize={'48px'}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                    textAlign={'center'}
-                  >
-                    <span>{nextNumber}</span>
-                    {nextNumber.length === 0 && nextDigitState === 'idle' && (
-                      <Box marginTop={'40px'}></Box>
-                    )}
+                  <Box>
+                    <Box
+                      marginTop={'10px'}
+                      fontSize={'48px'}
+                      display={'flex'}
+                      alignItems={'center'}
+                      justifyContent={'center'}
+                      textAlign={'center'}
+                    >
+                      {nextNumber.length > 0 && (
+                        <DrawnNumber value={nextNumber} big />
+                      )}
+                      {nextNumber.length === 0 && (
+                        <Box marginTop={'40px'}></Box>
+                      )}
+                    </Box>
                     {nextNumberText && nextDigitState === 'idle' && (
                       <Box fontSize={'18px'}>{nextNumberText}</Box>
                     )}
