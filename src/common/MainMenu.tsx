@@ -32,14 +32,13 @@ export default function MainMenu({ title }: Props) {
   }
 
   return (
-    <Box>
+    <Box paddingTop={'20px'}>
       <Box
         sx={{
           textAlign: 'left',
           float: 'left',
           position: 'absolute',
           paddingLeft: 6,
-          paddingTop: 3,
           display: 'flex',
           justifyContent: 'space-between',
           width: '100%',
@@ -81,7 +80,6 @@ export default function MainMenu({ title }: Props) {
         style={{
           fontWeight: 'bold',
           fontSize: '2em',
-          margin: 20,
           textAlign: 'center',
         }}
       >

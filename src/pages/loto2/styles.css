@@ -1,0 +1,7 @@
+div.loto-page {
+  background-image: url('/public/dollar-pattern3.png');
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent color */
+  background-blend-mode: darken;
+  background-size: 400px 400px;
+  background-repeat: repeat;
+}

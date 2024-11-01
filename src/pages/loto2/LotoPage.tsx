@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
-import { sample, sampleSize, uniqBy } from 'lodash'
+import { sample, uniqBy } from 'lodash'
 import { fetchVotes, ChatMessage, ChatUser } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
@@ -11,6 +11,7 @@ import bingo2 from 'images/bingo2.gif'
 import bingo3 from 'images/bingo3.webp'
 import bingo4 from 'images/bingo4.webp'
 import { useQuery } from 'react-query'
+import './styles.css'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket, TicketId } from './types'
 import ChatBox from './ChatBox'
@@ -231,11 +232,10 @@ export default function LotoPage() {
     }
   }
 
-  const drawnNumbersText = drawnNumbers.join(' ')
   const nextNumberText = NumberToFancyName[nextNumber]
 
   return (
-    <Box onClick={startMusic}>
+    <Box onClick={startMusic} className="loto-page">
       <MainMenu title={'Лото 2.0 с чатом'} />
       <Box
         display="flex"
@@ -299,7 +299,6 @@ export default function LotoPage() {
                     flexWrap={'wrap'}
                   >
                     {drawnNumbers.map((value, index) => {
-                      const isFirst = index === 0
                       return (
                         <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
                           <DrawnNumber value={value} />
@@ -336,7 +335,7 @@ export default function LotoPage() {
                   <>
                     <Box marginBottom={'40px'} marginTop={'20px'}>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         onClick={() => setNextDigitState('roll_start')}
                         disabled={nextDigitState !== 'idle'}
                       >
@@ -346,7 +345,7 @@ export default function LotoPage() {
                   </>
                 )}
                 {state === 'win' && (
-                  <Box>
+                  <Box marginTop={'10px'}>
                     <img src={BingoImage} alt="bingo" width={'200px'} />
                   </Box>
                 )}
