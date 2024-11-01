@@ -4,4 +4,5 @@ div.loto-page {
   background-blend-mode: darken;
   background-size: 400px 400px;
   background-repeat: repeat;
+  min-height: 100vh;
 }
