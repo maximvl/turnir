@@ -8,7 +8,7 @@ import {
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
 import { sample, uniqBy } from 'lodash'
-import { fetchVotes, ChatMessage, ChatUser } from 'pages/turnir/api'
+import { fetchVotes, ChatMessage, ChatUser, VkMention } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -112,9 +112,11 @@ export default function LotoPage() {
       const lastMsg =
         chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
 
-      const lotoMessagesFromUsers = lotoMessages.filter(
-        (msg) => msg.user.username !== CHAT_BOT_NAME
-      )
+      const lotoMessagesFromUsers = lotoMessages
+        .filter((msg) => msg.user.username !== CHAT_BOT_NAME)
+        .map((msg) => {
+          return { user_id: msg.user.id, username: msg.user.username }
+        })
       const newTicketsFromChat = getNewTickets(
         ticketsFromChat,
         lotoMessagesFromUsers,
@@ -125,16 +127,17 @@ export default function LotoPage() {
         setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
       }
 
-      const lotoMessagesFromBotRow = lotoMessages.filter(
+      const lotoMessagesFromBotRaw = lotoMessages.filter(
         (msg) =>
           msg.user.username === CHAT_BOT_NAME &&
           msg.vk_fields &&
           msg.vk_fields.mentions.length > 0
       )
-      const lotoMessagesFromBot = lotoMessagesFromBotRow.map((msg) => {
-        msg.user.username = msg.vk_fields?.mentions[0].displayName as string
-        msg.user.id = msg.vk_fields?.mentions[0].id as number
-        return msg
+
+      const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
+        const mention = msg.vk_fields?.mentions[0] as VkMention
+        console.log('mention', mention)
+        return { user_id: mention.id, username: mention.displayName }
       })
 
       const newTicketsFromPoints = getNewTickets(
@@ -459,22 +462,27 @@ function drawNumber(next: string) {
 // Сделать отображения публичными: /rewardalert public
 // Сделать отображения приватными: /rewardalert private
 
+type UserInfo = {
+  user_id: number
+  username: string
+}
+
 function getNewTickets(
   currentTickets: Ticket[],
-  newMessages: ChatMessage[],
+  newMessages: UserInfo[],
   source: 'chat' | 'points'
 ) {
   const currentOwners = currentTickets.map((ticket) => ticket.owner_id)
 
-  let newOwners: ChatUser[] = []
-  newOwners = newMessages.map((msg) => msg.user)
-  newOwners = newOwners.filter((owner) => !currentOwners.includes(owner.id))
-  newOwners = uniqBy(newOwners, (owner) => owner.id)
+  let newOwners: UserInfo[] = newMessages.filter(
+    (owner) => !currentOwners.includes(owner.user_id)
+  )
+  newOwners = uniqBy(newOwners, (owner) => owner.user_id)
 
   if (newOwners.length > 0) {
     const newOwnersTickets = newOwners.map((owner) =>
       genTicket({
-        owner_id: owner.id,
+        owner_id: owner.user_id,
         owner_name: owner.username,
         drawOptions: DrawingNumbers,
         source,
