@@ -20,7 +20,7 @@ export default function DrawnNumber({ value, big }: Props) {
       style={{
         fontSize: big ? '42px' : '32px',
         fontFamily: 'monospace',
-        backgroundImage: `url(${wood})`,
+        backgroundColor: '#f4e1c7',
       }}
     >
       {value}
