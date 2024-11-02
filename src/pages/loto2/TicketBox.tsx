@@ -7,6 +7,7 @@ import { ReactComponent as TicketImg3 } from 'images/ticket3.svg'
 import { ReactComponent as TicketImg4 } from 'images/ticket4.svg'
 import AnimeBackground from 'images/sakura1.webp'
 import { VkColorsMap } from './utils'
+import { ChatUser } from 'pages/turnir/api'
 
 type MatchRange = {
   start: number
@@ -15,11 +16,12 @@ type MatchRange = {
 
 type Props = {
   ticket: Ticket
+  owner?: ChatUser
   matches: number[]
   isWinner?: boolean
 }
 
-export default function TicketBox({ ticket, matches, isWinner }: Props) {
+export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
   const theme = useTheme()
 
   // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
@@ -58,8 +60,8 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const highlightColor = theme.palette.error.main
   const winnerColor = theme.palette.warning.main
 
-  const badges = ticket.owner.vk_fields?.badges || []
-  const roles = ticket.owner.vk_fields?.roles || []
+  const badges = owner?.vk_fields?.badges || []
+  const roles = owner?.vk_fields?.roles || []
 
   const isAnime = roles.some((role) => role.name === 'Анимеёб')
 
@@ -67,8 +69,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
   const darkTextHighlight = '#800000'
   const darkTextWin = '#3C0753'
 
-  const userColor =
-    VkColorsMap[ticket.owner.vk_fields?.nickColor ?? -1] || 'white'
+  const userColor = VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || 'white'
 
   const gradients = [
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
@@ -154,7 +155,7 @@ export default function TicketBox({ ticket, matches, isWinner }: Props) {
               </Tooltip>
             )
           })}
-          <span style={{ color: userColor }}>{ticket.owner.username}</span>
+          <span style={{ color: userColor }}>{ticket.owner_name}</span>
         </Box>
         <Box
           fontSize={'24px'}

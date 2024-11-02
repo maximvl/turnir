@@ -42,6 +42,8 @@ export default function LotoPage() {
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
 
+  const [usersById, setUsersById] = useState<{ [key: number]: ChatUser }>({})
+
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
   const [nextNumber, setNextNumber] = useState<string>('')
@@ -87,6 +89,25 @@ export default function LotoPage() {
     const lotoMessages = chatMessages.chat_messages.filter((msg) =>
       msg.message.toLowerCase().includes(LOTO_MATCH)
     )
+    const messagesUsers = uniqBy(
+      lotoMessages.map((msg) => msg.user),
+      'id'
+    )
+    if (messagesUsers.length > 0) {
+      const newUsersById = messagesUsers.reduce(
+        (acc, user) => {
+          if (!usersById[user.id]) {
+            acc[user.id] = user
+          }
+          return acc
+        },
+        {} as { [key: number]: ChatUser }
+      )
+      if (Object.keys(newUsersById).length > 0) {
+        setUsersById((prev) => ({ ...prev, ...newUsersById }))
+      }
+    }
+
     if (lotoMessages.length > 0) {
       const lastMsg =
         chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
@@ -237,7 +258,7 @@ export default function LotoPage() {
     winners.length > 0
   ) {
     const messagesFromWinners = chatMessages.chat_messages.filter((msg) =>
-      winners.some((w) => msg.user.id === w.owner.id)
+      winners.some((w) => msg.user.id === w.owner_id)
     )
     if (messagesFromWinners.length > 0) {
       const currentMessagesIds = winnerMessages.map((m) => m.id)
@@ -405,6 +426,7 @@ export default function LotoPage() {
                     ticket={ticket}
                     matches={matchesPerTicket[ticket.id]}
                     isWinner={isWinner}
+                    owner={usersById[ticket.owner_id]}
                   />
                   {isWinner && (
                     <>
@@ -442,7 +464,7 @@ function getNewTickets(
   newMessages: ChatMessage[],
   source: 'chat' | 'points'
 ) {
-  const currentOwners = currentTickets.map((ticket) => ticket.owner.id)
+  const currentOwners = currentTickets.map((ticket) => ticket.owner_id)
 
   let newOwners: ChatUser[] = []
   newOwners = newMessages.map((msg) => msg.user)
@@ -451,7 +473,12 @@ function getNewTickets(
 
   if (newOwners.length > 0) {
     const newOwnersTickets = newOwners.map((owner) =>
-      genTicket({ owner, drawOptions: DrawingNumbers, source })
+      genTicket({
+        owner_id: owner.id,
+        owner_name: owner.username,
+        drawOptions: DrawingNumbers,
+        source,
+      })
     )
 
     const newOwnersTicketsFiltered = newOwnersTickets.filter(

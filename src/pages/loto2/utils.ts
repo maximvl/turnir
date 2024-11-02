@@ -1,18 +1,24 @@
 import { sample, sampleSize } from 'lodash'
-import { ChatUser } from 'pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
 type Props = {
-  owner: ChatUser
+  owner_id: number
+  owner_name: string
   drawOptions: string[]
   source: 'chat' | 'points'
 }
 
-export function genTicket({ owner, drawOptions, source }: Props): Ticket {
+export function genTicket({
+  owner_id,
+  owner_name,
+  drawOptions,
+  source,
+}: Props): Ticket {
   const value = sampleSize(drawOptions, 8)
   return {
     id: Math.random().toString(36).substring(2, 9),
-    owner,
+    owner_id,
+    owner_name,
     value,
     color: sample([
       '#634f5f', // dark red
