@@ -91,7 +91,7 @@ export default function LotoPage() {
     )
     const messagesUsers = uniqBy(
       lotoMessages.map((msg) => msg.user),
-      'id'
+      (user) => user.id
     )
     if (messagesUsers.length > 0) {
       const newUsersById = messagesUsers.reduce(
