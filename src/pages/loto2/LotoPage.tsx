@@ -136,7 +136,6 @@ export default function LotoPage() {
 
       const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
-        console.log('mention', mention)
         return { user_id: mention.id, username: mention.displayName }
       })
 
