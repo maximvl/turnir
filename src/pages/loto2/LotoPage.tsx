@@ -108,10 +108,11 @@ export default function LotoPage() {
       }
     }
 
-    if (lotoMessages.length > 0) {
-      const lastMsg =
-        chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
+    const lastMsg =
+      chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
+    setLastTs(lastMsg.ts - 10)
 
+    if (lotoMessages.length > 0) {
       const lotoMessagesFromUsers = lotoMessages
         .filter((msg) => msg.user.username !== CHAT_BOT_NAME)
         .map((msg) => {
@@ -123,7 +124,6 @@ export default function LotoPage() {
         'chat'
       )
       if (newTicketsFromChat.length > 0) {
-        setLastTs(lastMsg.ts - 10)
         setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
       }
 
@@ -145,7 +145,6 @@ export default function LotoPage() {
         'points'
       )
       if (newTicketsFromPoints.length > 0) {
-        setLastTs(lastMsg.ts - 10)
         setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
     }
