@@ -110,7 +110,10 @@ export default function LotoPage() {
 
     const lastMsg =
       chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
-    setLastTs(lastMsg.ts - 10)
+
+    if (lastMsg.ts > lastTs + 60) {
+      setLastTs(lastMsg.ts - 60)
+    }
 
     if (lotoMessages.length > 0) {
       const lotoMessagesFromUsers = lotoMessages
