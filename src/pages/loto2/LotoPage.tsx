@@ -42,7 +42,9 @@ export default function LotoPage() {
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
 
-  const [usersById, setUsersById] = useState<{ [key: number]: ChatUser }>({})
+  const [allUsersById, setAllUsersById] = useState<{ [key: number]: ChatUser }>(
+    {}
+  )
 
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
@@ -58,6 +60,7 @@ export default function LotoPage() {
 
   const [enableChatTickets, setEnableChatTickets] = useState(true)
   const [enablePointsTickets, setEnablePointsTickets] = useState(true)
+  const [onlySubscribers, setOnlySubscribers] = useState(false)
 
   const music = useContext(MusicContext)
 
@@ -66,6 +69,19 @@ export default function LotoPage() {
       music.setMusicPlaying(MusicType.Loto)
     }
   }
+
+  const participatingUserIds = Object.values(allUsersById)
+    .filter((user) => {
+      if (onlySubscribers) {
+        const badges = user.vk_fields?.badges || []
+        const subBadges = badges.filter(
+          (badge) => badge.achievement.type === 'subscription'
+        )
+        return subBadges.length > 0
+      }
+      return true
+    })
+    .map((user) => user.id)
 
   const { data: chatMessages } = useQuery(
     ['loto', 0, lastTs],
@@ -93,7 +109,7 @@ export default function LotoPage() {
     if (messagesUsers.length > 0) {
       const newUsersById = messagesUsers.reduce(
         (acc, user) => {
-          if (!usersById[user.id]) {
+          if (!allUsersById[user.id]) {
             acc[user.id] = user
           }
           return acc
@@ -101,7 +117,7 @@ export default function LotoPage() {
         {} as { [key: number]: ChatUser }
       )
       if (Object.keys(newUsersById).length > 0) {
-        setUsersById((prev) => ({ ...prev, ...newUsersById }))
+        setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
       }
     }
 
@@ -122,6 +138,7 @@ export default function LotoPage() {
         .map((msg) => {
           return { user_id: msg.user.id, username: msg.user.username }
         })
+
       const newTicketsFromChat = getNewTickets(
         ticketsFromChat,
         lotoMessagesFromUsers,
@@ -178,6 +195,10 @@ export default function LotoPage() {
   if (enablePointsTickets) {
     totalTickets = [...totalTickets, ...ticketsFromPoints]
   }
+
+  totalTickets = totalTickets.filter((ticket) =>
+    participatingUserIds.includes(ticket.owner_id)
+  )
 
   useEffect(() => {
     document.title = `Лото - ${totalTickets.length} участников`
@@ -313,6 +334,16 @@ export default function LotoPage() {
                       />
                     }
                   />
+                  <FormControlLabel
+                    label="Только для САБОВ"
+                    control={
+                      <Checkbox
+                        checked={onlySubscribers}
+                        onChange={() => setOnlySubscribers((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
                 </FormGroup>
               </Box>
               <Box
@@ -431,7 +462,7 @@ export default function LotoPage() {
                     ticket={ticket}
                     matches={matchesPerTicket[ticket.id]}
                     isWinner={isWinner}
-                    owner={usersById[ticket.owner_id]}
+                    owner={allUsersById[ticket.owner_id]}
                   />
                   {isWinner && (
                     <>
