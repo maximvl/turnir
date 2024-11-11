@@ -6,6 +6,7 @@ import { fetchVotes, ChatMessage } from 'pages/turnir/api'
 
 type Props = {
   items: Item[]
+  subscriberOnly: boolean
 }
 
 type VotesDict = {
@@ -16,7 +17,7 @@ type VotingState = 'initial' | 'voting' | 'finished'
 
 const VOTES_REFETCH_INTERVAL = 2000
 
-export default function useChatVoting({ items }: Props) {
+export default function useChatVoting({ items, subscriberOnly }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({})
   const [voteMessages, setVoteMessages] = useState<ChatMessage[]>([])
 
@@ -64,6 +65,15 @@ export default function useChatVoting({ items }: Props) {
     for (const vote of votesSorted) {
       if (!itemIds.has(vote.message)) {
         continue
+      }
+      if (subscriberOnly) {
+        const userBadges = vote.user.vk_fields?.badges || []
+        const subscriberBadges = userBadges.filter(
+          (badge) => badge.achievemnt.type === 'subscription'
+        )
+        if (subscriberBadges.length === 0) {
+          continue
+        }
       }
       votesPerUser[vote.user.id] = vote
     }

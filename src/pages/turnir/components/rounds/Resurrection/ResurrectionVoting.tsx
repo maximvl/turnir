@@ -11,6 +11,7 @@ import VotesLog from '../ViewerChoice/VotesLog'
 type Props = {
   items: Item[]
   onItemElimination: (itemId: string) => void
+  subscriberOnly: boolean
 }
 
 type State = 'voting' | 'show_results'
@@ -26,6 +27,7 @@ const voteFormatter = (
 export default function ResurrectionVoting({
   items,
   onItemElimination,
+  subscriberOnly,
 }: Props) {
   const {
     setState: setVotingState,
@@ -33,7 +35,7 @@ export default function ResurrectionVoting({
     voteMessages,
     error,
     isLoading,
-  } = useChatVoting({ items })
+  } = useChatVoting({ items, subscriberOnly })
 
   const { setMusicPlaying } = useContext(MusicContext)
   const [state, setState] = useState<State>('voting')

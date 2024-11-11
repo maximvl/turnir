@@ -12,6 +12,7 @@ import { ChatMessage } from 'pages/turnir/api'
 type Props = {
   items: Item[]
   onItemElimination: (id: string) => void
+  subscriberOnly: boolean
 }
 
 type State = 'voting' | 'streamer_choice' | 'show_results'
@@ -24,14 +25,18 @@ const voteFormatter = (
   return `${formattedTime}: ${vote.user.username} голосует ${vote.message} (${optionName})`
 }
 
-export default function ClosestVotesRound({ items, onItemElimination }: Props) {
+export default function ClosestVotesRound({
+  items,
+  onItemElimination,
+  subscriberOnly,
+}: Props) {
   const {
     setState: setVotingState,
     votesMap,
     voteMessages,
     error,
     isLoading,
-  } = useChatVoting({ items })
+  } = useChatVoting({ items, subscriberOnly })
   const { setMusicPlaying } = useContext(MusicContext)
 
   const [state, setState] = useState<State>('voting')

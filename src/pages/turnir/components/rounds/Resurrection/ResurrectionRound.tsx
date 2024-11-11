@@ -13,6 +13,7 @@ type Props = {
   activeItems: Item[]
   eliminatedItems: Item[]
   onItemResurrection: (id: string, eliminationId?: string) => void
+  subscriberOnly: boolean
 }
 
 type State = 'initial' | 'random' | 'voting'
@@ -21,6 +22,7 @@ export default function ResurrectionRound({
   activeItems,
   eliminatedItems,
   onItemResurrection,
+  subscriberOnly,
 }: Props) {
   const [state, setState] = useState<State>('initial')
   const { setMusicPlaying } = useContext(MusicContext)
@@ -75,6 +77,7 @@ export default function ResurrectionRound({
           <ResurrectionVoting
             items={eliminatedItems}
             onItemElimination={(id) => onItemResurrection(id)}
+            subscriberOnly={subscriberOnly}
           />
         </Box>
       )}

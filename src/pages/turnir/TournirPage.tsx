@@ -41,6 +41,8 @@ function TournirApp() {
   const [title, setTitle] = useState('')
   const [roundId, setRoundId] = useState(0)
 
+  const [subscriberOnly, setSubscriberOnly] = useState(false)
+
   const { id: presetId } = useParams()
   const loadPreset = async (presetId: string) => {
     const preset = await fetchPreset(presetId).catch((e) => ({
@@ -466,7 +468,7 @@ function TournirApp() {
                 item
                 xs={2}
                 borderBottom={0.5}
-                paddingTop={2}
+                paddingTop={1}
                 paddingLeft={2}
                 borderLeft={0.5}
                 borderColor="grey.700"
@@ -482,6 +484,19 @@ function TournirApp() {
                       />
                     }
                     label={'Антиповтор раундов'}
+                  />
+                </Tooltip>
+                <Tooltip title="Только сабы будут учитываться в голосованиях">
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        disabled={!canEditItems}
+                        checked={subscriberOnly}
+                        style={{ paddingTop: 0, paddingBottom: 0 }}
+                        onChange={() => setSubscriberOnly(!subscriberOnly)}
+                      />
+                    }
+                    label={'Только для САБОВ'}
                   />
                 </Tooltip>
               </Grid>
@@ -631,6 +646,7 @@ function TournirApp() {
                   onIteamDeal={onItemDeal}
                   dealItem={dealItem}
                   onDealReturn={onDealReturn}
+                  subscriberOnly={subscriberOnly}
                 />
               </Box>
             </Grid>

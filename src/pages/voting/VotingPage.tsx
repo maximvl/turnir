@@ -170,6 +170,7 @@ export default function VotingPage() {
               items={activeItems}
               onItemElimination={onItemChoice}
               logFormatter={logFormatter}
+              subscriberOnly={false}
             />
           )}
         </Grid>

@@ -16,15 +16,17 @@ type Props = {
     formattedTime: string,
     optionTitle: string
   ) => string
+  subscriberOnly: boolean
 }
 
 export default function ViewerChoiceRound({
   items,
   onItemElimination,
   logFormatter,
+  subscriberOnly,
 }: Props) {
   const { votesMap, voteMessages, state, setState, error, isLoading } =
-    useChatVoting({ items })
+    useChatVoting({ items, subscriberOnly })
 
   const { setMusicPlaying } = useContext(MusicContext)
 
