@@ -32,7 +32,7 @@ export default function MainMenu({ title }: Props) {
   }
 
   return (
-    <Box paddingTop={'20px'}>
+    <Box marginTop={'10px'}>
       <Box
         sx={{
           textAlign: 'left',
@@ -77,6 +77,7 @@ export default function MainMenu({ title }: Props) {
         display="flex"
         justifyContent="center"
         alignItems="center"
+        marginBottom={'10px'}
         style={{
           fontWeight: 'bold',
           fontSize: '2em',
