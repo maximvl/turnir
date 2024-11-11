@@ -69,7 +69,7 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
       if (subscriberOnly) {
         const userBadges = vote.user.vk_fields?.badges || []
         const subscriberBadges = userBadges.filter(
-          (badge) => badge.achievemnt.type === 'subscription'
+          (badge) => badge.achievement.type === 'subscription'
         )
         if (subscriberBadges.length === 0) {
           continue

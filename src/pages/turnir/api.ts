@@ -1,4 +1,4 @@
-import { random } from 'lodash'
+import { random, sample } from 'lodash'
 import { ItemStatus, Item } from './types'
 
 const MOCK_API = process.env.NODE_ENV === 'development'
@@ -25,7 +25,7 @@ type VkUserBadge = {
   id: string
   name: string
   largeUrl: string
-  achievemnt: VkUserBadgeAchievement
+  achievement: VkUserBadgeAchievement
 }
 
 type VkUserFields = {
@@ -79,9 +79,9 @@ export async function fetchVotes({
         name: 'Топ 1',
         largeUrl:
           'https://images.live.vkplay.ru/badge/232c3913-274a-4c02-8d23-6576f7d48e98/icon/size/large?change_time=1691761874',
-        achievemnt: {
+        achievement: {
           name: 'Топ 1',
-          type: 'top1',
+          type: 's',
         },
       }
     }
@@ -90,7 +90,7 @@ export async function fetchVotes({
       const user_id = random(1, 100)
       return {
         id: 93152579,
-        message: '+лото',
+        message: sample(['1', '2', '3', '4', '5']),
         ts: Math.round(new Date().getTime() / 1000),
         user: {
           id: user_id,
@@ -105,7 +105,38 @@ export async function fetchVotes({
         },
       }
     }
+
+    const makeBotMessage = () => {
+      const user_id = random(1, 100)
+      return {
+        id: 93152579,
+        message: 'получил награду лото',
+        ts: Math.round(new Date().getTime() / 1000),
+        user: {
+          id: 0,
+          username: 'ChatBot',
+        },
+        vk_fields: {
+          mentions: [{ id: 5, displayName: user_id.toString() }],
+        },
+      }
+    }
+
+    const makeGameMessage = () => {
+      const user_id = random(1, 100)
+      return {
+        id: 93152579,
+        message: '+игра',
+        ts: Math.round(new Date().getTime() / 1000),
+        user: {
+          id: user_id,
+          username: `Player-${user_id}`,
+        },
+      }
+    }
+
     const messages: ChatMessage[] = Array.from({ length: 10 }, makeMessage)
+    const gameMessages = [makeGameMessage(), makeGameMessage()]
     return { chat_messages: messages }
   }
 
