@@ -71,7 +71,7 @@ export default function LotoPage() {
     ['loto', 0, lastTs],
     ({ queryKey }) => {
       if (state === 'voting') {
-        return fetchVotes({ ts: queryKey[2] as number, textFilter: LOTO_MATCH })
+        return fetchVotes({ ts: queryKey[2] as number })
       }
       return fetchVotes({ ts: queryKey[2] as number })
     },
@@ -86,11 +86,8 @@ export default function LotoPage() {
     chatMessages?.chat_messages &&
     chatMessages.chat_messages.length > 0
   ) {
-    const lotoMessages = chatMessages.chat_messages.filter((msg) =>
-      msg.message.toLowerCase().includes(LOTO_MATCH)
-    )
     const messagesUsers = uniqBy(
-      lotoMessages.map((msg) => msg.user),
+      chatMessages.chat_messages.map((msg) => msg.user),
       (user) => user.id
     )
     if (messagesUsers.length > 0) {
@@ -114,6 +111,10 @@ export default function LotoPage() {
     if (lastMsg.ts > lastTs + 60) {
       setLastTs(lastMsg.ts - 60)
     }
+
+    const lotoMessages = chatMessages.chat_messages.filter((msg) =>
+      msg.message.toLowerCase().includes(LOTO_MATCH)
+    )
 
     if (lotoMessages.length > 0) {
       const lotoMessagesFromUsers = lotoMessages
