@@ -31,6 +31,11 @@ export default function MainMenu({ title }: Props) {
     navigate('/loto2')
   }
 
+  const openChatOptionsPage = () => {
+    music.setMusicPlaying(undefined)
+    navigate('/chatOptions')
+  }
+
   return (
     <Box marginTop={'10px'}>
       <Box
@@ -49,6 +54,7 @@ export default function MainMenu({ title }: Props) {
           <Button onClick={openTurnirPage}>Турнир</Button>
           <Button onClick={openVotingPage}>Голосование</Button>
           <Button onClick={openLotoPage}>Лото 2.0</Button>
+          <Button onClick={openChatOptionsPage}>Варианты чата</Button>
         </Box>
         <Box display="flex" marginRight={'30px'}>
           <Box display="flex" alignItems="flex-end" width="220px">

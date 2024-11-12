@@ -21,7 +21,7 @@ import './styles.css'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket, TicketId } from './types'
 import ChatBox from './ChatBox'
-import { genTicket, NumberToFancyName } from './utils'
+import { genTicket, isUserSubscriber, NumberToFancyName } from './utils'
 import DrawnNumber from './DrawnNumber'
 
 const VOTES_REFETCH_INTERVAL = 2000
@@ -73,11 +73,7 @@ export default function LotoPage() {
   const participatingUserIds = Object.values(allUsersById)
     .filter((user) => {
       if (onlySubscribers) {
-        const badges = user.vk_fields?.badges || []
-        const subBadges = badges.filter(
-          (badge) => badge.achievement.type === 'subscription'
-        )
-        return subBadges.length > 0
+        return isUserSubscriber(user)
       }
       return true
     })

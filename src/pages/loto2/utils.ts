@@ -1,4 +1,5 @@
 import { sample, sampleSize } from 'lodash'
+import { ChatUser } from 'pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
 type Props = {
@@ -93,4 +94,12 @@ export const VkColorsMap: { [key: number]: string } = {
   13: '#8BA259',
   14: '#00A9FF',
   15: '#A20BFF',
+}
+
+export function isUserSubscriber(user: ChatUser) {
+  const badges = user.vk_fields?.badges || []
+  const subBadges = badges.filter(
+    (badge) => badge.achievement.type === 'subscription'
+  )
+  return subBadges.length > 0
 }

@@ -11,6 +11,7 @@ import LotoPage from 'pages/loto/LotoPage'
 import LotoPage2 from 'pages/loto2/LotoPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import GamePage from 'pages/game/GamePage'
+import ChatOptionsPage from 'pages/chatOptions/ChatOptionsPage'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path: '/game',
     element: <GamePage />,
+  },
+  {
+    path: '/chatOptions',
+    element: <ChatOptionsPage />,
   },
 ])
 
