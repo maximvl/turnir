@@ -89,7 +89,12 @@ export default function ChatOptionsPage() {
             Можно менять вариант
           </InfoPanel>
 
-          <Box textAlign="left" width={'400px'} marginTop={'20px'}>
+          <Box
+            textAlign="left"
+            width={'400px'}
+            marginTop={'20px'}
+            style={{ backgroundColor: '#222222' }}
+          >
             {filteredOptinos.map((option, index) => {
               const color = VkColorsMap[option.user.vk_fields?.nickColor || 0]
               const badges = option.user.vk_fields?.badges || []
@@ -99,10 +104,11 @@ export default function ChatOptionsPage() {
                   marginBottom={'5px'}
                   alignItems={'center'}
                   display={'flex'}
-                  fontSize={'24'}
+                  fontSize={'24px'}
+                  whiteSpace="nowrap"
                 >
-                  {option.text}
-                  &nbsp;{'-'}&nbsp;
+                  <span style={{ marginRight: '4px' }}>{option.text}</span>
+                  <span style={{ marginRight: '4px' }}>-</span>
                   <span style={{ color }}>{option.user.username}</span>
                   {badges.map((badge, index) => (
                     <Tooltip title={badge.name} placement="top" key={index}>

@@ -90,7 +90,7 @@ export async function fetchVotes({
       const user_id = random(1, 100)
       return {
         id: 93152579,
-        message: sample(['1', '2', '3', '4', '5']),
+        message: sample(['+лото']),
         ts: Math.round(new Date().getTime() / 1000),
         user: {
           id: user_id,
@@ -135,9 +135,23 @@ export async function fetchVotes({
       }
     }
 
-    const messages: ChatMessage[] = Array.from({ length: 10 }, makeMessage)
+    const makeSuperGameMessage = () => {
+      const user_id = 13
+      return {
+        id: 93152579111,
+        message: '+супер 8 17 23 41 99',
+        ts: Math.round(new Date().getTime() / 1000),
+        user: {
+          id: user_id,
+          username: `Player-${user_id}`,
+        },
+      }
+    }
+
+    const messages: ChatMessage[] = Array.from({ length: 20 }, makeMessage)
     const gameMessages = [makeGameMessage(), makeGameMessage()]
-    return { chat_messages: messages }
+    // return { chat_messages: messages }
+    return { chat_messages: [makeSuperGameMessage()] }
   }
 
   const params = new URLSearchParams()

@@ -19,7 +19,7 @@ import bingo4 from 'images/bingo4.webp'
 import { useQuery } from 'react-query'
 import './styles.css'
 import TicketBox from './TicketBox'
-import { Ticket2 as Ticket, TicketId } from './types'
+import { Ticket2 as Ticket, Ticket2, TicketId } from './types'
 import ChatBox from './ChatBox'
 import { genTicket, isUserSubscriber, NumberToFancyName } from './utils'
 import DrawnNumber from './DrawnNumber'
@@ -30,17 +30,26 @@ const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
 
 // numbers from 01 to 99
-const DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
-  (i + 1).toString().padStart(2, '0')
-)
+let DrawingNumbers: string[] = []
+function resetDrawingNumbers() {
+  DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
+    (i + 1).toString().padStart(2, '0')
+  )
+}
+resetDrawingNumbers()
 
 const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 export default function LotoPage() {
-  const [state, setState] = useState<'voting' | 'playing' | 'win'>('voting')
+  const [state, setState] = useState<
+    'voting' | 'playing' | 'win' | 'super_game'
+  >('voting')
   const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
   const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
+
+  const [superGameGuesses, setSuperGameGuesses] = useState<string[]>([])
+  const [superGameDraws, setSuperGameDraws] = useState<string[]>([])
 
   const [allUsersById, setAllUsersById] = useState<{ [key: number]: ChatUser }>(
     {}
@@ -179,10 +188,15 @@ export default function LotoPage() {
         clearInterval(interval)
         setNextDigitState('idle')
         drawNumber(nextNumberRef.current)
-        setDrawnNumbers((prev) => [...prev, nextNumberRef.current])
+        if (state === 'playing') {
+          setDrawnNumbers((prev) => [...prev, nextNumberRef.current])
+        }
+        if (state === 'super_game') {
+          setSuperGameDraws((prev) => [...prev, nextNumberRef.current])
+        }
       }, 3000)
     }
-  }, [nextDigitState, nextNumber])
+  }, [nextDigitState, nextNumber, state])
 
   let totalTickets: Ticket[] = []
   if (enableChatTickets) {
@@ -271,7 +285,9 @@ export default function LotoPage() {
     }
   }, [state])
 
-  const winners = state === 'win' ? ticketsWithHighestMatches : []
+  const winners = ['win', 'super_game'].includes(state)
+    ? ticketsWithHighestMatches
+    : []
 
   if (
     state === 'win' &&
@@ -290,9 +306,59 @@ export default function LotoPage() {
       if (newMessages.length > 0) {
         setWinnerMessages([...winnerMessages, ...newMessages])
         setLastTs(messagesFromWinners[messagesFromWinners.length - 1].ts - 10)
+
+        const superGameMessages = newMessages.filter(
+          (msg) =>
+            msg.message.toLowerCase().startsWith('+супер') &&
+            msg.message.match(/(\d{1,2}\s){4}\d{1,2}/)
+        )
+
+        if (superGameMessages.length > 0) {
+          const trimmed = superGameMessages[0].message.trim()
+          const superGameGuesses = trimmed
+            .split(' ')
+            .slice(1)
+            .map((n) => parseInt(n))
+            .filter((n) => n > 0 && n < 100)
+            .map((n) => {
+              if (n < 10) {
+                return `0${n}`
+              }
+              return n.toString()
+            })
+
+          const limitedGuess = superGameGuesses.slice(0, 5)
+
+          setState('super_game')
+          setSuperGameGuesses(limitedGuess)
+          resetDrawingNumbers()
+          setNextNumber('')
+          // scroll to the top smoothly
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+          })
+        }
       }
     }
   }
+
+  let superGameMatches: number[] = []
+  let superGameTicket: Ticket2 | null = null
+  let superGameMatchesCount = 0
+  if (state === 'super_game') {
+    superGameTicket = {
+      ...winners[0],
+      value: superGameGuesses,
+    }
+    superGameMatches = superGameTicket.value.map((number) =>
+      superGameDraws.includes(number) ? 1 : 0
+    )
+    superGameMatchesCount = superGameMatches.reduce((acc, val) => acc + val, 0)
+  }
+
+  const super_game_finished =
+    state === 'super_game' && superGameDraws.length === 5
 
   const nextNumberText = NumberToFancyName[nextNumber]
 
@@ -443,8 +509,113 @@ export default function LotoPage() {
                 {state === 'win' && (
                   <Box marginTop={'10px'}>
                     <img src={BingoImage} alt="bingo" width={'200px'} />
+                    <Box
+                      textAlign="center"
+                      display="flex"
+                      justifyContent="center"
+                    >
+                      <InfoPanel>
+                        Чтобы сыграть в СУПЕР-ИГРУ напиши в чат
+                        <br />
+                        +супер {'<пять чисел через пробел>'}
+                        <br />
+                        Например: +супер 31 4 76 38 95
+                      </InfoPanel>
+                    </Box>
                   </Box>
                 )}
+              </Box>
+            </Box>
+          )}
+
+          {state === 'super_game' && superGameTicket && (
+            <Box display="flex" justifyContent="center">
+              <Box>
+                <Box
+                  fontSize={'48px'}
+                  marginBottom={'20px'}
+                  textAlign={'center'}
+                >
+                  Супер Игра с {superGameTicket.owner_name}
+                </Box>
+                <Box
+                  display={'flex'}
+                  justifyContent={'center'}
+                  textAlign={'center'}
+                  width={'900px'}
+                  flexWrap={'wrap'}
+                >
+                  {superGameDraws.map((value, index) => {
+                    return (
+                      <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
+                        <DrawnNumber value={value} />
+                      </Box>
+                    )
+                  })}
+                </Box>
+                <Box marginBottom={'30px'}>
+                  <Box
+                    marginTop={'10px'}
+                    fontSize={'48px'}
+                    display={'flex'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    textAlign={'center'}
+                  >
+                    {nextNumber.length > 0 && (
+                      <DrawnNumber value={nextNumber} big />
+                    )}
+                    {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
+                  </Box>
+                  {nextNumberText && nextDigitState === 'idle' && (
+                    <Box fontSize={'18px'} textAlign={'center'}>
+                      {nextNumberText}
+                    </Box>
+                  )}
+                </Box>
+                {!super_game_finished && (
+                  <Box
+                    marginBottom={'40px'}
+                    marginTop={'20px'}
+                    textAlign={'center'}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => setNextDigitState('roll_start')}
+                      disabled={nextDigitState !== 'idle'}
+                    >
+                      Следующее число
+                    </Button>
+                  </Box>
+                )}
+                {super_game_finished && (
+                  <Box
+                    marginBottom={'40px'}
+                    marginTop={'20px'}
+                    textAlign={'center'}
+                    fontSize={'32px'}
+                  >
+                    {superGameMatchesCount > 0 ? (
+                      <Box>
+                        {superGameTicket.owner_name} угадывает{' '}
+                        {superGameMatchesCount}!
+                      </Box>
+                    ) : (
+                      <Box>{superGameTicket.owner_name} проигрывает!</Box>
+                    )}
+                  </Box>
+                )}
+                <Box
+                  marginBottom={'200px'}
+                  display={'flex'}
+                  justifyContent={'center'}
+                >
+                  <TicketBox
+                    ticket={superGameTicket}
+                    matches={superGameMatches}
+                    owner={allUsersById[superGameTicket.owner_id]}
+                  />
+                </Box>
               </Box>
             </Box>
           )}
