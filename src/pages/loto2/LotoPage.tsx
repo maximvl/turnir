@@ -532,6 +532,16 @@ export default function LotoPage() {
             <Box display="flex" justifyContent="center">
               <Box>
                 <Box
+                  textAlign={'center'}
+                  display="flex"
+                  justifyContent="center"
+                >
+                  <InfoPanel>
+                    Угадай любое 5 чисел
+                    <br /> И получи супер-приз!
+                  </InfoPanel>
+                </Box>
+                <Box
                   fontSize={'48px'}
                   marginBottom={'20px'}
                   textAlign={'center'}
