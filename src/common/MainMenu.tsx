@@ -37,7 +37,7 @@ export default function MainMenu({ title }: Props) {
   }
 
   return (
-    <Box marginTop={'10px'}>
+    <Box paddingTop={'10px'}>
       <Box
         marginTop={'10px'}
         sx={{
