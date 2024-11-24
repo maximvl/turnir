@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import { MusicContext } from 'common/hooks/MusicContext'
 import MainMenu from 'common/MainMenu'
-import { sample, uniqBy } from 'lodash'
+import { sample, uniq, uniqBy } from 'lodash'
 import { fetchVotes, ChatMessage, ChatUser, VkMention } from 'pages/turnir/api'
 import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from 'pages/turnir/types'
@@ -319,17 +319,18 @@ export default function LotoPage() {
 
         if (superGameMessages.length > 0) {
           const trimmed = superGameMessages[0].message.trim()
-          const superGameGuesses = trimmed
-            .split(' ')
-            .slice(1)
-            .map((n) => parseInt(n))
-            .filter((n) => n > 0 && n < 100)
-            .map((n) => {
-              if (n < 10) {
-                return `0${n}`
-              }
-              return n.toString()
-            })
+          const superGameGuesses = uniq(
+            trimmed
+              .split(' ')
+              .map((n) => parseInt(n))
+              .filter((n) => n > 0 && n < 100)
+              .map((n) => {
+                if (n < 10) {
+                  return `0${n}`
+                }
+                return n.toString()
+              })
+          )
 
           const limitedGuess = superGameGuesses.slice(0, 5)
 

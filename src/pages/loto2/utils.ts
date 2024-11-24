@@ -1,4 +1,4 @@
-import { sample, sampleSize } from 'lodash'
+import { sample, sampleSize, uniq } from 'lodash'
 import { ChatUser } from 'pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
@@ -17,11 +17,7 @@ export function genTicket({
   source,
   text,
 }: Props): Ticket {
-  let value = sampleSize(drawOptions, 8)
-  const ticketValue = parseTicketMessage(drawOptions, text)
-  if (ticketValue) {
-    value = ticketValue
-  }
+  const value = genTicketNumber(drawOptions, text)
   return {
     id: Math.random().toString(36).substring(2, 9),
     owner_id,
@@ -38,9 +34,9 @@ export function genTicket({
   } as Ticket
 }
 
-function parseTicketMessage(drawOptions: string[], text?: string) {
+function genTicketNumber(drawOptions: string[], text?: string) {
   if (!text) {
-    return null
+    return sampleSize(drawOptions, 8)
   }
 
   // const regex = /(?:\b\d{1,2}\b\s*){8}/
@@ -50,16 +46,18 @@ function parseTicketMessage(drawOptions: string[], text?: string) {
   // }
 
   const trimmed = text.trim()
-  const ticket = trimmed
-    .split(' ')
-    .map((n) => parseInt(n))
-    .filter((n) => n > 0 && n < 100)
-    .map((n) => {
-      if (n < 10) {
-        return `0${n}`
-      }
-      return n.toString()
-    })
+  const ticket = uniq(
+    trimmed
+      .split(' ')
+      .map((n) => parseInt(n))
+      .filter((n) => n > 0 && n < 100)
+      .map((n) => {
+        if (n < 10) {
+          return `0${n}`
+        }
+        return n.toString()
+      })
+  )
 
   if (ticket.length < 8) {
     // add non-matching draw options
