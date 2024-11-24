@@ -82,6 +82,14 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
     'radial-gradient(circle, rgba(139,0,0,1) 0%, rgba(204,85,0,1) 100%)',
   ]
 
+  let ticketBackground = ticket.color
+  if (isAnime) {
+    ticketBackground = `url(${AnimeBackground})`
+  }
+  if (ticket.source === 'points') {
+    ticketBackground = gradients[ticket.variant]
+  }
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -93,10 +101,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
           backgroundColor: ticket.color,
           backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
           backgroundSize: 'cover',
-          background:
-            ticket.source === 'points'
-              ? gradients[ticket.variant]
-              : ticket.color,
+          background: ticketBackground,
         }}
         // width={'140px'}
         // height={'64px'}
