@@ -7,6 +7,7 @@ type Props = {
   owner_name: string
   drawOptions: string[]
   source: 'chat' | 'points'
+  text?: string
 }
 
 export function genTicket({
@@ -14,8 +15,13 @@ export function genTicket({
   owner_name,
   drawOptions,
   source,
+  text,
 }: Props): Ticket {
-  const value = sampleSize(drawOptions, 8)
+  let value = sampleSize(drawOptions, 8)
+  const ticketValue = parseTicketMessage(drawOptions, text)
+  if (ticketValue) {
+    value = ticketValue
+  }
   return {
     id: Math.random().toString(36).substring(2, 9),
     owner_id,
@@ -30,6 +36,42 @@ export function genTicket({
     variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
     source,
   } as Ticket
+}
+
+function parseTicketMessage(drawOptions: string[], text?: string) {
+  if (!text) {
+    return null
+  }
+
+  // const regex = /(?:\b\d{1,2}\b\s*){8}/
+
+  // if (!text.match(regex)) {
+  //   return null
+  // }
+
+  const trimmed = text.trim()
+  const ticket = trimmed
+    .split(' ')
+    .map((n) => parseInt(n))
+    .filter((n) => n > 0 && n < 100)
+    .map((n) => {
+      if (n < 10) {
+        return `0${n}`
+      }
+      return n.toString()
+    })
+
+  if (ticket.length < 8) {
+    // add non-matching draw options
+    const sampleOptions = sampleSize(drawOptions, 10)
+    const validOptions = sampleOptions.filter((o) => !ticket.includes(o))
+    ticket.push(...sampleSize(validOptions, 8 - ticket.length))
+  }
+  if (ticket.length > 8) {
+    // limit to 5 items
+    ticket.slice(0, 5)
+  }
+  return ticket
 }
 
 export const NumberToFancyName: { [k: string]: string } = {

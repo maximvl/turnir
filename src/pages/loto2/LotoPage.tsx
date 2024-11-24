@@ -141,7 +141,11 @@ export default function LotoPage() {
       const lotoMessagesFromUsers = lotoMessages
         .filter((msg) => msg.user.username !== CHAT_BOT_NAME)
         .map((msg) => {
-          return { user_id: msg.user.id, username: msg.user.username }
+          return {
+            user_id: msg.user.id,
+            username: msg.user.username,
+            text: msg.message,
+          }
         })
 
       const newTicketsFromChat = getNewTickets(
@@ -675,6 +679,7 @@ function drawNumber(next: string) {
 type UserInfo = {
   user_id: number
   username: string
+  text?: string
 }
 
 function getNewTickets(
@@ -696,6 +701,7 @@ function getNewTickets(
         owner_name: owner.username,
         drawOptions: DrawingNumbers,
         source,
+        text: owner.text,
       })
     )
 
