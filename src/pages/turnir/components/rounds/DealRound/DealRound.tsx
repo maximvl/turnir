@@ -1,7 +1,7 @@
 import { Box } from '@mui/material'
-import { MusicContext } from 'common/hooks/MusicContext'
+import { MusicContext } from '@/common/hooks/MusicContext'
 import { useContext, useEffect } from 'react'
-import { Item, MusicType } from 'pages/turnir/types'
+import { Item, MusicType } from '@/pages/turnir/types'
 import InfoPanel from '../shared/InfoPanel'
 import ListChoice from '../shared/ListChoice'
 

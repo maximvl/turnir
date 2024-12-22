@@ -1,7 +1,7 @@
 import { isNull } from 'lodash'
 import { useContext, useEffect, useReducer, useState } from 'react'
-import { MusicContext } from 'common/hooks/MusicContext'
-import { Item, MusicType } from 'pages/turnir/types'
+import { MusicContext } from '@/common/hooks/MusicContext'
+import { Item, MusicType } from '@/pages/turnir/types'
 import ListChoice from '../shared/ListChoice'
 
 type Props = {

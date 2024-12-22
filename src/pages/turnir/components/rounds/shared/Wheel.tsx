@@ -1,3 +1,4 @@
+import React from 'react'
 import { Box, Button } from '@mui/material'
 import {
   blue,
@@ -11,10 +12,10 @@ import {
   teal,
 } from '@mui/material/colors'
 import { useContext, useEffect, useRef, useState } from 'react'
-import { MusicContext } from 'common/hooks/MusicContext'
-import { Item, MusicType } from 'pages/turnir/types'
+import { MusicContext } from '@/common/hooks/MusicContext'
+import { Item, MusicType } from '@/pages/turnir/types'
 import ItemTitle from '../../ItemTitle'
-import CatDance from 'images/cat_dance.webp'
+import CatDance from '@/assets/cat_dance.webp'
 import { random } from 'lodash'
 
 enum WheelState {
@@ -28,10 +29,12 @@ enum WheelState {
 type Props = {
   items: Item[]
   onItemWinning: (index: string) => void
-  ButtonComponent?: (props: React.ComponentProps<typeof Button>) => JSX.Element
+  ButtonComponent?: (
+    props: React.ComponentProps<typeof Button>
+  ) => React.JSX.Element
   buttonGenerator?: (
     item: Item
-  ) => (props: React.ComponentProps<typeof Button>) => JSX.Element
+  ) => (props: React.ComponentProps<typeof Button>) => React.JSX.Element
   centerImage?: string
   music?: MusicType
 }
@@ -44,8 +47,8 @@ export default function Wheel({
   music,
   buttonGenerator,
 }: Props) {
-  const animationRef = useRef<number>()
-  const timeRef = useRef<number>()
+  const animationRef = useRef<number | null>(null)
+  const timeRef = useRef<number | null>(null)
   const rotationRef = useRef<number>(0)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const speedRef = useRef<number>(0)

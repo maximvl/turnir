@@ -1,12 +1,12 @@
 import { RestartAlt, Start } from '@mui/icons-material'
 import { Button, Divider, Grid, Slider } from '@mui/material'
-import ItemsList from 'pages/turnir/components/ItemsList'
-import ViewerChoiceRound from 'pages/turnir/components/rounds/ViewerChoice/ViewerChoiceRound'
+import ItemsList from '@/pages/turnir/components/ItemsList'
+import ViewerChoiceRound from '@/pages/turnir/components/rounds/ViewerChoice/ViewerChoiceRound'
 import { isEmpty, toString } from 'lodash'
 import { useState } from 'react'
-import { Item, ItemStatus } from 'pages/turnir/types'
-import { createItem, ChatMessage } from 'pages/turnir/api'
-import MainMenu from 'common/MainMenu'
+import { Item, ItemStatus } from '@/pages/turnir/types'
+import { createItem, ChatMessage } from '@/pages/turnir/api'
+import MainMenu from '@/common/MainMenu'
 
 type VotingStatus = 'idle' | 'voting'
 

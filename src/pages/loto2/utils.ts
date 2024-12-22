@@ -1,5 +1,5 @@
 import { sample, sampleSize, uniq } from 'lodash'
-import { ChatUser } from 'pages/turnir/api'
+import { ChatUser } from '@/pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
 type Props = {

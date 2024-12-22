@@ -11,13 +11,13 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { Item } from 'pages/turnir/types'
+import { Item } from '@/pages/turnir/types'
 import {
   Preset,
   ErrorResponse,
   savePreset,
   updatePreset,
-} from 'pages/turnir/api'
+} from '@/pages/turnir/api'
 
 type Props = {
   items: Item[]

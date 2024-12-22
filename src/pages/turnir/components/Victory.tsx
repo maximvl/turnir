@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
-import { Item } from 'pages/turnir/types'
-import fireworks from 'images/fireworks.gif'
+import { Item } from '@/pages/turnir/types'
+import fireworks from '@/assets/fireworks.gif'
 import { useEffect, useState } from 'react'
 
 type Props = {

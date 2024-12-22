@@ -1,13 +1,13 @@
-import { Item, MusicType } from 'pages/turnir/types'
+import { Item, MusicType } from '@/pages/turnir/types'
 import InfoPanel from '../shared/InfoPanel'
 import Wheel from '../shared/Wheel'
 import { Box, Button } from '@mui/material'
 import Icon from '@mdi/react'
 import { mdiCross } from '@mdi/js'
 import { useContext, useEffect, useState } from 'react'
-import PrayImage from 'images/pray.webp'
+import PrayImage from '@/assets/pray.webp'
 import ResurrectionVoting from './ResurrectionVoting'
-import { MusicContext } from 'common/hooks/MusicContext'
+import { MusicContext } from '@/common/hooks/MusicContext'
 
 type Props = {
   activeItems: Item[]

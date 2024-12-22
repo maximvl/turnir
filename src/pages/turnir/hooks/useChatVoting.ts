@@ -1,8 +1,8 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
 import { useQuery } from 'react-query'
-import { Item } from 'pages/turnir/types'
-import { fetchVotes, ChatMessage } from 'pages/turnir/api'
+import { Item } from '@/pages/turnir/types'
+import { fetchVotes, ChatMessage } from '@/pages/turnir/api'
 
 type Props = {
   items: Item[]

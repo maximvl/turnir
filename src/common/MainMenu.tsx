@@ -3,8 +3,8 @@ import { Box, Button, Slider } from '@mui/material'
 import ReleaseNotes from './ReleaseNotes'
 import { MusicContext } from './hooks/MusicContext'
 import { useContext } from 'react'
-import { useNavigate } from 'react-router'
-import { MusicType } from 'pages/turnir/types'
+import { useNavigate } from 'react-router-dom'
+import { MusicType } from '@/pages/turnir/types'
 
 type Props = {
   title: string

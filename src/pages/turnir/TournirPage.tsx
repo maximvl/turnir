@@ -2,17 +2,17 @@ import { RestartAlt, SkipNext } from '@mui/icons-material'
 import StartIcon from '@mui/icons-material/Start'
 import { Box, Checkbox, FormControlLabel, Grid, Tooltip } from '@mui/material'
 import Button from '@mui/material/Button'
-import 'App.css'
+import '@/App.css'
 import ItemsList from './components/ItemsList'
 import RoundContent from './components/rounds/shared/RoundContent'
 import RoundTitle from './components/rounds/shared/RoundTitle'
 import SavePreset from './components/SavePreset'
 import SwapRevealModal from './components/modals/SwapRevealModal'
 import Victory from './components/Victory'
-import { MusicContext } from 'common/hooks/MusicContext'
+import { MusicContext } from '@/common/hooks/MusicContext'
 import { filter, isEmpty, sample, toString } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router'
+import { useParams } from 'react-router-dom'
 import {
   ClassicRoundTypes,
   Item,
@@ -24,9 +24,9 @@ import {
   RoundTypes,
   RoundTypeTooltip,
   TurnirState,
-} from 'pages/turnir/types'
-import { createItem, fetchPreset } from 'pages/turnir/api'
-import MainMenu from 'common/MainMenu'
+} from '@/pages/turnir/types'
+import { createItem, fetchPreset } from '@/pages/turnir/api'
+import MainMenu from '@/common/MainMenu'
 import ProtectionRemoveModal from './components/modals/ProtectionRemoveModal'
 import SkipRoundModal from './components/modals/SkipRoundModal'
 

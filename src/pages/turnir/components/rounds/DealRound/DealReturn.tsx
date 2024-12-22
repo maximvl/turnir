@@ -1,5 +1,5 @@
 import { Box, Button } from '@mui/material'
-import { Item, ItemStatus } from 'pages/turnir/types'
+import { Item, ItemStatus } from '@/pages/turnir/types'
 import InfoPanel from '../shared/InfoPanel'
 import Wheel from '../shared/Wheel'
 

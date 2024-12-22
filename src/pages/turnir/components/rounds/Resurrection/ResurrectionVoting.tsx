@@ -1,10 +1,10 @@
 import { Box, Button } from '@mui/material'
 import useChatVoting from '../../../hooks/useChatVoting'
-import { MusicContext } from 'common/hooks/MusicContext'
+import { MusicContext } from '@/common/hooks/MusicContext'
 import { isEmpty } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
-import { Item, MusicType } from 'pages/turnir/types'
-import { ChatMessage } from 'pages/turnir/api'
+import { Item, MusicType } from '@/pages/turnir/types'
+import { ChatMessage } from '@/pages/turnir/api'
 import PollResults from '../ViewerChoice/PollResults'
 import VotesLog from '../ViewerChoice/VotesLog'
 

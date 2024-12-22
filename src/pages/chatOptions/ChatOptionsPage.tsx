@@ -5,10 +5,10 @@ import {
   FormGroup,
   Tooltip,
 } from '@mui/material'
-import MainMenu from 'common/MainMenu'
-import { isUserSubscriber, VkColorsMap } from 'pages/loto2/utils'
-import { fetchVotes } from 'pages/turnir/api'
-import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
+import MainMenu from '@/common/MainMenu'
+import { isUserSubscriber, VkColorsMap } from '@/pages/loto2/utils'
+import { fetchVotes } from '@/pages/turnir/api'
+import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { Option } from './types'

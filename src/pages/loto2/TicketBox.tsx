@@ -1,13 +1,13 @@
 import { Box, Tooltip, useTheme } from '@mui/material'
 import { Fragment } from 'react'
 import { Ticket2 as Ticket } from './types'
-import { ReactComponent as TicketImg1 } from 'images/ticket1.svg'
-import { ReactComponent as TicketImg2 } from 'images/ticket2.svg'
-import { ReactComponent as TicketImg3 } from 'images/ticket3.svg'
-import { ReactComponent as TicketImg4 } from 'images/ticket4.svg'
-import AnimeBackground from 'images/sakura1.webp'
+import TicketImg1 from '@/assets/ticket1.svg'
+import TicketImg2 from '@/assets/ticket2.svg'
+import TicketImg3 from '@/assets/ticket3.svg'
+import TicketImg4 from '@/assets/ticket4.svg'
+import AnimeBackground from '@/assets/sakura1.webp'
 import { VkColorsMap } from './utils'
-import { ChatUser } from 'pages/turnir/api'
+import { ChatUser } from '@/pages/turnir/api'
 
 type MatchRange = {
   start: number

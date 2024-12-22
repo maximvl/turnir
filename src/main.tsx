@@ -1,19 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
-import TournirPage from './pages/turnir/TournirPage'
-import reportWebVitals from './reportWebVitals'
+import TournirPage from '@/pages/turnir/TournirPage'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
-import MusicContextProvider from 'common/hooks/MusicContext'
-import VotingPage from 'pages/voting/VotingPage'
-import LotoPage from 'pages/loto/LotoPage'
-import LotoPage2 from 'pages/loto2/LotoPage'
+import MusicContextProvider from '@/common/hooks/MusicContext'
+import VotingPage from '@/pages/voting/VotingPage'
+import LotoPage from '@/pages/loto/LotoPage'
+import LotoPage2 from '@/pages/loto2/LotoPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import GamePage from 'pages/game/GamePage'
-import ChatOptionsPage from 'pages/chatOptions/ChatOptionsPage'
+import GamePage from '@/pages/game/GamePage'
+import ChatOptionsPage from '@/pages/chatOptions/ChatOptionsPage'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+
+// console.log('process.env.PUBLIC_URL', process.env.PUBLIC_URL)
 
 // const baseURL = process.env.PUBLIC_URL || "/turnir";
 
@@ -72,8 +73,3 @@ root.render(
     </ThemeProvider>
   </React.StrictMode>
 )
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()

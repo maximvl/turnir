@@ -1,6 +1,6 @@
 import { Button } from '@mui/material'
 import { Shield } from '@mui/icons-material'
-import { Item } from 'pages/turnir/types'
+import { Item } from '@/pages/turnir/types'
 import Wheel from '../shared/Wheel'
 import InfoPanel from '../shared/InfoPanel'
 

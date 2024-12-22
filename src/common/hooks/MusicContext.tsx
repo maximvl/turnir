@@ -1,6 +1,6 @@
 import { isNil } from 'lodash'
 import { createContext, useEffect, useState } from 'react'
-import { MusicType, MusicTypeIds } from 'pages/turnir/types'
+import { MusicType, MusicTypeIds } from '@/pages/turnir/types'
 
 export type MusicContextType = {
   musicPlaying?: MusicType

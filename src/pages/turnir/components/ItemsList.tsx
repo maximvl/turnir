@@ -11,7 +11,7 @@ import {
 } from '@mui/material'
 import { isEmpty, trim } from 'lodash'
 import React from 'react'
-import { Item, ItemStatus } from 'pages/turnir/types'
+import { Item, ItemStatus } from '@/pages/turnir/types'
 import ItemTitle from './ItemTitle'
 
 type Props = {

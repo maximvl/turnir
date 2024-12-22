@@ -1,4 +1,4 @@
-import { RoundType, RoundTypeNames } from 'pages/turnir/types'
+import { RoundType, RoundTypeNames } from '@/pages/turnir/types'
 
 type Props = {
   roundNumber: number

@@ -1,5 +1,5 @@
 import { Box, useTheme } from '@mui/material'
-import wood from 'images/wood.png'
+import wood from '@/assets/wood.png'
 
 type Props = {
   value: string

@@ -1,5 +1,5 @@
 import { Button } from '@mui/material'
-import { fetchVotes } from 'pages/turnir/api'
+import { fetchVotes } from '@/pages/turnir/api'
 import { useEffect, useRef, useState } from 'react'
 import { useQuery } from 'react-query'
 import GameField from './GameField'

@@ -5,17 +5,22 @@ import {
   FormControlLabel,
   FormGroup,
 } from '@mui/material'
-import { MusicContext } from 'common/hooks/MusicContext'
-import MainMenu from 'common/MainMenu'
+import { MusicContext } from '@/common/hooks/MusicContext'
+import MainMenu from '@/common/MainMenu'
 import { sample, uniq, uniqBy } from 'lodash'
-import { fetchVotes, ChatMessage, ChatUser, VkMention } from 'pages/turnir/api'
-import InfoPanel from 'pages/turnir/components/rounds/shared/InfoPanel'
-import { MusicType } from 'pages/turnir/types'
+import {
+  fetchVotes,
+  ChatMessage,
+  ChatUser,
+  VkMention,
+} from '@/pages/turnir/api'
+import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
+import { MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
-import bingo1 from 'images/bingo1.gif'
-import bingo2 from 'images/bingo2.gif'
-import bingo3 from 'images/bingo3.webp'
-import bingo4 from 'images/bingo4.webp'
+import bingo1 from '@/assets/bingo1.gif'
+import bingo2 from '@/assets/bingo2.gif'
+import bingo3 from '@/assets/bingo3.webp'
+import bingo4 from '@/assets/bingo4.webp'
 import { useQuery } from 'react-query'
 import './styles.css'
 import TicketBox from './TicketBox'

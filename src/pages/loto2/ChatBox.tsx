@@ -1,5 +1,5 @@
 import { Box } from '@mui/material'
-import { ChatMessage } from 'pages/turnir/api'
+import { ChatMessage } from '@/pages/turnir/api'
 
 type Props = {
   messages: ChatMessage[]

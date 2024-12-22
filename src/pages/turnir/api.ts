@@ -1,7 +1,7 @@
 import { random, sample } from 'lodash'
 import { ItemStatus, Item } from './types'
 
-const MOCK_API = process.env.NODE_ENV === 'development'
+const MOCK_API = import.meta.env.MODE === 'development'
 
 export function createItem(index: string, title: string = ''): Item {
   return { title, status: ItemStatus.Active, id: index }
