@@ -2,7 +2,7 @@ import { mdiCross } from '@mdi/js'
 import Icon from '@mdi/react'
 import { Casino, ChangeCircle, Shield } from '@mui/icons-material'
 import { Box } from '@mui/material'
-import { Item } from 'pages/turnir/types'
+import { Item } from '@/pages/turnir/types'
 
 type Props = {
   item: Item
