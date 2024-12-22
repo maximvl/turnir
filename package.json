@@ -1,7 +1,6 @@
 {
   "name": "turnir",
   "version": "0.1.0",
-  "homepage": "https://mapcar.alwaysdata.net/turnir",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
