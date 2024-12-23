@@ -5,6 +5,7 @@ import { MusicContext } from './hooks/MusicContext'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MusicType } from '@/pages/turnir/types'
+import ChatConnectionButton from './ChatConnectionButton'
 
 type Props = {
   title: string
@@ -38,23 +39,32 @@ export default function MainMenu({ title }: Props) {
 
   return (
     <Box paddingTop={'10px'}>
+      <Box textAlign="center" marginBottom="10px">
+        <Button onClick={openTurnirPage} sx={{ marginRight: '15px' }}>
+          Турнир
+        </Button>
+        <Button onClick={openVotingPage} sx={{ marginRight: '15px' }}>
+          Голосование
+        </Button>
+        <Button onClick={openLotoPage} sx={{ marginRight: '15px' }}>
+          Лото 2.0
+        </Button>
+        <Button onClick={openChatOptionsPage}>Варианты чата [WIP]</Button>
+      </Box>
       <Box
         marginTop={'10px'}
         sx={{
           textAlign: 'left',
           float: 'left',
           position: 'absolute',
-          paddingLeft: 6,
+          paddingLeft: '20px',
           display: 'flex',
           justifyContent: 'space-between',
           width: '100%',
         }}
       >
         <Box display="flex">
-          <Button onClick={openTurnirPage}>Турнир</Button>
-          <Button onClick={openVotingPage}>Голосование</Button>
-          <Button onClick={openLotoPage}>Лото 2.0</Button>
-          <Button onClick={openChatOptionsPage}>Варианты чата</Button>
+          <ChatConnectionButton />
         </Box>
         <Box display="flex" marginRight={'30px'}>
           <Box display="flex" alignItems="flex-end" width="220px">
