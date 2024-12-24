@@ -29,7 +29,7 @@ export default function MainMenu({ title }: Props) {
 
   const openLotoPage = () => {
     music.setMusicPlaying(MusicType.Loto)
-    navigate('/loto2')
+    navigate('/loto')
   }
 
   const openChatOptionsPage = () => {
