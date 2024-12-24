@@ -136,9 +136,11 @@ export default function ChatConnectionButton(props: Props) {
               Подключиться
             </Button>
           </Box>
-          <Box marginTop="10px" color="green">
-            Подключено!
-          </Box>
+          {isConnected && (
+            <Box marginTop="10px" color="green">
+              Подключено!
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Закрыть</Button>
