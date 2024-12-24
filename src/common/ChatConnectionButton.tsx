@@ -2,6 +2,7 @@ import { Error, RadioButtonChecked, Settings } from '@mui/icons-material'
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -45,17 +46,24 @@ export default function ChatConnectionButton(props: Props) {
 
   const [isConnected, setIsConnected] = useState(false)
 
-  let statusMessage = 'Чат не подключен'
+  let statusMessage = 'не подключен'
   if (channel && server) {
-    statusMessage = `${server}/${channel}`
+    const serverName = server === 'twitch' ? 'twitch.tv' : 'vkvideo.ru'
+    statusMessage = `${serverName}/${channel}`
   }
 
   const handleConnect = () => {
-    setState('connecting')
     if (channel && server) {
+      setState('connecting')
       mutate({ channel, server })
     }
   }
+
+  useEffect(() => {
+    if (channel && server && !isConnected && state === 'idle' && !open) {
+      handleConnect()
+    }
+  }, [channel, server, isConnected, state, open])
 
   const saveServer = (server: ChatServerType) => {
     save('chat_server', server)
@@ -73,21 +81,35 @@ export default function ChatConnectionButton(props: Props) {
         <Button onClick={() => setOpen(true)}>
           <Settings />
         </Button>
-        {isConnected ? (
+        {isConnected && (
           <Box display="flex" alignItems="center">
             <RadioButtonChecked color="success" sx={{ marginRight: '10px' }} />
-            {statusMessage}
+            Чат {statusMessage}
           </Box>
-        ) : (
+        )}
+        {!isConnected && state === 'idle' && (
           <Box display="flex" alignItems="center">
             <Error color="error" sx={{ marginRight: '10px' }} />
-            {statusMessage}
+            Чат {statusMessage}
+          </Box>
+        )}
+        {!isConnected && state === 'connecting' && (
+          <Box display="flex" alignItems="center">
+            <CircularProgress size="20px" sx={{ marginRight: '10px' }} />
+            Подключение к {statusMessage}
           </Box>
         )}
       </Box>
       <Dialog open={open}>
         <DialogTitle>Подключение к чату</DialogTitle>
-        <DialogContent sx={{ padding: '20px' }}>
+        <DialogContent
+          sx={{
+            paddingTop: '20px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            paddingBottom: '0px',
+          }}
+        >
           <FormControl fullWidth sx={{ marginTop: '10px' }}>
             <InputLabel>Сервер</InputLabel>
             <Select
@@ -102,12 +124,20 @@ export default function ChatConnectionButton(props: Props) {
           <Box display="flex" alignItems="baseline" sx={{ marginTop: '10px' }}>
             <Input
               placeholder="канал"
+              value={channel}
               onChange={(e) => saveChannel(e.target.value)}
               sx={{ marginTop: '10px', marginRight: '20px' }}
             />
-            <Button variant="contained" onClick={handleConnect}>
+            <Button
+              variant="contained"
+              onClick={handleConnect}
+              disabled={!channel || !server || state === 'connecting'}
+            >
               Подключиться
             </Button>
+          </Box>
+          <Box marginTop="10px" color="green">
+            Подключено!
           </Box>
         </DialogContent>
         <DialogActions>
