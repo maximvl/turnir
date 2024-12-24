@@ -13,7 +13,7 @@ const REFETCH_INTERVAL = 2000
 export default function useChatMessages({ fetching }: Props) {
   const { load } = useLocalStorage()
 
-  const channel: string | null = load('chat_channel', null)
+  let channel: string | null = load('chat_channel', null)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessages, setNewMessages] = useState<ChatMessage[]>([])
@@ -34,7 +34,10 @@ export default function useChatMessages({ fetching }: Props) {
   } = useQuery({
     queryKey: ['chatMessages', channel, lastTs],
     queryFn: () => {
-      if (channel === null) {
+      if (!channel) {
+        channel = load('chat_channel', null)
+      }
+      if (!channel) {
         return undefined
       }
       return fetchVotes({ channel, ts: lastTs })
