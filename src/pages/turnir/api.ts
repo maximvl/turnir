@@ -8,6 +8,7 @@ export function createItem(index: string, title: string = ''): Item {
 }
 
 const URL_PREFIX = '/v2'
+// const URL_PREFIX = 'http://localhost:8080/v2'
 
 type VkUserRole = {
   id: string
