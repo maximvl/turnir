@@ -24,7 +24,9 @@ type Props = {}
 
 export default function ChatConnectionButton(props: Props) {
   const { save, load } = useLocalStorage()
-  const [state, setState] = useState<'idle' | 'connecting'>('idle')
+  const [state, setState] = useState<'idle' | 'connecting' | 'connected'>(
+    'idle'
+  )
 
   const [open, setOpen] = useState(false)
   const [channel, setChannel] = useState<string | null>(() =>
@@ -39,12 +41,9 @@ export default function ChatConnectionButton(props: Props) {
 
   useEffect(() => {
     if (newMessages.length > 0 && state === 'connecting') {
-      setState('idle')
-      setIsConnected(true)
+      setState('connected')
     }
   }, [newMessages])
-
-  const [isConnected, setIsConnected] = useState(false)
 
   let statusMessage = 'не подключен'
   if (channel && server) {
@@ -60,10 +59,10 @@ export default function ChatConnectionButton(props: Props) {
   }
 
   useEffect(() => {
-    if (channel && server && !isConnected && state === 'idle' && !open) {
+    if (channel && server && state === 'idle' && !open) {
       handleConnect()
     }
-  }, [channel, server, isConnected, state, open])
+  }, [channel, server, state, open])
 
   const saveServer = (server: ChatServerType) => {
     save('chat_server', server)
@@ -81,19 +80,19 @@ export default function ChatConnectionButton(props: Props) {
         <Button onClick={() => setOpen(true)}>
           <Settings />
         </Button>
-        {isConnected && (
+        {state === 'connected' && (
           <Box display="flex" alignItems="center">
             <RadioButtonChecked color="success" sx={{ marginRight: '10px' }} />
             Чат {statusMessage}
           </Box>
         )}
-        {!isConnected && state === 'idle' && (
+        {state === 'idle' && (
           <Box display="flex" alignItems="center">
             <Error color="error" sx={{ marginRight: '10px' }} />
             Чат {statusMessage}
           </Box>
         )}
-        {!isConnected && state === 'connecting' && (
+        {state === 'connecting' && (
           <Box display="flex" alignItems="center">
             <CircularProgress size="20px" sx={{ marginRight: '10px' }} />
             Подключение к {statusMessage}
@@ -136,7 +135,7 @@ export default function ChatConnectionButton(props: Props) {
               Подключиться
             </Button>
           </Box>
-          {isConnected && (
+          {state === 'connected' && (
             <Box marginTop="10px" color="green">
               Подключено!
             </Box>
