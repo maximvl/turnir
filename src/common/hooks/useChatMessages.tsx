@@ -25,7 +25,6 @@ export default function useChatMessages({ fetching }: Props) {
   const reset = () => {
     setMessages([])
     setLastTs(Math.floor(Date.now() / 1000))
-    // setTime(timer || 0);
   }
 
   const {
@@ -79,5 +78,6 @@ export default function useChatMessages({ fetching }: Props) {
     newMessages,
     error,
     isLoading,
+    reset,
   }
 }

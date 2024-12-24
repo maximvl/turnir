@@ -24,20 +24,22 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
     setVotesMap({})
   }
 
-  useEffect(() => {
-    resetPoll()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.length])
-
   const itemIds = new Set(items.map((item) => item.id))
 
   const {
     newMessages: messages,
     isLoading,
     error,
+    reset: resetChat,
   } = useChatMessages({
     fetching: state === 'voting',
   })
+
+  useEffect(() => {
+    resetPoll()
+    resetChat()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length])
 
   if (!error && !isLoading && !isEmpty(messages)) {
     // todo remove duplicates votes for same user id
