@@ -1,8 +1,8 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
-import { useQuery } from 'react-query'
 import { Item } from '@/pages/turnir/types'
-import { fetchVotes, ChatMessage } from '@/pages/turnir/api'
+import { ChatMessage } from '@/pages/turnir/api'
+import useChatMessages from '@/common/hooks/useChatMessages'
 
 type Props = {
   items: Item[]
@@ -15,23 +15,13 @@ type VotesDict = {
 
 type VotingState = 'initial' | 'voting' | 'finished'
 
-const VOTES_REFETCH_INTERVAL = 2000
-
 export default function useChatVoting({ items, subscriberOnly }: Props) {
   const [votesMap, setVotesMap] = useState<VotesDict>({})
-  const [voteMessages, setVoteMessages] = useState<ChatMessage[]>([])
-
   const [state, setState] = useState<VotingState>('initial')
-  const [lastTs, setLastTs] = useState<number>(() =>
-    Math.floor(Date.now() / 1000)
-  )
 
   const resetPoll = async () => {
     setState('initial')
     setVotesMap({})
-    setVoteMessages([])
-    setLastTs(Math.floor(Date.now() / 1000))
-    // setTime(timer || 0);
   }
 
   useEffect(() => {
@@ -39,35 +29,27 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length])
 
-  const {
-    data: votes,
-    error,
-    isLoading,
-  } = useQuery(
-    ['votes', items.length, lastTs],
-    ({ queryKey }) => fetchVotes({ ts: queryKey[2] as number }),
-    {
-      refetchInterval: VOTES_REFETCH_INTERVAL,
-      enabled: state === 'voting',
-    }
-  )
+  const itemIds = new Set(items.map((item) => item.id))
 
-  if (!error && !isLoading && !isEmpty(votes?.chat_messages)) {
+  const {
+    newMessages: messages,
+    isLoading,
+    error,
+  } = useChatMessages({
+    fetching: state === 'voting',
+  })
+
+  if (!error && !isLoading && !isEmpty(messages)) {
     // todo remove duplicates votes for same user id
     // use only the latest one
-    const votesSorted =
-      votes?.chat_messages?.sort((a, b) => {
-        return a.ts - b.ts
-      }) || []
+    const msgsPerUser: { [key: number]: ChatMessage } = {}
 
-    const votesPerUser: { [key: number]: ChatMessage } = {}
-    const itemIds = new Set(items.map((item) => item.id))
-    for (const vote of votesSorted) {
-      if (!itemIds.has(vote.message)) {
+    for (const msg of messages) {
+      if (!itemIds.has(msg.message)) {
         continue
       }
       if (subscriberOnly) {
-        const userBadges = vote.user.vk_fields?.badges || []
+        const userBadges = msg.user.vk_fields?.badges || []
         const subscriberBadges = userBadges.filter(
           (badge) => badge.achievement.type === 'subscription'
         )
@@ -75,11 +57,11 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
           continue
         }
       }
-      votesPerUser[vote.user.id] = vote
+      msgsPerUser[msg.user.id] = msg
     }
 
-    const newVotes = Object.values(votesPerUser).filter((vote) => {
-      return vote.message !== votesMap[vote.user.id]
+    const newVotes = Object.values(msgsPerUser).filter((msg) => {
+      return msg.message !== votesMap[msg.user.id]
     })
 
     if (!isEmpty(newVotes)) {
@@ -87,14 +69,13 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
         acc[vote.user.id] = vote.message
         return acc
       }, {} as VotesDict)
-      const tsSorted = newVotes.map((vote) => vote.ts).sort()
-      const lastVoteTs = tsSorted[tsSorted.length - 1]
-
       setVotesMap({ ...votesMap, ...newVotesMap })
-      setVoteMessages([...voteMessages, ...newVotes])
-      setLastTs(lastVoteTs)
     }
   }
+
+  const voteMessages = messages.filter((msg) => {
+    return itemIds.has(msg.message)
+  }, [])
 
   return {
     votesMap,

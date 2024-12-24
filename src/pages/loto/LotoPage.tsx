@@ -1,35 +1,72 @@
-import { Box, Button } from '@mui/material'
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+} from '@mui/material'
 import { MusicContext } from '@/common/hooks/MusicContext'
 import MainMenu from '@/common/MainMenu'
-import { flatten, sample, uniq } from 'lodash'
-import { fetchVotes, ChatMessage } from '@/pages/turnir/api'
+import { sample, uniq, uniqBy } from 'lodash'
+import { ChatMessage, ChatUser, VkMention } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
-import bingo from '@/assets/bingo1.gif'
-import { useQuery } from 'react-query'
+import bingo1 from '@/assets/bingo1.gif'
+import bingo2 from '@/assets/bingo2.gif'
+import bingo3 from '@/assets/bingo3.webp'
+import bingo4 from '@/assets/bingo4.webp'
+import './styles.css'
 import TicketBox from './TicketBox'
-import { Ticket } from './types'
+import { Ticket2 as Ticket, Ticket2, TicketId } from './types'
 import ChatBox from './ChatBox'
+import { genTicket, isUserSubscriber, NumberToFancyName } from './utils'
+import DrawnNumber from './DrawnNumber'
+import useChatMessages from '@/common/hooks/useChatMessages'
 
-const VOTES_REFETCH_INTERVAL = 2000
+const CHAT_BOT_NAME = 'ChatBot'
+const LOTO_MATCH = 'лото'
 
-const DIGITS = '0123456789'.split('')
+// numbers from 01 to 99
+let DrawingNumbers: string[] = []
+function resetDrawingNumbers() {
+  DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
+    (i + 1).toString().padStart(2, '0')
+  )
+}
+resetDrawingNumbers()
+
+const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 export default function LotoPage() {
-  const [state, setState] = useState<'voting' | 'playing' | 'win'>('voting')
-  const [tickets, setTickets] = useState<Ticket[]>([])
-  const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
-  const [filter, setFilter] = useState<string[]>([])
-  const [nextDigit, setNextDigit] = useState<string>('-')
+  const [state, setState] = useState<
+    'voting' | 'playing' | 'win' | 'super_game'
+  >('voting')
+  const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
+  const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
+
+  const [superGameGuesses, setSuperGameGuesses] = useState<string[]>([])
+  const [superGameDraws, setSuperGameDraws] = useState<string[]>([])
+
+  const [allUsersById, setAllUsersById] = useState<{ [key: number]: ChatUser }>(
+    {}
+  )
+
+  const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
+
+  const [nextNumber, setNextNumber] = useState<string>('')
   const [nextDigitState, setNextDigitState] = useState<
     'idle' | 'roll_start' | 'rolling'
   >('idle')
 
   const [winnerMessages, setWinnerMessages] = useState<ChatMessage[]>([])
+  const nextNumberRef = useRef(nextNumber)
 
-  const digitOptions = useRef(DIGITS)
-  const nextDigitRef = useRef(nextDigit)
+  const [showWinnerChat, setShowWinnerChat] = useState(false)
+
+  const [enableChatTickets, setEnableChatTickets] = useState(true)
+  const [enablePointsTickets, setEnablePointsTickets] = useState(true)
+  const [onlySubscribers, setOnlySubscribers] = useState(false)
 
   const music = useContext(MusicContext)
 
@@ -39,54 +76,82 @@ export default function LotoPage() {
     }
   }
 
-  const { data: chatMessages } = useQuery(
-    ['loto', 0, lastTs],
-    ({ queryKey }) => fetchVotes({ ts: queryKey[2] as number }),
-    {
-      refetchInterval: VOTES_REFETCH_INTERVAL,
-      enabled: state === 'voting' || state === 'win',
-    }
-  )
+  const participatingUserIds = Object.values(allUsersById)
+    .filter((user) => {
+      if (onlySubscribers) {
+        return isUserSubscriber(user)
+      }
+      return true
+    })
+    .map((user) => user.id)
 
-  if (
-    state === 'voting' &&
-    chatMessages?.chat_messages &&
-    chatMessages.chat_messages.length > 0
-  ) {
-    const filteredVotes = chatMessages.chat_messages.filter(
-      (msg) => msg.message.toLowerCase() === '+лото'
+  const { newMessages: chatMessages } = useChatMessages({
+    fetching: state === 'voting' || state === 'win',
+  })
+
+  if (state === 'voting' && chatMessages.length > 0) {
+    const messagesUsers = uniqBy(
+      chatMessages.map((msg) => msg.user),
+      (user) => user.id
     )
-    if (filteredVotes.length > 0) {
-      const lastVote =
-        chatMessages.chat_messages[chatMessages.chat_messages.length - 1]
-      const currentOwners = tickets.map((ticket) => ticket.owner)
+    if (messagesUsers.length > 0) {
+      const newUsersById = messagesUsers.reduce(
+        (acc, user) => {
+          if (!allUsersById[user.id]) {
+            acc[user.id] = user
+          }
+          return acc
+        },
+        {} as { [key: number]: ChatUser }
+      )
+      if (Object.keys(newUsersById).length > 0) {
+        setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
+      }
+    }
 
-      let newOwners: string[] = []
-      newOwners = filteredVotes.map((vote) => vote.user.username)
-      newOwners = newOwners.filter((owner) => !currentOwners.includes(owner))
-      newOwners = uniq(newOwners)
+    const lotoMessages = chatMessages.filter((msg) =>
+      msg.message.toLowerCase().includes(LOTO_MATCH)
+    )
 
-      if (newOwners.length > 0) {
-        setLastTs(lastVote.ts)
-        const newOwnersTickets = newOwners.map((owner) => ({
-          owner,
-          value: generateTicket(),
-          color: sample([
-            '#634f5f', // dark red
-            '#654b3c', // brown
-            '#4a4857', // greyish
-            '#0c5159', // dark green
-          ]),
-          variant: sample([1, 2, 3, 4]),
-        }))
+    if (lotoMessages.length > 0) {
+      const lotoMessagesFromUsers = lotoMessages
+        .filter((msg) => msg.user.username !== CHAT_BOT_NAME)
+        .map((msg) => {
+          return {
+            user_id: msg.user.id,
+            username: msg.user.username,
+            text: msg.message,
+          }
+        })
 
-        const newOwnersTicketsFiltered = newOwnersTickets.filter(
-          (ticket) => ticket.value !== null
-        ) as Ticket[]
+      const newTicketsFromChat = getNewTickets(
+        ticketsFromChat,
+        lotoMessagesFromUsers,
+        'chat'
+      )
+      if (newTicketsFromChat.length > 0) {
+        setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
+      }
 
-        if (newOwnersTicketsFiltered.length > 0) {
-          setTickets([...newOwnersTicketsFiltered, ...tickets])
-        }
+      const lotoMessagesFromBotRaw = lotoMessages.filter(
+        (msg) =>
+          msg.user.username === CHAT_BOT_NAME &&
+          msg.vk_fields &&
+          msg.vk_fields.mentions.length > 0
+      )
+
+      const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
+        const mention = msg.vk_fields?.mentions[0] as VkMention
+        return { user_id: mention.id, username: mention.displayName }
+      })
+
+      const newTicketsFromPoints = getNewTickets(
+        ticketsFromPoints,
+        lotoMessagesFromBot,
+        'points'
+      )
+      if (newTicketsFromPoints.length > 0) {
+        setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
     }
   }
@@ -95,102 +160,240 @@ export default function LotoPage() {
     if (nextDigitState === 'roll_start') {
       setNextDigitState('rolling')
       const interval = setInterval(() => {
-        const optionsExcludingCurrent = digitOptions.current.filter(
-          (digit) => digit !== nextDigitRef.current
-        )
-        const nextDigit = sample(optionsExcludingCurrent) as string
-        setNextDigit(nextDigit)
-        nextDigitRef.current = nextDigit
+        const nextNumber = sample(DrawingNumbers) as string
+        setNextNumber(nextNumber)
+        nextNumberRef.current = nextNumber
       }, 100)
       setTimeout(() => {
         clearInterval(interval)
         setNextDigitState('idle')
-        setFilter((prev) => [...prev, nextDigitRef.current])
+        drawNumber(nextNumberRef.current)
+        if (state === 'playing') {
+          setDrawnNumbers((prev) => [...prev, nextNumberRef.current])
+        }
+        if (state === 'super_game') {
+          setSuperGameDraws((prev) => [...prev, nextNumberRef.current])
+        }
       }, 3000)
     }
-  }, [nextDigitState, nextDigit])
+  }, [nextDigitState, nextNumber, state])
 
-  const filterText = filter.join('')
-
-  let filteredTickets = tickets
-  let matchesPerTicket: { [k: string]: number[] } = {}
-  for (const ticket of tickets) {
-    matchesPerTicket[ticket.owner] = []
+  let totalTickets: Ticket[] = []
+  if (enableChatTickets) {
+    totalTickets = [...totalTickets, ...ticketsFromChat]
+  }
+  if (enablePointsTickets) {
+    totalTickets = [...totalTickets, ...ticketsFromPoints]
   }
 
-  if (filterText.length > 0) {
-    // check that each ticket contains digets in any order withour repeats
-    filteredTickets = tickets.filter((ticket) => {
-      const match = getMatches(ticket.value.split(''), filter)
-      matchesPerTicket[ticket.owner] = match
-      const matchesAmount = match.filter((m) => m === 1).length
-      return matchesAmount === filter.length
-    })
-  }
+  totalTickets = totalTickets.filter((ticket) =>
+    participatingUserIds.includes(ticket.owner_id)
+  )
 
   useEffect(() => {
-    if (filteredTickets.length === 1 && state === 'playing') {
+    document.title = `Лото - ${totalTickets.length} участников`
+  }, [totalTickets.length])
+
+  let matchesPerTicket: { [id: TicketId]: number[] } = {}
+  for (const ticket of totalTickets) {
+    matchesPerTicket[ticket.id] = []
+  }
+
+  if (drawnNumbers.length > 0) {
+    // for each ticket find matches with drawn numbers
+    for (const ticket of totalTickets) {
+      const matches = ticket.value.map((number) =>
+        drawnNumbers.includes(number) ? 1 : 0
+      )
+      matchesPerTicket[ticket.id] = matches
+    }
+  }
+
+  const consequentMatchesPerTicket = totalTickets.map((ticket) => {
+    const matches = matchesPerTicket[ticket.id]
+    let maxConsequentMatches = 0
+    let currentConsequentMatches = 0
+    for (const match of matches) {
+      if (match === 1) {
+        currentConsequentMatches++
+        if (currentConsequentMatches > maxConsequentMatches) {
+          maxConsequentMatches = currentConsequentMatches
+        }
+      } else {
+        currentConsequentMatches = 0
+      }
+    }
+    return { id: ticket.id, matches: maxConsequentMatches }
+  })
+
+  const consequentMatchesMap = consequentMatchesPerTicket.reduce(
+    (acc, val) => {
+      acc[val.id] = val.matches
+      return acc
+    },
+    {} as { [id: string]: number }
+  )
+
+  // order tickets by consequent matches then by total matches
+  const orderedTickets = [...totalTickets].sort((a, b) => {
+    const aMatches = consequentMatchesMap[a.id]
+    const bMatches = consequentMatchesMap[b.id]
+    if (aMatches === bMatches) {
+      return (
+        b.value.filter((n) => drawnNumbers.includes(n)).length -
+        a.value.filter((n) => drawnNumbers.includes(n)).length
+      )
+    }
+    return bMatches - aMatches
+  })
+
+  const highestMatches =
+    orderedTickets.length > 0 ? consequentMatchesMap[orderedTickets[0].id] : 0
+  const ticketsWithHighestMatches = orderedTickets.filter(
+    (ticket) => consequentMatchesMap[ticket.id] === highestMatches
+  )
+
+  useEffect(() => {
+    if (highestMatches >= 3 && state === 'playing') {
       setState('win')
     }
-  }, [filteredTickets.length, state])
+  }, [highestMatches, state])
 
-  const winner = filteredTickets[0]
+  useEffect(() => {
+    if (state === 'win') {
+      setShowWinnerChat((val) => !val)
+    }
+  }, [state])
 
-  if (
-    state === 'win' &&
-    chatMessages?.chat_messages &&
-    chatMessages.chat_messages.length > 0 &&
-    winner
-  ) {
-    const messagesByWinner = chatMessages.chat_messages.filter(
-      (vote) => vote.user.username === winner.owner
+  const winners = ['win', 'super_game'].includes(state)
+    ? ticketsWithHighestMatches
+    : []
+
+  if (state === 'win' && chatMessages.length > 0 && winners.length > 0) {
+    const messagesFromWinners = chatMessages.filter((msg) =>
+      winners.some((w) => msg.user.id === w.owner_id)
     )
-    if (messagesByWinner.length > 0) {
+    if (messagesFromWinners.length > 0) {
       const currentMessagesIds = winnerMessages.map((m) => m.id)
-      const newMessages = messagesByWinner.filter(
+      const newMessages = messagesFromWinners.filter(
         (m) => !currentMessagesIds.includes(m.id)
       )
       if (newMessages.length > 0) {
         setWinnerMessages([...winnerMessages, ...newMessages])
-        setLastTs(messagesByWinner[messagesByWinner.length - 1].ts)
+
+        const superGameMessages = newMessages.filter(
+          (msg) =>
+            msg.message.toLowerCase().startsWith('+супер') &&
+            msg.message.match(/(\d{1,2}\s){4}\d{1,2}/)
+        )
+
+        if (superGameMessages.length > 0) {
+          const trimmed = superGameMessages[0].message.trim()
+          const superGameGuesses = uniq(
+            trimmed
+              .split(' ')
+              .map((n) => parseInt(n))
+              .filter((n) => n > 0 && n < 100)
+              .map((n) => {
+                if (n < 10) {
+                  return `0${n}`
+                }
+                return n.toString()
+              })
+          )
+
+          const limitedGuess = superGameGuesses.slice(0, 5)
+
+          setState('super_game')
+          setSuperGameGuesses(limitedGuess)
+          resetDrawingNumbers()
+          setNextNumber('')
+          // scroll to the top smoothly
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+          })
+        }
       }
     }
   }
 
-  const ticketsDigits = filteredTickets.map((ticket) => {
-    const match = matchesPerTicket[ticket.owner]
-    if (match.length === 0) {
-      return ticket.value.split('')
+  let superGameMatches: number[] = []
+  let superGameTicket: Ticket2 | null = null
+  let superGameMatchesCount = 0
+  if (state === 'super_game') {
+    superGameTicket = {
+      ...winners[0],
+      value: superGameGuesses,
     }
-    const unmatchedDigits = ticket.value
-      .split('')
-      .filter((_, i) => match[i] === 0)
-    return unmatchedDigits
-  })
-  const filteredOptions = uniq(flatten(ticketsDigits))
-  digitOptions.current = filteredOptions
+    superGameMatches = superGameTicket.value.map((number) =>
+      superGameDraws.includes(number) ? 1 : 0
+    )
+    superGameMatchesCount = superGameMatches.reduce((acc, val) => acc + val, 0)
+  }
 
-  const displayValue =
-    nextDigitState === 'rolling' ? filterText + nextDigit : filterText
+  const super_game_finished =
+    state === 'super_game' && superGameDraws.length === 5
+
+  const nextNumberText = NumberToFancyName[nextNumber]
 
   return (
-    <Box onClick={startMusic}>
-      <MainMenu title={'Лото с чатом'} />
+    <Box onClick={startMusic} className="loto-page">
+      <MainMenu title={'Лото 2.0 с чатом'} />
       <Box
         display="flex"
         justifyContent={'center'}
         paddingLeft={'100px'}
         paddingRight={'100px'}
       >
-        <Box>
+        <Box marginBottom={'200px'} width={'100%'}>
           {state === 'voting' && (
             <>
-              <Box display={'flex'} justifyContent={'center'}>
+              <Box position="absolute">
+                <FormGroup>
+                  <FormControlLabel
+                    label="Билеты с чата"
+                    control={
+                      <Checkbox
+                        checked={enableChatTickets}
+                        onChange={() => setEnableChatTickets((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
+                  <FormControlLabel
+                    label="Билеты с поинтов"
+                    control={
+                      <Checkbox
+                        checked={enablePointsTickets}
+                        onChange={() => setEnablePointsTickets((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
+                  <FormControlLabel
+                    label="Только для САБОВ"
+                    control={
+                      <Checkbox
+                        checked={onlySubscribers}
+                        onChange={() => setOnlySubscribers((val) => !val)}
+                        color="primary"
+                      />
+                    }
+                  />
+                </FormGroup>
+              </Box>
+              <Box
+                display={'flex'}
+                justifyContent={'center'}
+                marginBottom={'20px'}
+              >
                 <InfoPanel>
                   {!music.musicPlaying && <p>Кликни чтобы запустить музыку</p>}
                   <p>
                     Пишите в чат <strong>+лото</strong> чтобы получить билет
                   </p>
+                  <p>Можно писать свои числа: +лото 4 8 15 23 42 14 89</p>
                 </InfoPanel>
               </Box>
 
@@ -200,10 +403,10 @@ export default function LotoPage() {
                 display={'flex'}
                 alignItems={'center'}
                 justifyContent={'center'}
-                marginTop={'40px'}
+                // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Участники: {tickets.length}
+                Участники: {totalTickets.length}
                 <Button
                   variant="contained"
                   color="primary"
@@ -217,206 +420,270 @@ export default function LotoPage() {
           )}
 
           {['playing', 'win'].includes(state) && (
-            <Box marginTop={'40px'}>
-              <Box display="flex" alignItems="center" justifyContent={'center'}>
-                <span style={{ fontSize: '24px' }}>Выигрышная комбинация:</span>
-                <span
-                  style={{
-                    fontSize: '48px',
-                    marginLeft: '20px',
-                    fontFamily: 'monospace',
-                  }}
-                >
-                  {fillWithDashes(displayValue)}
-                </span>
+            <Box>
+              <Box>
+                <Box display={'flex'} justifyContent={'center'}>
+                  <InfoPanel>
+                    <p>Побеждает тот кто соберет 3 или больше чисел в ряд</p>
+                  </InfoPanel>
+                </Box>
+                {/* <span style={{ fontSize: '24px' }}>Номера:</span> */}
+                <Box display={'flex'} justifyContent={'center'}>
+                  <Box
+                    display={'flex'}
+                    justifyContent={'center'}
+                    textAlign={'center'}
+                    width={'900px'}
+                    flexWrap={'wrap'}
+                  >
+                    {drawnNumbers.map((value, index) => {
+                      return (
+                        <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
+                          <DrawnNumber value={value} />
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </Box>
               </Box>
               <Box textAlign={'center'}>
-                {state === 'playing' && (
-                  <Box marginBottom={'60px'}>
-                    <Button
-                      variant="outlined"
-                      onClick={() => setNextDigitState('roll_start')}
-                      disabled={
-                        filterText.length === 5 || nextDigitState !== 'idle'
-                      }
+                {(state === 'playing' || state === 'win') && (
+                  <Box>
+                    <Box
+                      marginTop={'10px'}
+                      fontSize={'48px'}
+                      display={'flex'}
+                      alignItems={'center'}
+                      justifyContent={'center'}
+                      textAlign={'center'}
                     >
-                      Следующая цифра
-                    </Button>
+                      {nextNumber.length > 0 && (
+                        <DrawnNumber value={nextNumber} big />
+                      )}
+                      {nextNumber.length === 0 && (
+                        <Box marginTop={'40px'}></Box>
+                      )}
+                    </Box>
+                    {nextNumberText && nextDigitState === 'idle' && (
+                      <Box fontSize={'18px'}>{nextNumberText}</Box>
+                    )}
                   </Box>
                 )}
+                {state === 'playing' && (
+                  <>
+                    <Box marginBottom={'40px'} marginTop={'20px'}>
+                      <Button
+                        variant="contained"
+                        onClick={() => setNextDigitState('roll_start')}
+                        disabled={nextDigitState !== 'idle'}
+                      >
+                        Следующее число
+                      </Button>
+                    </Box>
+                  </>
+                )}
                 {state === 'win' && (
-                  <Box>
-                    <img src={bingo} alt="bingo" width={'200px'} />
+                  <Box marginTop={'10px'}>
+                    <img src={BingoImage} alt="bingo" width={'200px'} />
+                    <Box
+                      textAlign="center"
+                      display="flex"
+                      justifyContent="center"
+                    >
+                      <InfoPanel>
+                        <h2>
+                          Чтобы сыграть в СУПЕР-ИГРУ напиши в чат
+                          <br />
+                          +супер {'<пять чисел через пробел>'}
+                          <br />
+                          Например: +супер 31 4 76 38 95
+                        </h2>
+                      </InfoPanel>
+                    </Box>
                   </Box>
                 )}
               </Box>
             </Box>
           )}
 
-          {state !== 'win' && (
-            <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
-              {filteredTickets.map((ticket, i) => {
-                return (
-                  <Box key={i} marginTop={'20px'} marginRight={'20px'}>
-                    <TicketBox
-                      ticket={ticket}
-                      matches={matchesPerTicket[ticket.owner]}
-                    />
+          {state === 'super_game' && superGameTicket && (
+            <Box display="flex" justifyContent="center">
+              <Box>
+                <Box
+                  textAlign={'center'}
+                  display="flex"
+                  justifyContent="center"
+                >
+                  <InfoPanel>
+                    Угадай любое 5 чисел
+                    <br /> И получи супер-приз!
+                  </InfoPanel>
+                </Box>
+                <Box
+                  fontSize={'48px'}
+                  marginBottom={'20px'}
+                  textAlign={'center'}
+                >
+                  Супер Игра с {superGameTicket.owner_name}
+                </Box>
+                <Box
+                  display={'flex'}
+                  justifyContent={'center'}
+                  textAlign={'center'}
+                  width={'900px'}
+                  flexWrap={'wrap'}
+                >
+                  {superGameDraws.map((value, index) => {
+                    return (
+                      <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
+                        <DrawnNumber value={value} />
+                      </Box>
+                    )
+                  })}
+                </Box>
+                <Box marginBottom={'30px'}>
+                  <Box
+                    marginTop={'10px'}
+                    fontSize={'48px'}
+                    display={'flex'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                    textAlign={'center'}
+                  >
+                    {nextNumber.length > 0 && (
+                      <DrawnNumber value={nextNumber} big />
+                    )}
+                    {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
                   </Box>
-                )
-              })}
+                  {nextNumberText && nextDigitState === 'idle' && (
+                    <Box fontSize={'18px'} textAlign={'center'}>
+                      {nextNumberText}
+                    </Box>
+                  )}
+                </Box>
+                {!super_game_finished && (
+                  <Box
+                    marginBottom={'40px'}
+                    marginTop={'20px'}
+                    textAlign={'center'}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={() => setNextDigitState('roll_start')}
+                      disabled={nextDigitState !== 'idle'}
+                    >
+                      Следующее число
+                    </Button>
+                  </Box>
+                )}
+                {super_game_finished && (
+                  <Box
+                    marginBottom={'40px'}
+                    marginTop={'20px'}
+                    textAlign={'center'}
+                    fontSize={'32px'}
+                  >
+                    {superGameMatchesCount > 0 ? (
+                      <Box>
+                        {superGameTicket.owner_name} угадывает{' '}
+                        {superGameMatchesCount}!
+                      </Box>
+                    ) : (
+                      <Box>{superGameTicket.owner_name} проигрывает!</Box>
+                    )}
+                  </Box>
+                )}
+                <Box
+                  marginBottom={'200px'}
+                  display={'flex'}
+                  justifyContent={'center'}
+                >
+                  <TicketBox
+                    ticket={superGameTicket}
+                    matches={superGameMatches}
+                    owner={allUsersById[superGameTicket.owner_id]}
+                  />
+                </Box>
+              </Box>
             </Box>
           )}
-          {state === 'win' && winner && (
-            <>
-              <Box display={'flex'} justifyContent={'center'}>
-                <TicketBox
-                  ticket={winner}
-                  matches={matchesPerTicket[winner.owner]}
-                />
-              </Box>
-              <Box
-                display={'flex'}
-                justifyContent={'center'}
-                marginTop={'20px'}
-              >
-                <ChatBox
-                  username={winner.owner}
-                  messages={winnerMessages.map((m) => m.message)}
-                />
-              </Box>
-            </>
-          )}
+
+          <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
+            {orderedTickets.map((ticket, i) => {
+              const isWinner = winners.includes(ticket)
+              return (
+                <Box key={i} marginTop={'20px'} marginRight={'20px'}>
+                  <TicketBox
+                    ticket={ticket}
+                    matches={matchesPerTicket[ticket.id]}
+                    isWinner={isWinner}
+                    owner={allUsersById[ticket.owner_id]}
+                  />
+                  {isWinner && (
+                    <>
+                      <Button
+                        onClick={() => setShowWinnerChat(!showWinnerChat)}
+                      >
+                        Показать чат
+                      </Button>
+                      {showWinnerChat && <ChatBox messages={winnerMessages} />}
+                    </>
+                  )}
+                </Box>
+              )
+            })}
+          </Box>
         </Box>
       </Box>
     </Box>
   )
 }
 
-function fillWithDashes(value: string) {
-  const maxSize = 5
-  if (value.length > maxSize) {
-    return value
-  }
-  return value + '-'.repeat(maxSize - value.length)
+function drawNumber(next: string) {
+  DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
+  // console.log('DrawingNumbers', DrawingNumbers)
+  return next
 }
 
-// const unique5DigitCombinations = generateUnique5DigitCombinations()
+// Как сделать отображение новых наград публичными/приватными?
+// Нужно ввести в чате своего канала соответствующую команду:
+// Сделать отображения публичными: /rewardalert public
+// Сделать отображения приватными: /rewardalert private
 
-// function generateTicket() {
-//   return sample(unique5DigitCombinations)
-// }
-
-// function generateTicket() {
-//   // returns random number of 5 digits
-//   const d1 = sample(DIGITS)
-//   const d2 = sample(DIGITS)
-//   const d3 = sample(DIGITS)
-//   const d4 = sample(DIGITS)
-//   const d5 = sample(DIGITS)
-//   return `${d1}${d2}${d3}${d4}${d5}`
-// }
-
-function getMatches(value: string[], filter: string[]) {
-  let matches: number[] = []
-  const filterCopy = [...filter]
-  for (const digit of value) {
-    const index = filterCopy.indexOf(digit)
-    if (index === -1) {
-      matches.push(0)
-      continue
-    }
-    matches.push(1)
-    filterCopy.splice(index, 1)
-  }
-  return matches
+type UserInfo = {
+  user_id: number
+  username: string
+  text?: string
 }
 
-// function generateUnique5DigitCombinations(): string[] {
-//   const results: string[] = []
-//   const digits = Array.from({ length: 10 }, (_, i) => i.toString())
+function getNewTickets(
+  currentTickets: Ticket[],
+  newMessages: UserInfo[],
+  source: 'chat' | 'points'
+) {
+  const currentOwners = currentTickets.map((ticket) => ticket.owner_id)
 
-//   function backtrack(start: number, current: string[]) {
-//     if (current.length === 5) {
-//       results.push(current.join(''))
-//       return
-//     }
+  let newOwners: UserInfo[] = newMessages.filter(
+    (owner) => !currentOwners.includes(owner.user_id)
+  )
+  newOwners = uniqBy(newOwners, (owner) => owner.user_id)
 
-//     for (let i = start; i < digits.length; i++) {
-//       current.push(digits[i])
-//       backtrack(i + 1, current) // move to the next digit to avoid repetition
-//       current.pop() // backtrack
-//     }
-//   }
+  if (newOwners.length > 0) {
+    const newOwnersTickets = newOwners.map((owner) =>
+      genTicket({
+        owner_id: owner.user_id,
+        owner_name: owner.username,
+        drawOptions: DrawingNumbers,
+        source,
+        text: owner.text,
+      })
+    )
 
-//   backtrack(0, [])
-//   return results
-// }
+    const newOwnersTicketsFiltered = newOwnersTickets.filter(
+      (ticket) => ticket.value !== null
+    ) as Ticket[]
 
-// function generateUnique5DigitCombinationsWithRepetition(): string[] {
-//   const results: Set<string> = new Set()
-//   const digits = Array.from({ length: 10 }, (_, i) => i.toString())
-
-//   function backtrack(current: string[], start: number) {
-//     if (current.length === 5) {
-//       results.add(current.sort().join('')) // Sort to ensure uniqueness
-//       return
-//     }
-
-//     for (let i = start; i < digits.length; i++) {
-//       current.push(digits[i])
-//       backtrack(current, i) // Allow current digit to be reused
-//       current.pop() // backtrack
-//     }
-//   }
-
-//   backtrack([], 0)
-//   return Array.from(results)
-// }
-
-function generateUnique5DigitCombinationsWithLimitedRepetitions(): string[] {
-  const results: Set<string> = new Set()
-  const digits = Array.from({ length: 10 }, (_, i) => i.toString())
-
-  function backtrack(
-    current: string[],
-    start: number,
-    digitCount: Record<string, number>
-  ) {
-    if (current.length === 5) {
-      results.add(current.slice().sort().join('')) // Sort to ensure uniqueness
-      return
-    }
-
-    for (let i = start; i < digits.length; i++) {
-      const digit = digits[i]
-      if ((digitCount[digit] || 0) < 2) {
-        // Check if the digit can still be added
-        current.push(digit)
-        digitCount[digit] = (digitCount[digit] || 0) + 1
-
-        backtrack(current, i, digitCount)
-
-        // Backtrack
-        current.pop()
-        digitCount[digit] -= 1
-      }
-    }
+    return newOwnersTicketsFiltered
   }
-
-  backtrack([], 0, {})
-  return Array.from(results)
-}
-
-const ticketCombinations =
-  generateUnique5DigitCombinationsWithLimitedRepetitions()
-// console.log(ticketCombinations)
-
-function generateTicket() {
-  if (ticketCombinations.length > 0) {
-    const ticket = sample(ticketCombinations) as string
-    ticketCombinations.splice(ticketCombinations.indexOf(ticket), 1)
-    return ticket
-  }
-  return null
+  return []
 }

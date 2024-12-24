@@ -64,11 +64,13 @@ export type ChatMessagesResponse = {
 }
 
 export type FetchVotesParams = {
+  channel: string
   ts: number
   textFilter?: string
 }
 
 export async function fetchVotes({
+  channel,
   ts,
   textFilter,
 }: FetchVotesParams): Promise<ChatMessagesResponse> {
@@ -155,6 +157,7 @@ export async function fetchVotes({
   }
 
   const params = new URLSearchParams()
+  params.set('channel', channel)
   params.set('ts', ts.toString())
   if (textFilter && textFilter.length > 0) {
     params.set('text_filter', textFilter)

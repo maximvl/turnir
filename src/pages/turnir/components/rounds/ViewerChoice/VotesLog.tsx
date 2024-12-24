@@ -1,7 +1,7 @@
 import { Box, Button } from '@mui/material'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Item } from 'pages/turnir/types'
-import { ChatMessage } from 'pages/turnir/api'
+import { Item } from '@/pages/turnir/types'
+import { ChatMessage } from '@/pages/turnir/api'
 
 type Props = {
   votes: ChatMessage[]

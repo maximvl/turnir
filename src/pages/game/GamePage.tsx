@@ -1,14 +1,12 @@
 import { Button } from '@mui/material'
-import { fetchVotes } from '@/pages/turnir/api'
 import { useEffect, useRef, useState } from 'react'
-import { useQuery } from 'react-query'
 import GameField from './GameField'
 import { Player } from './type'
 import { makePlayer } from './utils'
+import useChatMessages from '@/common/hooks/useChatMessages'
 
 type GameState = 'lobby' | 'turn' | 'playing' | 'win'
 
-const CHAT_REFETCH_INTERVAL = 1000
 const JOIN_MESSAGE = '+игра'
 
 export default function GamePage() {
@@ -47,31 +45,12 @@ export default function GamePage() {
     }
   }, [state, players, attacks])
 
-  const { data: chatData } = useQuery(
-    ['loto', 0, lastTs],
-    ({ queryKey }) => {
-      return fetchVotes({ ts: queryKey[2] as number })
-    },
-    {
-      refetchInterval: CHAT_REFETCH_INTERVAL,
-      enabled: state === 'lobby' || state === 'turn',
-    }
-  )
+  const { newMessages: messages } = useChatMessages({
+    fetching: state === 'lobby' || state === 'turn',
+  })
 
-  if (
-    state === 'lobby' &&
-    chatData?.chat_messages &&
-    chatData?.chat_messages?.length > 0
-  ) {
-    const lastMessage =
-      chatData.chat_messages[chatData.chat_messages.length - 1]
-    if (lastMessage.ts > lastTs + 5) {
-      setLastTs(
-        chatData.chat_messages[chatData.chat_messages.length - 1].ts - 5
-      )
-    }
-
-    const joinMessages = chatData.chat_messages.filter((m) =>
+  if (state === 'lobby' && messages.length > 0) {
+    const joinMessages = messages.filter((m) =>
       m.message.includes(JOIN_MESSAGE)
     )
     const existingPlayerIds = players.map((p) => p.id)
@@ -106,23 +85,11 @@ export default function GamePage() {
     }
   }
 
-  if (
-    state === 'turn' &&
-    chatData?.chat_messages &&
-    chatData.chat_messages.length > 0
-  ) {
-    const lastMessage =
-      chatData.chat_messages[chatData.chat_messages.length - 1]
-    if (lastMessage.ts > lastTs + 5) {
-      setLastTs(
-        chatData.chat_messages[chatData.chat_messages.length - 1].ts - 5
-      )
-    }
-
+  if (state === 'turn' && messages.length > 0) {
     const playerIds = players.map((p) => p.id)
 
     // attack message is a number-location of the attack
-    const attackMessages = chatData.chat_messages.filter(
+    const attackMessages = messages.filter(
       (m) => /^\d+$/.test(m.message) && playerIds.includes(m.user.id)
     )
     if (attackMessages.length > 0) {

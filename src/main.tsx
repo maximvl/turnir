@@ -7,7 +7,6 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import MusicContextProvider from '@/common/hooks/MusicContext'
 import VotingPage from '@/pages/voting/VotingPage'
 import LotoPage from '@/pages/loto/LotoPage'
-import LotoPage2 from '@/pages/loto2/LotoPage'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import GamePage from '@/pages/game/GamePage'
 import ChatOptionsPage from '@/pages/chatOptions/ChatOptionsPage'
@@ -38,10 +37,6 @@ const router = createBrowserRouter([
   {
     path: '/loto',
     element: <LotoPage />,
-  },
-  {
-    path: '/loto2',
-    element: <LotoPage2 />,
   },
   {
     path: '/game',

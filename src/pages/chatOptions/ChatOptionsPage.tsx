@@ -6,32 +6,20 @@ import {
   Tooltip,
 } from '@mui/material'
 import MainMenu from '@/common/MainMenu'
-import { isUserSubscriber, VkColorsMap } from '@/pages/loto2/utils'
-import { fetchVotes } from '@/pages/turnir/api'
+import { isUserSubscriber, VkColorsMap } from '@/pages/loto/utils'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { useState } from 'react'
-import { useQuery } from 'react-query'
 import { Option } from './types'
-
-const MESSAGES_REFETCH_INTERVAL = 2000
+import useChatMessages from '@/common/hooks/useChatMessages'
 
 export default function ChatOptionsPage() {
-  const [lastTs, setLastTs] = useState(() => Math.floor(Date.now() / 1000))
   const [options, setOptions] = useState<Option[]>([])
   const [onlySubscribers, setOnlySubscribers] = useState(true)
 
-  const { data: chatData } = useQuery(
-    ['loto', 0, lastTs],
-    ({ queryKey }) => {
-      return fetchVotes({ ts: queryKey[2] as number })
-    },
-    {
-      refetchInterval: MESSAGES_REFETCH_INTERVAL,
-    }
-  )
+  const { newMessages: messages } = useChatMessages({ fetching: true })
 
-  if (chatData && chatData.chat_messages && chatData.chat_messages.length > 0) {
-    const newOptions = chatData.chat_messages
+  if (messages.length > 0) {
+    const newOptions = messages
       .filter((msg) => msg.message.startsWith('+'))
       .map((msg) => {
         const text = msg.message.slice(1).trim()
@@ -54,9 +42,6 @@ export default function ChatOptionsPage() {
       )
 
       setOptions([...newOptionsFiltered, ...optionsToBeKept])
-      setLastTs(
-        chatData.chat_messages[chatData.chat_messages.length - 1].ts - 5
-      )
     }
   }
 

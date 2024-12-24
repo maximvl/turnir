@@ -4,3 +4,15 @@ export type Ticket = {
   color: string
   variant: number
 }
+
+export type TicketId = string
+
+export type Ticket2 = {
+  id: TicketId
+  owner_id: number
+  owner_name: string
+  value: string[]
+  color: string
+  variant: number
+  source: 'chat' | 'points'
+}
