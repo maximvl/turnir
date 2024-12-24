@@ -7,7 +7,7 @@ import { createTheme, CssBaseline, ThemeProvider } from '@mui/material'
 import MusicContextProvider from '@/common/hooks/MusicContext'
 import VotingPage from '@/pages/voting/VotingPage'
 import LotoPage from '@/pages/loto/LotoPage'
-import { QueryClient, QueryClientProvider } from 'react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import GamePage from '@/pages/game/GamePage'
 import ChatOptionsPage from '@/pages/chatOptions/ChatOptionsPage'
 

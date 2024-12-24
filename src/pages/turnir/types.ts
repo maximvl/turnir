@@ -117,3 +117,5 @@ export const MusicTypeIds = {
   [MusicType.Light]: 'light-music',
   [MusicType.Loto]: 'loto-music',
 }
+
+export type ChatServerType = 'twitch' | 'vkvideo'

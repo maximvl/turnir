@@ -1,5 +1,5 @@
 import { random, sample } from 'lodash'
-import { ItemStatus, Item } from './types'
+import { ItemStatus, Item, ChatServerType } from './types'
 
 const MOCK_API = import.meta.env.MODE === 'development'
 
@@ -162,9 +162,9 @@ export async function fetchVotes({
   if (textFilter && textFilter.length > 0) {
     params.set('text_filter', textFilter)
   }
-  return fetch(`${URL_PREFIX}/turnir-api/votes?${params.toString()}`).then(
-    (res) => res.json()
-  )
+  return fetch(
+    `${URL_PREFIX}/turnir-api/chat_messages?${params.toString()}`
+  ).then((res) => res.json())
 }
 
 export async function resetVotes(options: string[]): Promise<number> {
@@ -228,4 +228,28 @@ export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
   return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`).then((res) =>
     res.json()
   )
+}
+
+type ChatConnectResponse = {
+  status: 'ok'
+}
+
+type ChatConnectParams = {
+  server: ChatServerType
+  channel: string
+}
+
+export async function chatConnect({
+  server,
+  channel,
+}: ChatConnectParams): Promise<ChatConnectResponse> {
+  if (MOCK_API) {
+    return { status: 'ok' }
+  }
+  const params = new URLSearchParams()
+  params.set('channel', channel)
+  params.set('platform', server)
+  return fetch(`${URL_PREFIX}/turnir-api/chat_connect?${params.toString()}`, {
+    method: 'POST',
+  }).then((res) => res.json())
 }

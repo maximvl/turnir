@@ -12,22 +12,59 @@ import {
   MenuItem,
   Select,
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import useLocalStorage from './hooks/useLocalStorage'
+import { ChatServerType } from '@/pages/turnir/types'
+import { useMutation } from '@tanstack/react-query'
+import { chatConnect } from '@/pages/turnir/api'
+import useChatMessages from './hooks/useChatMessages'
 
 type Props = {}
 
-type ServerType = 'twitch.tv' | 'vkvideo.ru'
-
 export default function ChatConnectionButton(props: Props) {
-  const [open, setOpen] = useState(false)
-  const [channel, setChannel] = useState<string | null>(null)
-  const [server, setServer] = useState<string | null>(null)
+  const { save, load } = useLocalStorage()
+  const [state, setState] = useState<'idle' | 'connecting'>('idle')
 
-  const [isConnected, setIsConnected] = useState(true)
+  const [open, setOpen] = useState(false)
+  const [channel, setChannel] = useState<string | null>(() =>
+    load('chat_channel', null)
+  )
+  const [server, setServer] = useState<ChatServerType | null>(() =>
+    load('chat_server', null)
+  )
+
+  const { mutate } = useMutation({ mutationFn: chatConnect })
+  const { newMessages } = useChatMessages({ fetching: state === 'connecting' })
+
+  useEffect(() => {
+    if (newMessages.length > 0 && state === 'connecting') {
+      setState('idle')
+      setIsConnected(true)
+    }
+  }, [newMessages])
+
+  const [isConnected, setIsConnected] = useState(false)
 
   let statusMessage = 'Чат не подключен'
   if (channel && server) {
     statusMessage = `${server}/${channel}`
+  }
+
+  const handleConnect = () => {
+    setState('connecting')
+    if (channel && server) {
+      mutate({ channel, server })
+    }
+  }
+
+  const saveServer = (server: ChatServerType) => {
+    save('chat_server', server)
+    setServer(server)
+  }
+
+  const saveChannel = (channel: string) => {
+    save('chat_channel', channel)
+    setChannel(channel)
   }
 
   return (
@@ -54,21 +91,23 @@ export default function ChatConnectionButton(props: Props) {
           <FormControl fullWidth sx={{ marginTop: '10px' }}>
             <InputLabel>Сервер</InputLabel>
             <Select
-              onChange={(e) => setServer(e.target.value as ServerType)}
+              onChange={(e) => saveServer(e.target.value as ChatServerType)}
               value={server}
               label="Сервер"
             >
-              <MenuItem value="twitch.tv">twitch.tv</MenuItem>
-              <MenuItem value="vkvideo.ru">vkvideo.ru</MenuItem>
+              <MenuItem value="twitch">twitch.tv</MenuItem>
+              <MenuItem value="vkvideo">vkvideo.ru</MenuItem>
             </Select>
           </FormControl>
           <Box display="flex" alignItems="baseline" sx={{ marginTop: '10px' }}>
             <Input
               placeholder="канал"
-              onChange={(e) => setChannel(e.target.value)}
+              onChange={(e) => saveChannel(e.target.value)}
               sx={{ marginTop: '10px', marginRight: '20px' }}
             />
-            <Button variant="contained">Подключиться</Button>
+            <Button variant="contained" onClick={handleConnect}>
+              Подключиться
+            </Button>
           </Box>
         </DialogContent>
         <DialogActions>

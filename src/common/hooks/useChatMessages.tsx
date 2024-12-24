@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
-import { useQuery } from 'react-query'
+import { useQuery } from '@tanstack/react-query'
 import { fetchVotes, ChatMessage } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
 
@@ -32,19 +32,17 @@ export default function useChatMessages({ fetching }: Props) {
     data: chatData,
     error,
     isLoading,
-  } = useQuery(
-    ['chatMessages', channel, lastTs],
-    () => {
+  } = useQuery({
+    queryKey: ['chatMessages', channel, lastTs],
+    queryFn: () => {
       if (channel === null) {
         return undefined
       }
       return fetchVotes({ channel, ts: lastTs })
     },
-    {
-      refetchInterval: REFETCH_INTERVAL,
-      enabled: fetching && channel !== null,
-    }
-  )
+    refetchInterval: REFETCH_INTERVAL,
+    enabled: fetching && channel !== null,
+  })
 
   if (!error && !isLoading && !isEmpty(chatData?.chat_messages)) {
     // todo remove duplicates votes for same user id
