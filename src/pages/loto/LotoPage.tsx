@@ -4,6 +4,7 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  Tooltip,
 } from '@mui/material'
 import { MusicContext } from '@/common/hooks/MusicContext'
 import MainMenu from '@/common/MainMenu'
@@ -371,16 +372,18 @@ export default function LotoPage() {
                       />
                     }
                   />
-                  <FormControlLabel
-                    label="Только для САБОВ"
-                    control={
-                      <Checkbox
-                        checked={onlySubscribers}
-                        onChange={() => setOnlySubscribers((val) => !val)}
-                        color="primary"
-                      />
-                    }
-                  />
+                  <Tooltip title="Пока только для ВК">
+                    <FormControlLabel
+                      label="Только для САБОВ"
+                      control={
+                        <Checkbox
+                          checked={onlySubscribers}
+                          onChange={() => setOnlySubscribers((val) => !val)}
+                          color="primary"
+                        />
+                      }
+                    />
+                  </Tooltip>
                 </FormGroup>
               </Box>
               <Box
@@ -393,7 +396,10 @@ export default function LotoPage() {
                   <p>
                     Пишите в чат <strong>+лото</strong> чтобы получить билет
                   </p>
-                  <p>Можно писать свои числа: +лото 4 8 15 23 42 14 89</p>
+                  <p>
+                    Можно писать свои числа:{' '}
+                    <strong>+лото 4 8 15 23 42 14 89</strong>
+                  </p>
                 </InfoPanel>
               </Box>
 
