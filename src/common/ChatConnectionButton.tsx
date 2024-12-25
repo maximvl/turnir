@@ -58,6 +58,13 @@ export default function ChatConnectionButton(props: Props) {
     }
   }
 
+  const handleOpen = () => {
+    setOpen(true)
+    if (state === 'connecting') {
+      setState('idle')
+    }
+  }
+
   useEffect(() => {
     if (channel && server && state === 'idle' && !open) {
       handleConnect()
@@ -77,7 +84,7 @@ export default function ChatConnectionButton(props: Props) {
   return (
     <Box>
       <Box display="flex" alignItems="center">
-        <Button onClick={() => setOpen(true)}>
+        <Button onClick={handleOpen}>
           <Settings />
         </Button>
         {state === 'connected' && (
