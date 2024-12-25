@@ -72,7 +72,7 @@ export default function ChatConnectionButton(props: Props) {
   }, [channel, server, state, open])
 
   const saveServer = (server: ChatServerType) => {
-    save('chat_server', server)
+    save('chat_platform', server)
     setServer(server)
   }
 
