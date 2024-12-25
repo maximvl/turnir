@@ -9,7 +9,7 @@ export type TicketId = string
 
 export type Ticket2 = {
   id: TicketId
-  owner_id: number
+  owner_id: string
   owner_name: string
   value: string[]
   color: string

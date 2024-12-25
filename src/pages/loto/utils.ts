@@ -3,7 +3,7 @@ import { ChatUser } from '@/pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
 type Props = {
-  owner_id: number
+  owner_id: string
   owner_name: string
   drawOptions: string[]
   source: 'chat' | 'points'

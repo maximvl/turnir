@@ -49,7 +49,7 @@ export default function LotoPage() {
   const [superGameGuesses, setSuperGameGuesses] = useState<string[]>([])
   const [superGameDraws, setSuperGameDraws] = useState<string[]>([])
 
-  const [allUsersById, setAllUsersById] = useState<{ [key: number]: ChatUser }>(
+  const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>(
     {}
   )
 
@@ -103,7 +103,7 @@ export default function LotoPage() {
           }
           return acc
         },
-        {} as { [key: number]: ChatUser }
+        {} as { [key: string]: ChatUser }
       )
       if (Object.keys(newUsersById).length > 0) {
         setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
@@ -143,7 +143,7 @@ export default function LotoPage() {
 
       const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
-        return { user_id: mention.id, username: mention.displayName }
+        return { user_id: `${mention.id}`, username: mention.displayName }
       })
 
       const newTicketsFromPoints = getNewTickets(
@@ -657,7 +657,7 @@ function drawNumber(next: string) {
 // Сделать отображения приватными: /rewardalert private
 
 type UserInfo = {
-  user_id: number
+  user_id: string
   username: string
   text?: string
 }
@@ -667,7 +667,7 @@ function getNewTickets(
   newMessages: UserInfo[],
   source: 'chat' | 'points'
 ) {
-  const currentOwners = currentTickets.map((ticket) => ticket.owner_id)
+  const currentOwners = currentTickets.map((ticket) => `${ticket.owner_id}`)
 
   let newOwners: UserInfo[] = newMessages.filter(
     (owner) => !currentOwners.includes(owner.user_id)
