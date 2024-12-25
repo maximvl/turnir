@@ -362,16 +362,18 @@ export default function LotoPage() {
                       />
                     }
                   />
-                  <FormControlLabel
-                    label="Билеты с поинтов"
-                    control={
-                      <Checkbox
-                        checked={enablePointsTickets}
-                        onChange={() => setEnablePointsTickets((val) => !val)}
-                        color="primary"
-                      />
-                    }
-                  />
+                  <Tooltip title="Пока только для ВК">
+                    <FormControlLabel
+                      label="Билеты с поинтов"
+                      control={
+                        <Checkbox
+                          checked={enablePointsTickets}
+                          onChange={() => setEnablePointsTickets((val) => !val)}
+                          color="primary"
+                        />
+                      }
+                    />
+                  </Tooltip>
                   <Tooltip title="Пока только для ВК">
                     <FormControlLabel
                       label="Только для САБОВ"
