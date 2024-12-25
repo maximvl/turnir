@@ -1,7 +1,7 @@
 import { Player } from './type'
 
 type Params = {
-  id: number
+  id: string
   name: string
   team: Player['team']
   position: number

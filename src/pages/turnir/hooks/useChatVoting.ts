@@ -44,7 +44,7 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
   if (!error && !isLoading && !isEmpty(messages)) {
     // todo remove duplicates votes for same user id
     // use only the latest one
-    const msgsPerUser: { [key: number]: ChatMessage } = {}
+    const msgsPerUser: { [key: string]: ChatMessage } = {}
 
     for (const msg of messages) {
       if (!itemIds.has(msg.message)) {

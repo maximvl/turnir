@@ -13,7 +13,7 @@ export default function GamePage() {
   const [lastTs, setLastTs] = useState(Math.floor(Date.now() / 1000))
   const [state, setState] = useState<GameState>('lobby')
   const [players, setPlayers] = useState<Player[]>([])
-  const [attacks, setAttacks] = useState<{ [n: number]: number }>([])
+  const [attacks, setAttacks] = useState<{ [n: string]: number }>({})
   const [turnTimer, setTurnTimer] = useState(60)
   const timerRef = useRef<number>(60)
 
@@ -101,7 +101,7 @@ export default function GamePage() {
           }
           return acc
         },
-        {} as { [n: number]: number }
+        {} as { [n: string]: number }
       )
 
       if (Object.keys(newAttacks).length > 0) {

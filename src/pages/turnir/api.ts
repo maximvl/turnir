@@ -1,14 +1,15 @@
 import { random, sample } from 'lodash'
 import { ItemStatus, Item, ChatServerType } from './types'
 
-const MOCK_API = import.meta.env.MODE === 'development'
-
 export function createItem(index: string, title: string = ''): Item {
   return { title, status: ItemStatus.Active, id: index }
 }
 
 const URL_PREFIX = '/v2'
 // const URL_PREFIX = 'http://localhost:8080/v2'
+
+const MOCK_API =
+  import.meta.env.MODE === 'development' && !URL_PREFIX.includes('localhost')
 
 type VkUserRole = {
   id: string
@@ -38,7 +39,7 @@ type VkUserFields = {
 }
 
 export type ChatUser = {
-  id: number
+  id: string
   username: string
   vk_fields?: VkUserFields
 }
@@ -98,7 +99,7 @@ export async function fetchMessages({
         message: sample(['+лото']),
         ts: Math.round(new Date().getTime() / 1000),
         user: {
-          id: user_id,
+          id: `${user_id}`,
           username: user_id.toString(),
           vk_fields: {
             nickColor: 0,
@@ -147,7 +148,7 @@ export async function fetchMessages({
         message: '+супер 8 17 23 41 99',
         ts: Math.round(new Date().getTime() / 1000),
         user: {
-          id: user_id,
+          id: `${user_id}`,
           username: `Player-${user_id}`,
         },
       }
