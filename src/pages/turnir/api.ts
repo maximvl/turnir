@@ -64,17 +64,19 @@ export type ChatMessagesResponse = {
   chat_messages: null | ChatMessage[]
 }
 
-export type FetchVotesParams = {
+export type FetchMessagesParams = {
   channel: string
+  platform: ChatServerType
   ts: number
   textFilter?: string
 }
 
-export async function fetchVotes({
+export async function fetchMessages({
   channel,
   ts,
   textFilter,
-}: FetchVotesParams): Promise<ChatMessagesResponse> {
+  platform,
+}: FetchMessagesParams): Promise<ChatMessagesResponse> {
   if (MOCK_API) {
     const makeBadge = () => {
       return {
@@ -158,6 +160,7 @@ export async function fetchVotes({
   }
 
   const params = new URLSearchParams()
+  params.set('platform', platform)
   params.set('channel', channel)
   params.set('ts', ts.toString())
   if (textFilter && textFilter.length > 0) {

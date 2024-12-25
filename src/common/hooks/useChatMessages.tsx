@@ -1,8 +1,9 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchVotes, ChatMessage } from '@/pages/turnir/api'
+import { fetchMessages, ChatMessage } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
+import { ChatServerType } from '@/pages/turnir/types'
 
 type Props = {
   fetching?: boolean
@@ -14,6 +15,7 @@ export default function useChatMessages({ fetching }: Props) {
   const { load } = useLocalStorage()
 
   let channel: string | null = load('chat_channel', null)
+  let platform: ChatServerType | null = load('chat_platform', null)
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessages, setNewMessages] = useState<ChatMessage[]>([])
@@ -37,10 +39,13 @@ export default function useChatMessages({ fetching }: Props) {
       if (!channel) {
         channel = load('chat_channel', null)
       }
-      if (!channel) {
+      if (!platform) {
+        platform = load('chat_platform', null)
+      }
+      if (!channel || !platform) {
         return undefined
       }
-      return fetchVotes({ channel, ts: lastTs })
+      return fetchMessages({ platform, channel, ts: lastTs })
     },
     refetchInterval: REFETCH_INTERVAL,
     enabled: fetching && channel !== null,

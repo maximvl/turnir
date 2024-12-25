@@ -33,7 +33,7 @@ export default function ChatConnectionButton(props: Props) {
     load('chat_channel', null)
   )
   const [server, setServer] = useState<ChatServerType | null>(() =>
-    load('chat_server', null)
+    load('chat_platform', null)
   )
 
   const { mutate } = useMutation({ mutationFn: chatConnect })
