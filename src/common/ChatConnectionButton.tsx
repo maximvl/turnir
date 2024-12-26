@@ -84,27 +84,34 @@ export default function ChatConnectionButton(props: Props) {
   return (
     <Box>
       <Box display="flex" alignItems="center">
-        <Button onClick={handleOpen}>
-          <Settings />
+        <Button
+          onClick={handleOpen}
+          variant="contained"
+          color="inherit"
+          sx={{ textTransform: 'none' }}
+        >
+          {state === 'connected' && (
+            <Box display="flex" alignItems="center">
+              <RadioButtonChecked
+                color="success"
+                sx={{ marginRight: '10px' }}
+              />
+              Чат {statusMessage}
+            </Box>
+          )}
+          {state === 'idle' && (
+            <Box display="flex" alignItems="center">
+              <Error color="error" sx={{ marginRight: '10px' }} />
+              Чат {statusMessage}
+            </Box>
+          )}
+          {state === 'connecting' && (
+            <Box display="flex" alignItems="center">
+              <CircularProgress size="20px" sx={{ marginRight: '10px' }} />
+              Подключение к {statusMessage}
+            </Box>
+          )}
         </Button>
-        {state === 'connected' && (
-          <Box display="flex" alignItems="center">
-            <RadioButtonChecked color="success" sx={{ marginRight: '10px' }} />
-            Чат {statusMessage}
-          </Box>
-        )}
-        {state === 'idle' && (
-          <Box display="flex" alignItems="center">
-            <Error color="error" sx={{ marginRight: '10px' }} />
-            Чат {statusMessage}
-          </Box>
-        )}
-        {state === 'connecting' && (
-          <Box display="flex" alignItems="center">
-            <CircularProgress size="20px" sx={{ marginRight: '10px' }} />
-            Подключение к {statusMessage}
-          </Box>
-        )}
       </Box>
       <Dialog open={open}>
         <DialogTitle>Подключение к чату</DialogTitle>
