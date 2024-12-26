@@ -334,7 +334,7 @@ export default function LotoPage() {
   }
 
   const super_game_finished =
-    state === 'super_game' && superGameDraws.length === 5
+    state === 'super_game' && superGameDraws.length === 10
 
   const nextNumberText = NumberToFancyName[nextNumber]
 
