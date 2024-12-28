@@ -132,6 +132,7 @@ export default function ChatConnectionButton(props: Props) {
             >
               <MenuItem value="twitch">twitch.tv</MenuItem>
               <MenuItem value="vkvideo">vkvideo.ru</MenuItem>
+              <MenuItem value="nuum">nuum.ru</MenuItem>
             </Select>
           </FormControl>
           <Box display="flex" alignItems="baseline" sx={{ marginTop: '10px' }}>
