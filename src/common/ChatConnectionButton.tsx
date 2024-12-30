@@ -47,7 +47,13 @@ export default function ChatConnectionButton(props: Props) {
 
   let statusMessage = 'не подключен'
   if (channel && server) {
-    const serverName = server === 'twitch' ? 'twitch.tv' : 'vkvideo.ru'
+    const serverNames = {
+      twitch: 'twitch.tv',
+      vkvideo: 'vkvideo.ru',
+      nuum: 'nuum.ru',
+      goodgame: 'goodgame.ru',
+    }
+    const serverName = serverNames[server]
     statusMessage = `${serverName}/${channel}`
   }
 
@@ -133,6 +139,7 @@ export default function ChatConnectionButton(props: Props) {
               <MenuItem value="twitch">twitch.tv</MenuItem>
               <MenuItem value="vkvideo">vkvideo.ru</MenuItem>
               <MenuItem value="nuum">nuum.ru</MenuItem>
+              <MenuItem value="goodgame">goodgame.ru</MenuItem>
             </Select>
           </FormControl>
           <Box display="flex" alignItems="baseline" sx={{ marginTop: '10px' }}>
