@@ -106,6 +106,24 @@ export async function fetchMessages({
 
     const makeMessage = () => {
       const user_id = random(1, 100)
+      const colors = [
+        '#0000FF',
+        '#FF7F50',
+        '#1E90FF',
+        '#00FF7F',
+        '#9ACD32',
+        '#008000',
+        '#FF4500',
+        '#FF0000',
+        '#DAA520',
+        '#FF69B4',
+        '#5F9EA0',
+        '#2E8B57',
+        '#D2691E',
+        '#8A2BE2',
+        '#B22222',
+      ]
+
       return {
         id: '93152579',
         message: sample(['+лото']),
@@ -113,12 +131,16 @@ export async function fetchMessages({
         user: {
           id: `${user_id}`,
           username: user_id.toString(),
-          vk_fields: {
-            nickColor: 0,
-            isChatModerator: false,
-            isChannelModerator: false,
-            badges: [makeBadge(), makeBadge(), makeBadge()],
-            roles: [],
+          // vk_fields: {
+          //   nickColor: 0,
+          //   isChatModerator: false,
+          //   isChannelModerator: false,
+          //   badges: [makeBadge(), makeBadge(), makeBadge()],
+          //   roles: [],
+          // },
+          twitch_fields: {
+            color: sample(colors),
+            badges: [],
           },
         },
       }
@@ -169,7 +191,7 @@ export async function fetchMessages({
     const messages: ChatMessage[] = Array.from({ length: 20 }, makeMessage)
     const gameMessages = [makeGameMessage(), makeGameMessage()]
     // return { chat_messages: messages }
-    return { chat_messages: [makeSuperGameMessage()] }
+    return { chat_messages: messages }
   }
 
   const params = new URLSearchParams()

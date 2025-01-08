@@ -6,7 +6,7 @@ import TicketImg2 from '@/assets/ticket2.svg'
 import TicketImg3 from '@/assets/ticket3.svg'
 import TicketImg4 from '@/assets/ticket4.svg'
 import AnimeBackground from '@/assets/sakura1.webp'
-import { VkColorsMap } from './utils'
+import { isBrightColor, VkColorsMap } from './utils'
 import { ChatUser } from '@/pages/turnir/api'
 
 type MatchRange = {
@@ -73,7 +73,10 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
   const darkTextWin = '#3C0753'
 
   const userColor =
-    VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || 'white'
+    VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
+
+  const isUserColorBright = isBrightColor(userColor)
+  const nickBackgroundColor = isUserColorBright ? '#191970' : '#f48fb1'
 
   const gradients = [
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
@@ -126,7 +129,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
           alignItems={'center'}
           width={'fit-content'}
           style={{
-            backgroundColor: '#333333',
+            backgroundColor: nickBackgroundColor,
           }}
           fontSize={'24px'}
         >

@@ -143,3 +143,40 @@ export function isUserSubscriber(user: ChatUser) {
   )
   return subBadges.length > 0
 }
+
+export function hexToRgb(hex: string): [number, number, number] {
+  // Remove the '#' if present
+  hex = hex.replace(/^#/, '')
+
+  // Parse the string and convert to decimal values
+  const bigint = parseInt(hex, 16)
+  const r = (bigint >> 16) & 255
+  const g = (bigint >> 8) & 255
+  const b = bigint & 255
+
+  return [r, g, b]
+}
+
+export function isBrightColor(hexColor: string): boolean {
+  const [r, g, b] = hexToRgb(hexColor)
+
+  // Convert RGB to the 0-1 range
+  let rNorm = r / 255
+  let gNorm = g / 255
+  let bNorm = b / 255
+
+  // Apply gamma correction
+  rNorm =
+    rNorm <= 0.03928 ? rNorm / 12.92 : Math.pow((rNorm + 0.055) / 1.055, 2.4)
+  gNorm =
+    gNorm <= 0.03928 ? gNorm / 12.92 : Math.pow((gNorm + 0.055) / 1.055, 2.4)
+  bNorm =
+    bNorm <= 0.03928 ? bNorm / 12.92 : Math.pow((bNorm + 0.055) / 1.055, 2.4)
+
+  // Calculate luminance
+  const luminance = 0.2126 * rNorm + 0.7152 * gNorm + 0.0722 * bNorm
+
+  console.log(hexColor, luminance)
+
+  return luminance > 0.1
+}
