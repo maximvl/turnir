@@ -38,10 +38,22 @@ type VkUserFields = {
   badges: VkUserBadge[]
 }
 
+type TwitchBadge = {
+  id: string
+  title: string
+  image_url_4x: string
+}
+
+type TwitchUserFields = {
+  color?: string
+  badges: TwitchBadge[]
+}
+
 export type ChatUser = {
   id: string
   username: string
   vk_fields?: VkUserFields
+  twitch_fields?: TwitchUserFields
 }
 
 export type VkMention = {
@@ -54,7 +66,7 @@ type VkChatFields = {
 }
 
 export type ChatMessage = {
-  id: number
+  id: string
   ts: number
   message: string
   user: ChatUser
@@ -95,7 +107,7 @@ export async function fetchMessages({
     const makeMessage = () => {
       const user_id = random(1, 100)
       return {
-        id: 93152579,
+        id: '93152579',
         message: sample(['+лото']),
         ts: Math.round(new Date().getTime() / 1000),
         user: {
@@ -115,7 +127,7 @@ export async function fetchMessages({
     const makeBotMessage = () => {
       const user_id = random(1, 100)
       return {
-        id: 93152579,
+        id: '93152579',
         message: 'получил награду лото',
         ts: Math.round(new Date().getTime() / 1000),
         user: {
@@ -131,7 +143,7 @@ export async function fetchMessages({
     const makeGameMessage = () => {
       const user_id = random(1, 100)
       return {
-        id: 93152579,
+        id: '93152579',
         message: '+игра',
         ts: Math.round(new Date().getTime() / 1000),
         user: {
@@ -144,7 +156,7 @@ export async function fetchMessages({
     const makeSuperGameMessage = () => {
       const user_id = 13
       return {
-        id: 93152579111,
+        id: '93152579111',
         message: '+супер 8 17 23 41 99',
         ts: Math.round(new Date().getTime() / 1000),
         user: {

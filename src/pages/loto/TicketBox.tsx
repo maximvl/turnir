@@ -60,16 +60,20 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
   const highlightColor = theme.palette.error.main
   const winnerColor = theme.palette.warning.main
 
-  const badges = owner?.vk_fields?.badges || []
-  const roles = owner?.vk_fields?.roles || []
+  const vkBadges = owner?.vk_fields?.badges || []
+  const vkRoles = owner?.vk_fields?.roles || []
 
-  const isAnime = roles.some((role) => role.name === 'Анимеёб')
+  const isAnime = vkRoles.some((role) => role.name === 'Анимеёб')
+
+  const twitchColor = owner?.twitch_fields?.color
+  const twitchBadges = owner?.twitch_fields?.badges || []
 
   const darkTextColor = '#1E3E62'
   const darkTextHighlight = '#800000'
   const darkTextWin = '#3C0753'
 
-  const userColor = VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || 'white'
+  const userColor =
+    VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || 'white'
 
   const gradients = [
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
@@ -86,7 +90,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
   if (isAnime) {
     ticketBackground = `url(${AnimeBackground})`
   }
-  if (ticket.source === 'points') {
+  if (ticket.source === 'points' || twitchBadges.length > 0) {
     ticketBackground = gradients[ticket.variant]
   }
 
@@ -126,7 +130,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
           }}
           fontSize={'24px'}
         >
-          {badges.map((badge, index) => {
+          {vkBadges.map((badge, index) => {
             return (
               <Tooltip
                 title={badge.name}
@@ -143,7 +147,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
               </Tooltip>
             )
           })}
-          {roles.map((role, index) => {
+          {vkRoles.map((role, index) => {
             return (
               <Tooltip
                 title={role.name}
@@ -156,6 +160,24 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
                   src={role.largeUrl}
                   width={'24px'}
                   alt={'role'}
+                />
+              </Tooltip>
+            )
+          })}
+          {twitchBadges.map((badge, index) => {
+            return (
+              <Tooltip
+                title={badge.title}
+                placement="top"
+                style={{ marginRight: '5px' }}
+                key={index}
+              >
+                <img
+                  key={index}
+                  src={badge.image_url_4x}
+                  width={'24px'}
+                  height={'24px'}
+                  alt={'badge'}
                 />
               </Tooltip>
             )
