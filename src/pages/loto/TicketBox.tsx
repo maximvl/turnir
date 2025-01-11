@@ -81,12 +81,12 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
   const gradients = [
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(255,165,0,1) 100%)',
-    'radial-gradient(circle, rgba(32,178,170,1) 0%, rgba(255,127,80,1) 100%)',
-    'radial-gradient(circle, rgba(75,0,130,1) 0%, rgba(64,224,208,1) 100%)',
-    'radial-gradient(circle, rgba(0,255,127,1) 0%, rgba(138,43,226,1) 100%)',
+    'radial-gradient(circle, rgba(56,173,169,1) 0%, rgba(54,54,206,1) 100%)',
+    'radial-gradient(circle, rgba(74,85,227,1) 0%, rgba(234,88,12,1) 100%)',
+    'radial-gradient(circle, rgba(32,74,112,1) 0%, rgba(20,34,74,1) 100%)',
     'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(128,0,128,1) 100%)',
-    'radial-gradient(circle, rgba(0,100,100,1) 0%, rgba(138,54,15,1) 100%)',
-    'radial-gradient(circle, rgba(139,0,0,1) 0%, rgba(204,85,0,1) 100%)',
+    'radial-gradient(circle, rgba(102,126,234,1) 0%, rgba(118,75,162,1) 100%)',
+    'radial-gradient(circle, rgba(131,58,180,1) 0%, rgba(253,114,114,1) 100%)',
   ]
 
   let ticketBackground = ticket.color
