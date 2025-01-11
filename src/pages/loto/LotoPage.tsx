@@ -358,6 +358,10 @@ export default function LotoPage() {
 
   const nextNumberText = NumberToFancyName[nextNumber]
 
+  const currentNumberMatchesAmount = totalTickets.filter((ticket) =>
+    ticket.value.includes(nextNumber)
+  ).length
+
   return (
     <Box onClick={startMusic} className="loto-page">
       <MainMenu title={'Лото 2.0 с чатом'} />
@@ -514,6 +518,11 @@ export default function LotoPage() {
                     {nextNumberText && nextDigitState === 'idle' && (
                       <Box fontSize={'18px'}>{nextNumberText}</Box>
                     )}
+                    {nextDigitState === 'idle' && (
+                      <Box marginTop="5px">
+                        Билетов с числом: {currentNumberMatchesAmount}
+                      </Box>
+                    )}
                   </Box>
                 )}
                 {state === 'playing' && (
@@ -532,8 +541,7 @@ export default function LotoPage() {
                 {state === 'win' && (
                   <Box marginTop={'10px'}>
                     <Box fontSize={'48px'}>
-                      {winners.length > 1 ? 'Победители' : 'Победитель'}:
-                      <br />
+                      {winners.length > 1 ? 'Победители' : 'Победитель'}:{' '}
                       {winners.map((w) => w.owner_name).join(', ')}
                     </Box>
                     <img src={BingoImage} alt="bingo" width={'200px'} />
