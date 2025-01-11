@@ -76,7 +76,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
     VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
 
   const isUserColorBright = isBrightColor(userColor)
-  const nickBackgroundColor = isUserColorBright ? '#191970' : '#f48fb1'
+  const nickBackgroundColor = isUserColorBright ? '#191970' : '#B2AC88'
 
   const gradients = [
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
