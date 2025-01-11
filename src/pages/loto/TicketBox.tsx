@@ -19,9 +19,16 @@ type Props = {
   owner?: ChatUser
   matches: number[]
   isWinner?: boolean
+  big?: boolean
 }
 
-export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
+export default function TicketBox({
+  ticket,
+  matches,
+  owner,
+  isWinner,
+  big,
+}: Props) {
   const theme = useTheme()
 
   // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
@@ -97,6 +104,8 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
     ticketBackground = gradients[ticket.variant]
   }
 
+  const itemSize = big ? '36px' : '24px'
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -131,7 +140,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
           style={{
             backgroundColor: nickBackgroundColor,
           }}
-          fontSize={'24px'}
+          fontSize={itemSize}
         >
           {vkBadges.map((badge, index) => {
             return (
@@ -144,7 +153,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
                 <img
                   key={index}
                   src={badge.largeUrl}
-                  width={'24px'}
+                  width={itemSize}
                   alt={'badge'}
                 />
               </Tooltip>
@@ -161,7 +170,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
                 <img
                   key={index}
                   src={role.largeUrl}
-                  width={'24px'}
+                  width={itemSize}
                   alt={'role'}
                 />
               </Tooltip>
@@ -178,8 +187,8 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
                 <img
                   key={index}
                   src={badge.image_url_4x}
-                  width={'24px'}
-                  height={'24px'}
+                  width={itemSize}
+                  height={itemSize}
                   alt={'badge'}
                 />
               </Tooltip>
@@ -188,7 +197,7 @@ export default function TicketBox({ ticket, matches, owner, isWinner }: Props) {
           <span style={{ color: userColor }}>{ticket.owner_name}</span>
         </Box>
         <Box
-          fontSize={'24px'}
+          fontSize={itemSize}
           marginTop={'5px'}
           fontFamily="monospace"
           display={'flex'}

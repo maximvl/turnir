@@ -586,9 +586,10 @@ export default function LotoPage() {
                   flexWrap={'wrap'}
                 >
                   {superGameDraws.map((value, index) => {
+                    const highlight = superGameTicket.value.includes(value)
                     return (
                       <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
-                        <DrawnNumber value={value} />
+                        <DrawnNumber value={value} highlight={highlight} />
                       </Box>
                     )
                   })}
@@ -604,7 +605,7 @@ export default function LotoPage() {
                 </Box>
                 <Box marginBottom={'30px'}>
                   <Box
-                    marginTop={'10px'}
+                    marginTop={'20px'}
                     fontSize={'48px'}
                     display={'flex'}
                     alignItems={'center'}
@@ -612,12 +613,23 @@ export default function LotoPage() {
                     textAlign={'center'}
                   >
                     {nextNumber.length > 0 && (
-                      <DrawnNumber value={nextNumber} big />
+                      <DrawnNumber
+                        value={nextNumber}
+                        big
+                        matchAnimation={
+                          nextDigitState === 'idle' &&
+                          superGameTicket.value.includes(nextNumber)
+                        }
+                      />
                     )}
                     {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
                   </Box>
                   {nextNumberText && nextDigitState === 'idle' && (
-                    <Box fontSize={'18px'} textAlign={'center'}>
+                    <Box
+                      fontSize={'18px'}
+                      textAlign={'center'}
+                      marginTop="10px"
+                    >
                       {nextNumberText}
                     </Box>
                   )}
@@ -674,7 +686,11 @@ export default function LotoPage() {
                         {superGameTicket.owner_name} проигрывает
                         <img
                           src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
-                          style={{ width: '48px', marginLeft: '15px' }}
+                          style={{
+                            width: '48px',
+                            marginLeft: '15px',
+                            transform: 'rotateY(180deg)',
+                          }}
                         />
                       </Box>
                     )}
@@ -689,6 +705,7 @@ export default function LotoPage() {
                     ticket={superGameTicket}
                     matches={superGameMatches}
                     owner={allUsersById[superGameTicket.owner_id]}
+                    big
                   />
                 </Box>
               </Box>

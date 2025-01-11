@@ -4,18 +4,28 @@ import wood from '@/assets/wood.png'
 type Props = {
   value: string
   big?: boolean
+  matchAnimation?: boolean
+  highlight?: boolean
 }
 
-export default function DrawnNumber({ value, big }: Props) {
+export default function DrawnNumber({
+  value,
+  big,
+  matchAnimation,
+  highlight,
+}: Props) {
   const theme = useTheme()
-  const red = theme.palette.error.main
+  const color = highlight
+    ? theme.palette.success.main
+    : theme.palette.error.main
   return (
     <Box
-      border={`3px solid ${red}`}
+      className={matchAnimation ? 'enlarge-item' : ''}
+      border={`3px solid ${color}`}
       borderRadius={'50%'}
       paddingLeft={'5px'}
       paddingRight={'5px'}
-      color={red}
+      color={color}
       width={'fit-content'}
       style={{
         fontSize: big ? '42px' : '32px',
