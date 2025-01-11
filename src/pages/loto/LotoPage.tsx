@@ -41,6 +41,8 @@ resetDrawingNumbers()
 
 const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
+const SuperGameDraws = 10
+
 export default function LotoPage() {
   const [state, setState] = useState<
     'voting' | 'playing' | 'win' | 'super_game'
@@ -352,7 +354,7 @@ export default function LotoPage() {
   }
 
   const super_game_finished =
-    state === 'super_game' && superGameDraws.length === 10
+    state === 'super_game' && superGameDraws.length === SuperGameDraws
 
   const nextNumberText = NumberToFancyName[nextNumber]
 
@@ -529,6 +531,11 @@ export default function LotoPage() {
                 )}
                 {state === 'win' && (
                   <Box marginTop={'10px'}>
+                    <Box fontSize={'48px'}>
+                      {winners.length > 1 ? 'Победители' : 'Победитель'}:
+                      <br />
+                      {winners.map((w) => w.owner_name).join(', ')}
+                    </Box>
                     <img src={BingoImage} alt="bingo" width={'200px'} />
                     <Box
                       textAlign="center"
@@ -560,7 +567,7 @@ export default function LotoPage() {
                   justifyContent="center"
                 >
                   <InfoPanel>
-                    Угадай любое 5 чисел
+                    Угадай любое {SuperGameDraws} чисел
                     <br /> И получи супер-приз!
                   </InfoPanel>
                 </Box>
@@ -582,6 +589,15 @@ export default function LotoPage() {
                     return (
                       <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
                         <DrawnNumber value={value} />
+                      </Box>
+                    )
+                  })}
+                  {Array.from({
+                    length: SuperGameDraws - superGameDraws.length,
+                  }).map((value, index) => {
+                    return (
+                      <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
+                        <DrawnNumber value={'??'} />
                       </Box>
                     )
                   })}
@@ -617,7 +633,7 @@ export default function LotoPage() {
                       onClick={() => setNextDigitState('roll_start')}
                       disabled={nextDigitState !== 'idle'}
                     >
-                      Следующее число
+                      Достать боченок
                     </Button>
                   </Box>
                 )}
@@ -629,12 +645,38 @@ export default function LotoPage() {
                     fontSize={'32px'}
                   >
                     {superGameMatchesCount > 0 ? (
-                      <Box>
+                      <Box
+                        display="flex"
+                        justifyContent="center"
+                        alignItems="center"
+                      >
+                        <img
+                          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+                          style={{ width: '64px', marginRight: '15px' }}
+                        />
                         {superGameTicket.owner_name} угадывает{' '}
-                        {superGameMatchesCount}!
+                        {superGameMatchesCount}
+                        <img
+                          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+                          style={{
+                            width: '64px',
+                            marginLeft: '15px',
+                            transform: 'rotateY(180deg)',
+                          }}
+                        />
                       </Box>
                     ) : (
-                      <Box>{superGameTicket.owner_name} проигрывает!</Box>
+                      <Box display="flex" justifyContent="center">
+                        <img
+                          src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
+                          style={{ width: '48px', marginRight: '15px' }}
+                        />
+                        {superGameTicket.owner_name} проигрывает
+                        <img
+                          src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
+                          style={{ width: '48px', marginLeft: '15px' }}
+                        />
+                      </Box>
                     )}
                   </Box>
                 )}
@@ -656,6 +698,9 @@ export default function LotoPage() {
           <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
             {orderedTickets.map((ticket, i) => {
               const isWinner = winners.includes(ticket)
+              const chatMessages = winnerMessages.filter(
+                (msg) => msg.user.id === ticket.owner_id
+              )
               return (
                 <Box key={i} marginTop={'20px'} marginRight={'20px'}>
                   <TicketBox
@@ -671,7 +716,7 @@ export default function LotoPage() {
                       >
                         Показать чат
                       </Button>
-                      {showWinnerChat && <ChatBox messages={winnerMessages} />}
+                      {showWinnerChat && <ChatBox messages={chatMessages} />}
                     </>
                   )}
                 </Box>
