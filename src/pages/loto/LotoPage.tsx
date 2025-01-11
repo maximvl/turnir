@@ -415,7 +415,7 @@ export default function LotoPage() {
                   value={timerValue}
                   onChange={(_, value) => setTimerValue(value as number)}
                   aria-labelledby="discrete-slider"
-                  valueLabelDisplay="on"
+                  valueLabelDisplay="auto"
                   valueLabelFormat={formatSeconds}
                   step={30}
                   marks
