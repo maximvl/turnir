@@ -4,6 +4,7 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  Slider,
   Tooltip,
 } from '@mui/material'
 import { MusicContext } from '@/common/hooks/MusicContext'
@@ -24,6 +25,7 @@ import ChatBox from './ChatBox'
 import { genTicket, isUserSubscriber, NumberToFancyName } from './utils'
 import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
+import useTimer from '@/common/hooks/useTimer'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -68,6 +70,22 @@ export default function LotoPage() {
   const [enableChatTickets, setEnableChatTickets] = useState(true)
   const [enablePointsTickets, setEnablePointsTickets] = useState(true)
   const [onlySubscribers, setOnlySubscribers] = useState(false)
+
+  const { value: timerRef, setValue: setTimerValue } = useTimer(60 * 3)
+  const [timerStatus, setTimerStatus] = useState<'off' | 'on'>('off')
+
+  const timerValue = timerRef.current
+
+  const startTimer = () => {
+    setTimerStatus('on')
+    const interval = setInterval(() => {
+      if (timerRef.current === 0) {
+        clearInterval(interval)
+      } else {
+        setTimerValue(timerRef.current - 1)
+      }
+    }, 1000)
+  }
 
   const music = useContext(MusicContext)
 
@@ -387,6 +405,24 @@ export default function LotoPage() {
                     />
                   </Tooltip>
                 </FormGroup>
+                <Slider
+                  value={timerValue}
+                  onChange={(_, value) => setTimerValue(value as number)}
+                  aria-labelledby="discrete-slider"
+                  valueLabelDisplay="on"
+                  valueLabelFormat={formatSeconds}
+                  step={30}
+                  marks
+                  min={60}
+                  max={400}
+                />
+                <Button
+                  variant="contained"
+                  onClick={startTimer}
+                  disabled={timerStatus === 'on'}
+                >
+                  Запустить таймер
+                </Button>
               </Box>
               <Box
                 display={'flex'}
@@ -421,7 +457,8 @@ export default function LotoPage() {
                   style={{ marginLeft: '30px' }}
                   onClick={() => setState('playing')}
                 >
-                  Розыгрыш
+                  Розыгрыш{' '}
+                  {timerStatus === 'on' && `(${formatSecondsZero(timerValue)})`}
                 </Button>
               </Box>
             </>
@@ -485,7 +522,7 @@ export default function LotoPage() {
                         onClick={() => setNextDigitState('roll_start')}
                         disabled={nextDigitState !== 'idle'}
                       >
-                        Следующее число
+                        Достать боченок
                       </Button>
                     </Box>
                   </>
@@ -694,4 +731,18 @@ function getNewTickets(
     return newOwnersTicketsFiltered
   }
   return []
+}
+
+function formatSeconds(seconds: number) {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}м ${remainingSeconds.toString().padStart(2, '0')}с`
+}
+
+function formatSecondsZero(seconds: number) {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+    .toString()
+    .padStart(2, '0')}`
 }

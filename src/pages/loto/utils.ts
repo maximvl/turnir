@@ -176,7 +176,7 @@ export function isBrightColor(hexColor: string): boolean {
   // Calculate luminance
   const luminance = 0.2126 * rNorm + 0.7152 * gNorm + 0.0722 * bNorm
 
-  console.log(hexColor, luminance)
+  // console.log(hexColor, luminance)
 
   return luminance > 0.1
 }
