@@ -456,7 +456,7 @@ export default function LotoPage() {
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Участники: {totalTickets.length}
+                Билетов: {totalTickets.length}
                 <Button
                   variant="contained"
                   color="primary"

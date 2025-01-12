@@ -121,7 +121,9 @@ export default function TicketBox({
         }}
         // width={'140px'}
         // height={'64px'}
-        border={isWinner ? `2px solid ${winnerColor}` : '2px solid #333333'}
+        border={
+          isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`
+        }
         borderRadius={'10px'}
         // paddingLeft={'12px'}
         // paddingRight={'10px'}
@@ -135,66 +137,71 @@ export default function TicketBox({
       >
         <Box
           display={'flex'}
+          justifyContent={'center'}
+          textAlign={'center'}
           alignItems={'center'}
-          width={'fit-content'}
-          style={{
-            backgroundColor: nickBackgroundColor,
-          }}
           fontSize={itemSize}
         >
-          {vkBadges.map((badge, index) => {
-            return (
-              <Tooltip
-                title={badge.name}
-                placement="top"
-                style={{ marginRight: '5px' }}
-                key={index}
-              >
-                <img
+          <Box
+            width={'fit-content'}
+            style={{
+              backgroundColor: nickBackgroundColor,
+            }}
+          >
+            {vkBadges.map((badge, index) => {
+              return (
+                <Tooltip
+                  title={badge.name}
+                  placement="top"
+                  style={{ marginRight: '5px' }}
                   key={index}
-                  src={badge.largeUrl}
-                  width={itemSize}
-                  alt={'badge'}
-                />
-              </Tooltip>
-            )
-          })}
-          {vkRoles.map((role, index) => {
-            return (
-              <Tooltip
-                title={role.name}
-                placement="top"
-                style={{ marginRight: '5px' }}
-                key={index}
-              >
-                <img
+                >
+                  <img
+                    key={index}
+                    src={badge.largeUrl}
+                    width={itemSize}
+                    alt={'badge'}
+                  />
+                </Tooltip>
+              )
+            })}
+            {vkRoles.map((role, index) => {
+              return (
+                <Tooltip
+                  title={role.name}
+                  placement="top"
+                  style={{ marginRight: '5px' }}
                   key={index}
-                  src={role.largeUrl}
-                  width={itemSize}
-                  alt={'role'}
-                />
-              </Tooltip>
-            )
-          })}
-          {twitchBadges.map((badge, index) => {
-            return (
-              <Tooltip
-                title={badge.title}
-                placement="top"
-                style={{ marginRight: '5px' }}
-                key={index}
-              >
-                <img
+                >
+                  <img
+                    key={index}
+                    src={role.largeUrl}
+                    width={itemSize}
+                    alt={'role'}
+                  />
+                </Tooltip>
+              )
+            })}
+            {twitchBadges.map((badge, index) => {
+              return (
+                <Tooltip
+                  title={badge.title}
+                  placement="top"
+                  style={{ marginRight: '5px' }}
                   key={index}
-                  src={badge.image_url_4x}
-                  width={itemSize}
-                  height={itemSize}
-                  alt={'badge'}
-                />
-              </Tooltip>
-            )
-          })}
-          <span style={{ color: userColor }}>{ticket.owner_name}</span>
+                >
+                  <img
+                    key={index}
+                    src={badge.image_url_4x}
+                    width={itemSize}
+                    height={itemSize}
+                    alt={'badge'}
+                  />
+                </Tooltip>
+              )
+            })}
+            <span style={{ color: userColor }}>{ticket.owner_name}</span>
+          </Box>
         </Box>
         <Box
           fontSize={itemSize}
