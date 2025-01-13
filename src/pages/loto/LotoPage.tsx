@@ -518,7 +518,7 @@ export default function LotoPage() {
                     {nextNumberText && nextDigitState === 'idle' && (
                       <Box fontSize={'18px'}>{nextNumberText}</Box>
                     )}
-                    {nextDigitState === 'idle' && (
+                    {nextDigitState === 'idle' && nextNumber && (
                       <Box marginTop="5px">
                         Билетов с числом: {currentNumberMatchesAmount}
                       </Box>
@@ -533,7 +533,7 @@ export default function LotoPage() {
                         onClick={() => setNextDigitState('roll_start')}
                         disabled={nextDigitState !== 'idle'}
                       >
-                        Достать боченок
+                        Достать бочонок
                       </Button>
                     </Box>
                   </>
@@ -653,7 +653,7 @@ export default function LotoPage() {
                       onClick={() => setNextDigitState('roll_start')}
                       disabled={nextDigitState !== 'idle'}
                     >
-                      Достать боченок
+                      Достать бочонок
                     </Button>
                   </Box>
                 )}
