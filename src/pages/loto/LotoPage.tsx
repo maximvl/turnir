@@ -57,6 +57,8 @@ export default function LotoPage() {
     {}
   )
 
+  const [hostSuperNumbers, setHostSuperNumbers] = useState<string[]>([])
+
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
   const [nextNumber, setNextNumber] = useState<string>('')
@@ -188,12 +190,19 @@ export default function LotoPage() {
       setTimeout(() => {
         clearInterval(interval)
         setNextDigitState('idle')
-        drawNumber(nextNumberRef.current)
+        let nextNumber = nextNumberRef.current
+
+        drawNumber(nextNumber)
         if (state === 'playing') {
-          setDrawnNumbers((prev) => [...prev, nextNumberRef.current])
+          setDrawnNumbers((prev) => [...prev, nextNumber])
         }
         if (state === 'super_game') {
-          setSuperGameDraws((prev) => [...prev, nextNumberRef.current])
+          if (hostSuperNumbers.length > 0) {
+            nextNumber = hostSuperNumbers.shift() ?? nextNumber
+            setNextNumber(nextNumber)
+            nextNumberRef.current = nextNumber
+          }
+          setSuperGameDraws((prev) => [...prev, nextNumber])
         }
       }, 3000)
     }
@@ -339,6 +348,24 @@ export default function LotoPage() {
     }
   }
 
+  const handleCustomSuperNumbersClick = () => {
+    const input =
+      prompt('Скрой экран и введи до 10 чисел (1-99) через пробел') ?? ''
+    const trimmed = input.trim().split(' ')
+    const inputGuesses = uniq(
+      trimmed
+        .map((n) => parseInt(n))
+        .filter((n) => n > 0 && n < 100)
+        .map((n) => {
+          if (n < 10) {
+            return `0${n}`
+          }
+          return n.toString()
+        })
+    )
+    setHostSuperNumbers(inputGuesses)
+  }
+
   let superGameMatches: number[] = []
   let superGameTicket: Ticket2 | null = null
   let superGameMatchesCount = 0
@@ -450,22 +477,37 @@ export default function LotoPage() {
               <Box
                 fontSize={'32px'}
                 textAlign={'center'}
-                display={'flex'}
-                alignItems={'center'}
-                justifyContent={'center'}
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
                 Билетов: {totalTickets.length}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  style={{ marginLeft: '30px' }}
-                  onClick={() => setState('playing')}
+                <Box
+                  marginTop="15px"
+                  display={'flex'}
+                  alignItems={'center'}
+                  justifyContent={'center'}
                 >
-                  Розыгрыш{' '}
-                  {timerStatus === 'on' && `(${formatSecondsZero(timerValue)})`}
-                </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    style={{ marginLeft: '30px' }}
+                    onClick={() => setState('playing')}
+                  >
+                    Начать розыгрыш{' '}
+                    {timerStatus === 'on' &&
+                      `(${formatSecondsZero(timerValue)})`}
+                  </Button>
+                  {hostSuperNumbers.length == 0 && (
+                    <Button
+                      color="warning"
+                      variant="contained"
+                      style={{ marginLeft: '20px' }}
+                      onClick={handleCustomSuperNumbersClick}
+                    >
+                      Ввести числа супер игры
+                    </Button>
+                  )}
+                </Box>
               </Box>
             </>
           )}
