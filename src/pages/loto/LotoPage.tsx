@@ -492,6 +492,7 @@ export default function LotoPage() {
                     color="primary"
                     style={{ marginLeft: '30px' }}
                     onClick={() => setState('playing')}
+                    disabled={totalTickets.length === 0}
                   >
                     Начать розыгрыш{' '}
                     {timerStatus === 'on' &&
