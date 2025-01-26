@@ -23,18 +23,19 @@ import useChatMessages from './hooks/useChatMessages'
 type Props = {}
 
 export default function ChatConnectionButton(props: Props) {
-  const { save, load } = useLocalStorage()
+  const { value: channel, save: saveChannel } = useLocalStorage({
+    key: 'chat_channel',
+  })
+  const { value: server, save: savePlaftorm } = useLocalStorage({
+    key: 'chat_platform',
+  })
   const [state, setState] = useState<'idle' | 'connecting' | 'connected'>(
     'idle'
   )
 
   const [open, setOpen] = useState(false)
-  const [channel, setChannel] = useState<string | null>(() =>
-    load('chat_channel', null)
-  )
-  const [server, setServer] = useState<ChatServerType | null>(() =>
-    load('chat_platform', null)
-  )
+  // const [channel, setChannel] = useState<string | null>(channelDefault)
+  // const [server, setServer] = useState<ChatServerType | null>(serverDefault)
 
   const { mutate } = useMutation({ mutationFn: chatConnect })
   const { newMessages } = useChatMessages({ fetching: state === 'connecting' })
@@ -53,7 +54,7 @@ export default function ChatConnectionButton(props: Props) {
       nuum: 'nuum.ru',
       goodgame: 'goodgame.ru',
     }
-    const serverName = serverNames[server]
+    const serverName = serverNames[server as ChatServerType]
     statusMessage = `${serverName}/${channel}`
   }
 
@@ -77,14 +78,14 @@ export default function ChatConnectionButton(props: Props) {
     }
   }, [channel, server, state, open])
 
-  const saveServer = (server: ChatServerType) => {
-    save('chat_platform', server)
-    setServer(server)
+  const handleSaveServer = (server: ChatServerType) => {
+    savePlaftorm(server)
+    // setServer(server)
   }
 
-  const saveChannel = (channel: string) => {
-    save('chat_channel', channel)
-    setChannel(channel)
+  const handleSaveChannel = (channel: string) => {
+    saveChannel(channel)
+    // setChannel(channel)
   }
 
   return (
@@ -132,7 +133,9 @@ export default function ChatConnectionButton(props: Props) {
           <FormControl fullWidth sx={{ marginTop: '10px' }}>
             <InputLabel>Сервер</InputLabel>
             <Select
-              onChange={(e) => saveServer(e.target.value as ChatServerType)}
+              onChange={(e) =>
+                handleSaveServer(e.target.value as ChatServerType)
+              }
               value={server}
               label="Сервер"
             >
@@ -146,7 +149,7 @@ export default function ChatConnectionButton(props: Props) {
             <Input
               placeholder="канал"
               value={channel}
-              onChange={(e) => saveChannel(e.target.value)}
+              onChange={(e) => handleSaveChannel(e.target.value)}
               sx={{ marginTop: '10px', marginRight: '20px' }}
             />
             <Button

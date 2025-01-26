@@ -12,10 +12,8 @@ type Props = {
 const REFETCH_INTERVAL = 2000
 
 export default function useChatMessages({ fetching }: Props) {
-  const { load } = useLocalStorage()
-
-  let channel: string | null = load('chat_channel', null)
-  let platform: ChatServerType | null = load('chat_platform', null)
+  const { value: channel } = useLocalStorage({ key: 'chat_channel' })
+  const { value: platform } = useLocalStorage({ key: 'chat_platform' })
 
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessages, setNewMessages] = useState<ChatMessage[]>([])
@@ -36,12 +34,6 @@ export default function useChatMessages({ fetching }: Props) {
   } = useQuery({
     queryKey: ['chatMessages', channel, lastTs],
     queryFn: () => {
-      if (!channel) {
-        channel = load('chat_channel', null)
-      }
-      if (!platform) {
-        platform = load('chat_platform', null)
-      }
       if (!channel || !platform) {
         return undefined
       }
