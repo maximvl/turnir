@@ -16,7 +16,6 @@ export default function useLocalStorage({ key }: Props) {
   }
 
   useEffect(() => {
-    addToLocalState(key)
     addLocalStateChangeListener(key, onChange)
     return () => {
       removeLocalStateChangeListener(key, onChange)
@@ -39,23 +38,19 @@ export default function useLocalStorage({ key }: Props) {
   }
 }
 
-function addToLocalState(key: string) {
-  if (!(key in localState)) {
-    localState[key] = null
-  }
-}
-
 function getFromLocalState(key: string) {
   const value = localState[key]
-  if (value === undefined) {
-    return null
+  if (value !== undefined) {
+    return value
   }
-  return value
+  const storageValue = localStorage.getItem(key)
+  localState[key] = storageValue
+  return storageValue
 }
 
 function saveToLocalState(key: string, value: string) {
   localStorage.setItem(key, value)
-  syncLocalState()
+  syncKey(key)
 }
 
 function addLocalStateChangeListener(key: string, listener: () => void) {
@@ -75,11 +70,19 @@ function removeLocalStateChangeListener(key: string, listener: () => void) {
 
 function syncLocalState() {
   for (const key in localState) {
-    const localValue = localState[key]
-    const newValue = localStorage.getItem(key)
-    if (localValue !== newValue) {
-      localState[key] = newValue
-      localStateChangeListeners[key].forEach((listener) => listener())
+    syncKey(key)
+  }
+}
+
+function syncKey(key: string) {
+  const localValue = localState[key]
+  const newValue = localStorage.getItem(key)
+  if (localValue !== newValue) {
+    localState[key] = newValue
+    const listeners = localStateChangeListeners[key]
+    if (!listeners) {
+      return
     }
+    listeners.forEach((listener) => listener())
   }
 }

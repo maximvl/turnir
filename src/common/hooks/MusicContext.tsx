@@ -1,6 +1,7 @@
 import { isNil } from 'lodash'
 import { createContext, useEffect, useState } from 'react'
 import { MusicType, MusicTypeIds } from '@/pages/turnir/types'
+import useLocalStorage from './useLocalStorage'
 
 export type MusicContextType = {
   musicPlaying?: MusicType
@@ -36,7 +37,6 @@ export default function MusicContextProvider({
     undefined
   )
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isMuted, setIsMuted] = useState(false)
 
   useEffect(() => {
     if (!currentMusic) {
@@ -55,16 +55,17 @@ export default function MusicContextProvider({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMusic, isPlaying])
 
-  const volumeKey = 'volume'
-  const getStoredVolume = () => {
-    const storedVolume = localStorage.getItem(volumeKey)
-    if (!isNil(storedVolume)) {
-      return parseFloat(storedVolume) || 1
-    }
-    return 1
-  }
+  const volumeKey = 'music_volume'
+  const { value: volumeRaw, save: saveVolume } = useLocalStorage({
+    key: volumeKey,
+  })
+  const volume = volumeRaw ?? 1
 
-  const [volume, setVolume] = useState(getStoredVolume())
+  const muteKey = 'music_muted'
+  const { value: muted, save: saveMuted } = useLocalStorage({
+    key: muteKey,
+  })
+
   useEffect(() => {
     for (const music of Object.values(MusicMap)) {
       if (music) {
@@ -89,18 +90,20 @@ export default function MusicContextProvider({
     setIsPlaying(!!music)
   }
 
-  const updateMuted = (muted: boolean) => {
-    setIsMuted(muted)
+  useEffect(() => {
     for (const music of Object.values(MusicMap)) {
       if (music) {
         music.muted = muted
       }
     }
+  }, [muted])
+
+  const updateMuted = (muted: boolean) => {
+    saveMuted(muted)
   }
 
   const updateVolume = (newVolume: number) => {
-    setVolume(newVolume)
-    localStorage.setItem(volumeKey, newVolume.toString())
+    saveVolume(newVolume)
   }
 
   return (
@@ -108,7 +111,7 @@ export default function MusicContextProvider({
       value={{
         musicPlaying: currentMusic,
         setMusicPlaying: startMusic,
-        isMuted,
+        isMuted: muted,
         setIsMuted: updateMuted,
         volume,
         setVolume: updateVolume,
