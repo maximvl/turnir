@@ -143,6 +143,7 @@ export default function TicketBox({
           fontSize={itemSize}
         >
           <Box
+            display="flex"
             width={'fit-content'}
             style={{
               backgroundColor: nickBackgroundColor,
