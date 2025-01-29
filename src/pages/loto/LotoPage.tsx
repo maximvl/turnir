@@ -41,7 +41,8 @@ resetDrawingNumbers()
 
 const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
-const SuperGameDraws = 10
+const SuperGameBaseDraws = 10
+const SuperGameTicketLength = 5
 
 export default function LotoPage() {
   const [state, setState] = useState<
@@ -332,7 +333,7 @@ export default function LotoPage() {
               })
           )
 
-          const limitedGuess = superGameGuesses.slice(0, 5)
+          const limitedGuess = superGameGuesses.slice(0, SuperGameTicketLength)
 
           setState('super_game')
           setSuperGameGuesses(limitedGuess)
@@ -380,8 +381,12 @@ export default function LotoPage() {
     superGameMatchesCount = superGameMatches.reduce((acc, val) => acc + val, 0)
   }
 
-  const super_game_finished =
-    state === 'super_game' && superGameDraws.length === SuperGameDraws
+  const superGameFinalAmount = superGameMatchesCount * 2 + SuperGameBaseDraws
+
+  const superGameFinished =
+    state === 'super_game' &&
+    (superGameDraws.length === superGameFinalAmount ||
+      superGameMatchesCount === SuperGameTicketLength)
 
   const nextNumberText = NumberToFancyName[nextNumber]
 
@@ -618,8 +623,10 @@ export default function LotoPage() {
                   justifyContent="center"
                 >
                   <InfoPanel>
-                    Угадай любое {SuperGameDraws} чисел
+                    Угадай любое из {SuperGameBaseDraws} чисел
                     <br /> И получи супер-приз!
+                    <br />
+                    Каждое угаданное число дает 2 дополнительных ролла!
                   </InfoPanel>
                 </Box>
                 <Box
@@ -645,11 +652,11 @@ export default function LotoPage() {
                     )
                   })}
                   {Array.from({
-                    length: SuperGameDraws - superGameDraws.length,
+                    length: superGameFinalAmount - superGameDraws.length,
                   }).map((value, index) => {
                     return (
                       <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
-                        <DrawnNumber value={'??'} />
+                        <DrawnNumber value={'?'} />
                       </Box>
                     )
                   })}
@@ -685,7 +692,7 @@ export default function LotoPage() {
                     </Box>
                   )}
                 </Box>
-                {!super_game_finished && (
+                {!superGameFinished && (
                   <Box
                     marginBottom={'40px'}
                     marginTop={'20px'}
@@ -700,7 +707,7 @@ export default function LotoPage() {
                     </Button>
                   </Box>
                 )}
-                {super_game_finished && (
+                {superGameFinished && (
                   <Box
                     marginBottom={'40px'}
                     marginTop={'20px'}

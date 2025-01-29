@@ -23,10 +23,11 @@ export default function DrawnNumber({
       className={matchAnimation ? 'enlarge-item' : ''}
       border={`3px solid ${color}`}
       borderRadius={'50%'}
-      paddingLeft={'5px'}
-      paddingRight={'5px'}
+      // paddingLeft={'5px'}
+      // paddingRight={'5px'}
       color={color}
-      width={'fit-content'}
+      width={big ? '68px' : '54px'}
+      height={big ? '68px' : '54px'}
       style={{
         fontSize: big ? '42px' : '32px',
         fontFamily: 'monospace',
