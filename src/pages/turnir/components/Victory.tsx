@@ -1,6 +1,5 @@
 import { Box } from '@mui/material'
 import { Item } from '@/pages/turnir/types'
-import fireworks from '@/assets/fireworks.gif'
 import { useEffect, useState } from 'react'
 
 type Props = {
@@ -44,7 +43,7 @@ export default function Victory({ winner }: Props) {
           </Box>
         </Box>
         <img
-          src={fireworks}
+          src="https://s13.gifyu.com/images/b2N3F.gif"
           alt=""
           width={'100%'}
           style={{ zIndex: 10, position: 'relative' }}
