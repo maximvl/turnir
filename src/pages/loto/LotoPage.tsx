@@ -68,9 +68,6 @@ export default function LotoPage() {
   const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>(
     {}
   )
-
-  const [hostSuperNumbers, setHostSuperNumbers] = useState<string[]>([])
-
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
   const [nextNumber, setNextNumber] = useState<string>('')
@@ -383,24 +380,6 @@ export default function LotoPage() {
     }
   }
 
-  const handleCustomSuperNumbersClick = () => {
-    const input =
-      prompt('Скрой экран и введи до 10 чисел (1-99) через пробел') ?? ''
-    const trimmed = input.trim().split(' ')
-    const inputGuesses = uniq(
-      trimmed
-        .map((n) => parseInt(n))
-        .filter((n) => n > 0 && n < 100)
-        .map((n) => {
-          if (n < 10) {
-            return `0${n}`
-          }
-          return n.toString()
-        })
-    )
-    setHostSuperNumbers(inputGuesses)
-  }
-
   const superGameTicketStateMap: {
     [k: string]: { matchesIds: number[]; matches: number[] }
   } = {}
@@ -571,16 +550,6 @@ export default function LotoPage() {
                     {timerStatus === 'on' &&
                       `(${formatSecondsZero(timerValue)})`}
                   </Button>
-                  {hostSuperNumbers.length == 0 && (
-                    <Button
-                      color="warning"
-                      variant="contained"
-                      style={{ marginLeft: '20px' }}
-                      onClick={handleCustomSuperNumbersClick}
-                    >
-                      Ввести числа супер игры
-                    </Button>
-                  )}
                 </Box>
               </Box>
             </>
@@ -816,6 +785,7 @@ export default function LotoPage() {
                   {superGameTickets.map((ticket, i) => {
                     return (
                       <TicketBox
+                        key={i}
                         ticket={ticket}
                         matches={superGameTicketStateMap[ticket.id].matches}
                         owner={allUsersById[ticket.owner_id]}
