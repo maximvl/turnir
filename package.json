@@ -19,6 +19,7 @@
     "@types/react-dom": "^19.0.2",
     "@types/react-router": "^5.1.20",
     "eslint": "^9.17.0",
+    "framer-motion": "^12.0.6",
     "localforage": "^1.10.0",
     "lodash": "^4.17.21",
     "match-sorter": "^8.0.0",

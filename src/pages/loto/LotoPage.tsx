@@ -35,6 +35,7 @@ import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
 import useTimer from '@/common/hooks/useTimer'
 import SuperGameBox from './SuperGameBox'
+import Flipper from './Flipper'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'

@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import DrawnNumber from './DrawnNumber'
+import Flipper from './Flipper'
 
 type Props = {
   options: string[]
@@ -26,22 +27,10 @@ export default function SuperGameBox({
       gap="10px"
     >
       {options.map((option, index) => {
-        let variant: 'green' | 'grey' | undefined = undefined
         const revealed = revealedOptionsIds.includes(index)
         const match = matches.includes(index)
 
-        if (match) {
-          variant = 'green'
-        }
-
-        if (!match && !revealed && revealAll) {
-          variant = 'grey'
-        }
-
-        let value = '?'
-        if (revealed || revealAll) {
-          value = option
-        }
+        const hiddenValue = revealAll ? option : '?'
 
         return (
           <Box
@@ -49,7 +38,21 @@ export default function SuperGameBox({
             key={index}
             style={{ cursor: 'pointer' }}
           >
-            <DrawnNumber value={value} variant={variant} />
+            <Flipper
+              frontSide={
+                <DrawnNumber
+                  value={hiddenValue}
+                  variant={revealAll ? 'grey' : undefined}
+                />
+              }
+              backSide={
+                <DrawnNumber
+                  value={option}
+                  variant={match ? 'green' : undefined}
+                />
+              }
+              disabled={revealAll || revealed}
+            />
           </Box>
         )
       })}

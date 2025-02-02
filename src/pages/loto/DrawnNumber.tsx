@@ -37,6 +37,7 @@ export default function DrawnNumber({
         fontFamily: 'monospace',
         backgroundColor: '#f4e1c7',
       }}
+      textAlign="center"
     >
       {value}
     </Box>
