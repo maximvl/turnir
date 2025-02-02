@@ -52,7 +52,7 @@ const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 const SuperGameBaseDraws = 5
 const SuperGameTicketLength = 5
-const WinMatchAmount = 1
+const WinMatchAmount = 3
 
 export default function LotoPage() {
   const [state, setState] = useState<
