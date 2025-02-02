@@ -20,6 +20,7 @@ type Props = {
   matches: number[]
   isWinner?: boolean
   big?: boolean
+  superHighlight?: boolean
 }
 
 export default function TicketBox({
@@ -28,6 +29,7 @@ export default function TicketBox({
   owner,
   isWinner,
   big,
+  superHighlight,
 }: Props) {
   const theme = useTheme()
 
@@ -63,6 +65,9 @@ export default function TicketBox({
       prev.end - prev.start > current.end - current.start ? prev : current
     )
   }
+
+  const doSuperHighlight =
+    superHighlight && matches.every((match) => match === 1)
 
   const highlightColor = theme.palette.error.main
   const winnerColor = theme.palette.warning.main
@@ -211,6 +216,7 @@ export default function TicketBox({
           display={'flex'}
           justifyContent={'center'}
           width={'100%'}
+          className={doSuperHighlight ? 'color-animation' : ''}
         >
           {ticket.value.map((value, index) => {
             const addSpace = index !== 0
@@ -241,12 +247,16 @@ export default function TicketBox({
               (range) => range.start < index && index <= range.end
             )
 
+            if (doSuperHighlight) {
+              delete style.color
+            }
+
             return (
               <Fragment key={index}>
                 {addSpace && (
                   <span
                     style={{
-                      color: style.color || 'white',
+                      color: style.color,
                       textDecoration: isWithinRange ? 'line-through' : '',
                     }}
                   >

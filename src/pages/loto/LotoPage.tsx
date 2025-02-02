@@ -739,7 +739,7 @@ export default function LotoPage() {
                         return (
                           <Box justifyContent="center" alignItems="center">
                             <img
-                              src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ3ozamhmOWwwN2x4amxqNTR3OHpqbm1kNnJqd3c4dWl2eXpsNXpzdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26FPLMDDN5fJCir0A/giphy.gif"
+                              src="https://s13.gifyu.com/images/b2NwE.gif"
                               style={{ width: '300px', marginRight: '15px' }}
                             />
                             <Box>
@@ -810,6 +810,7 @@ export default function LotoPage() {
                         matches={superGameTicketStateMap[ticket.id].matches}
                         owner={allUsersById[ticket.owner_id]}
                         big
+                        superHighlight
                       />
                     )
                   })}

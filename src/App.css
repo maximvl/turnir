@@ -54,3 +54,17 @@
 .enlarge-item {
   animation: enlarge 1s ease-in-out infinite;
 }
+
+/* text win blinking animation */
+@keyframes colorChange {
+  0% {
+    color: red;
+  }
+  50% {
+    color: orange;
+  }
+}
+
+.color-animation {
+  animation: colorChange 1s infinite steps(1);
+}
