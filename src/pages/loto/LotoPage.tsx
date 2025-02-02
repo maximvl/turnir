@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import { MusicContext } from '@/common/hooks/MusicContext'
 import MainMenu from '@/common/MainMenu'
-import { sample, uniq, uniqBy } from 'lodash'
+import { flatten, sample, uniq, uniqBy } from 'lodash'
 import { ChatMessage, ChatUser, VkMention } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from '@/pages/turnir/types'
@@ -20,7 +20,7 @@ import bingo3 from '@/assets/bingo3.webp'
 import bingo4 from '@/assets/bingo4.webp'
 import './styles.css'
 import TicketBox from './TicketBox'
-import { Ticket2 as Ticket, Ticket2, TicketId } from './types'
+import { Ticket, TicketId } from './types'
 import ChatBox from './ChatBox'
 import {
   genTicket,
@@ -29,6 +29,7 @@ import {
   formatSeconds,
   formatSecondsZero,
   generateSuperGameOptions,
+  randomTicketColor,
 } from './utils'
 import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
@@ -51,15 +52,16 @@ const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
 const SuperGameBaseDraws = 5
 const SuperGameTicketLength = 5
+const WinMatchAmount = 1
 
 export default function LotoPage() {
   const [state, setState] = useState<
-    'voting' | 'playing' | 'win' | 'super_game'
-  >('voting')
+    'registration' | 'playing' | 'win' | 'super_game'
+  >('registration')
   const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
 
-  const [superGameGuesses, setSuperGameGuesses] = useState<string[]>([])
+  const [superGameTickets, setSuperGameTickets] = useState<Ticket[]>([])
   const [superGameOptions, setSuperGameOptions] = useState<string[]>([])
   const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
@@ -119,10 +121,10 @@ export default function LotoPage() {
     .map((user) => user.id)
 
   const { newMessages: chatMessages } = useChatMessages({
-    fetching: state === 'voting' || state === 'win',
+    fetching: state !== 'playing',
   })
 
-  if (state === 'voting' && chatMessages.length > 0) {
+  if (state === 'registration' && chatMessages.length > 0) {
     const messagesUsers = uniqBy(
       chatMessages.map((msg) => msg.user),
       (user) => user.id
@@ -286,7 +288,7 @@ export default function LotoPage() {
   )
 
   useEffect(() => {
-    if (highestMatches >= 3 && state === 'playing') {
+    if (highestMatches >= WinMatchAmount && state === 'playing') {
       setState('win')
     }
   }, [highestMatches, state])
@@ -301,7 +303,14 @@ export default function LotoPage() {
     ? ticketsWithHighestMatches
     : []
 
-  if (state === 'win' && chatMessages.length > 0 && winners.length > 0) {
+  // console.log('msgs', chatMessages, 'winners', winners)
+
+  if (
+    (state === 'win' || state === 'super_game') &&
+    superGameRevealedIds.length === 0 &&
+    chatMessages.length > 0 &&
+    winners.length > 0
+  ) {
     const messagesFromWinners = chatMessages.filter((msg) =>
       winners.some((w) => msg.user.id === w.owner_id)
     )
@@ -320,25 +329,49 @@ export default function LotoPage() {
         )
 
         if (superGameMessages.length > 0) {
-          const trimmed = superGameMessages[0].message.trim()
-          const superGameGuesses = uniq(
-            trimmed
-              .split(' ')
-              .map((n) => parseInt(n))
-              .filter((n) => n > 0 && n < 100)
-              .map((n) => {
-                if (n < 10) {
-                  return `0${n}`
-                }
-                return n.toString()
-              })
-          )
+          for (const msg of superGameMessages) {
+            const trimmed = msg.message.trim()
+            const superGameGuesses = uniq(
+              trimmed
+                .split(' ')
+                .map((n) => parseInt(n))
+                .filter((n) => n > 0 && n < 100)
+                .map((n) => {
+                  if (n < 10) {
+                    return `0${n}`
+                  }
+                  return n.toString()
+                })
+            )
 
-          const limitedGuess = superGameGuesses.slice(0, SuperGameTicketLength)
+            const limitedGuess = superGameGuesses.slice(
+              0,
+              SuperGameTicketLength
+            )
+
+            const superGameTicketsValues = superGameTickets.map((t) => t.value)
+            const superGameCombinedOptions = uniq([
+              ...flatten(superGameTicketsValues),
+              ...limitedGuess,
+            ])
+
+            setSuperGameOptions(
+              generateSuperGameOptions(superGameCombinedOptions, 30)
+            )
+
+            const ticket: Ticket = {
+              id: msg.id,
+              owner_id: msg.user.id,
+              owner_name: msg.user.username,
+              value: limitedGuess,
+              color: randomTicketColor(),
+              variant: 0,
+              source: 'chat',
+            }
+            setSuperGameTickets((prev) => [...prev, ticket])
+          }
 
           setState('super_game')
-          setSuperGameOptions(generateSuperGameOptions(limitedGuess, 30))
-          setSuperGameGuesses(limitedGuess)
 
           // scroll to the top smoothly
           window.scrollTo({
@@ -368,34 +401,49 @@ export default function LotoPage() {
     setHostSuperNumbers(inputGuesses)
   }
 
-  let superGameTicketMatches: number[] = []
-  let superGameBoxMatches: number[] = []
-  let superGameTicket: Ticket2 | null = null
-  let superGameMatchesCount = 0
+  const superGameTicketStateMap: {
+    [k: string]: { matchesIds: number[]; matches: number[] }
+  } = {}
+
+  let superGameRevealedMatchesIds: number[] = []
+
   if (state === 'super_game') {
-    superGameTicket = {
-      ...winners[0],
-      value: superGameGuesses,
-    }
     const revealedOptions = superGameRevealedIds.map((n) => superGameOptions[n])
-    superGameTicketMatches = superGameGuesses.map((number) =>
-      revealedOptions.includes(number) ? 1 : 0
-    )
-    superGameMatchesCount = superGameTicketMatches.reduce(
-      (acc, val) => acc + val,
-      0
-    )
-    superGameBoxMatches = superGameRevealedIds.filter((n) =>
-      superGameGuesses.includes(superGameOptions[n])
-    )
+    superGameTickets.forEach((ticket) => {
+      const matchesIds = superGameRevealedIds.filter((n) =>
+        ticket.value.includes(superGameOptions[n])
+      )
+      superGameRevealedMatchesIds = uniq([
+        ...superGameRevealedMatchesIds,
+        ...matchesIds,
+      ])
+
+      const matches = ticket.value.map((number) =>
+        revealedOptions.includes(number) ? 1 : 0
+      )
+
+      superGameTicketStateMap[ticket.id] = {
+        matches,
+        matchesIds,
+      }
+    })
   }
 
-  const superGameFinalAmount = superGameMatchesCount + SuperGameBaseDraws
+  const superGameRevealedMatches = superGameRevealedMatchesIds.map(
+    (n) => superGameOptions[n]
+  )
+
+  const superGameTotalMatchesCount = superGameRevealedMatchesIds.length
+
+  const superGameDrawsAmount = superGameTotalMatchesCount + SuperGameBaseDraws
+  const allSuperTicketsMatched = Object.values(superGameTicketStateMap).every(
+    (val) => val.matchesIds.length === SuperGameTicketLength
+  )
 
   const superGameFinished =
     state === 'super_game' &&
-    (superGameRevealedIds.length === superGameFinalAmount ||
-      superGameMatchesCount === SuperGameTicketLength)
+    (superGameRevealedIds.length === superGameDrawsAmount ||
+      allSuperTicketsMatched)
 
   let nextNumberText = NumberToFancyName[nextNumber]
 
@@ -403,10 +451,15 @@ export default function LotoPage() {
     ticket.value.includes(nextNumber)
   ).length
 
-  let lastRevealedOption = undefined
+  let lastRevealedOption: string | undefined = undefined
+  let lastRevealedOptionMatched = false
   if (superGameRevealedIds.length > 0) {
     lastRevealedOption = superGameOptions[superGameRevealedIds.slice(-1)[0]]
     nextNumberText = NumberToFancyName[lastRevealedOption]
+    lastRevealedOptionMatched = superGameTickets.some(
+      (ticket) =>
+        lastRevealedOption && ticket.value.includes(lastRevealedOption)
+    )
   }
 
   return (
@@ -419,7 +472,7 @@ export default function LotoPage() {
         paddingRight={'100px'}
       >
         <Box marginBottom={'200px'} width={'100%'}>
-          {state === 'voting' && (
+          {state === 'registration' && (
             <>
               <Box position="absolute">
                 <FormGroup>
@@ -629,14 +682,10 @@ export default function LotoPage() {
             </Box>
           )}
 
-          {state === 'super_game' && superGameTicket && (
+          {state === 'super_game' && superGameTickets.length > 0 && (
             <Box display="flex" justifyContent="center">
               <Box>
-                <Box
-                  textAlign={'center'}
-                  display="flex"
-                  justifyContent="center"
-                >
+                <Box textAlign="center" display="flex" justifyContent="center">
                   <InfoPanel>
                     Ведущий открывает {SuperGameBaseDraws} чисел
                     <br /> И получи супер-приз!
@@ -649,19 +698,24 @@ export default function LotoPage() {
                   marginBottom={'20px'}
                   textAlign={'center'}
                 >
-                  Супер Игра с {superGameTicket.owner_name}
+                  Супер Игра с{' '}
+                  {superGameTickets
+                    .map((t) => allUsersById[t.owner_id].username)
+                    .join(', ')}
                 </Box>
-                <SuperGameBox
-                  options={superGameOptions}
-                  revealedOptionsIds={superGameRevealedIds}
-                  onOptionClick={(id: number) => {
-                    if (superGameRevealedIds.length < superGameFinalAmount) {
-                      setSuperGameRevealedIds((prev) => [...prev, id])
-                    }
-                  }}
-                  matches={superGameBoxMatches}
-                  revealAll={superGameFinished}
-                />
+                <Box display="flex" justifyContent="center">
+                  <SuperGameBox
+                    options={superGameOptions}
+                    revealedOptionsIds={superGameRevealedIds}
+                    onOptionClick={(id: number) => {
+                      if (superGameRevealedIds.length < superGameDrawsAmount) {
+                        setSuperGameRevealedIds((prev) => [...prev, id])
+                      }
+                    }}
+                    matches={superGameRevealedMatchesIds}
+                    revealAll={superGameFinished}
+                  />
+                </Box>
                 <Box marginBottom={'30px'}>
                   <Box
                     marginTop={'20px'}
@@ -671,17 +725,17 @@ export default function LotoPage() {
                     justifyContent={'center'}
                     textAlign={'center'}
                   >
-                    {lastRevealedOption && (
+                    {lastRevealedOption ? (
                       <DrawnNumber
                         value={lastRevealedOption}
                         big
-                        matchAnimation={
-                          nextDigitState === 'idle' &&
-                          superGameTicket.value.includes(nextNumber)
-                        }
+                        matchAnimation={superGameRevealedMatches.includes(
+                          lastRevealedOption
+                        )}
                       />
+                    ) : (
+                      <Box marginTop={'40px'}></Box>
                     )}
-                    {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
                   </Box>
                   {lastRevealedOption && (
                     <Box
@@ -699,58 +753,76 @@ export default function LotoPage() {
                     marginTop={'20px'}
                     textAlign={'center'}
                     fontSize={'32px'}
+                    justifyContent="center"
+                    alignItems="center"
                   >
-                    {superGameMatchesCount > 0 ? (
-                      <Box
-                        display="flex"
-                        justifyContent="center"
-                        alignItems="center"
-                      >
-                        <img
-                          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
-                          style={{ width: '64px', marginRight: '15px' }}
-                        />
-                        {superGameTicket.owner_name} угадывает{' '}
-                        {superGameMatchesCount}
-                        <img
-                          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
-                          style={{
-                            width: '64px',
-                            marginLeft: '15px',
-                            transform: 'rotateY(180deg)',
-                          }}
-                        />
-                      </Box>
-                    ) : (
-                      <Box display="flex" justifyContent="center">
-                        <img
-                          src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
-                          style={{ width: '48px', marginRight: '15px' }}
-                        />
-                        {superGameTicket.owner_name} проигрывает
-                        <img
-                          src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
-                          style={{
-                            width: '48px',
-                            marginLeft: '15px',
-                            transform: 'rotateY(180deg)',
-                          }}
-                        />
-                      </Box>
-                    )}
+                    {superGameTickets.map((ticket) => {
+                      const matchesCount =
+                        superGameTicketStateMap[ticket.id].matchesIds.length
+
+                      if (matchesCount > 0) {
+                        return (
+                          <Box
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                          >
+                            <img
+                              src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+                              style={{ width: '64px', marginRight: '15px' }}
+                            />
+                            {ticket.owner_name} угадывает {matchesCount}
+                            <img
+                              src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+                              style={{
+                                width: '64px',
+                                marginLeft: '15px',
+                                transform: 'rotateY(180deg)',
+                              }}
+                            />
+                          </Box>
+                        )
+                      }
+                      return (
+                        <Box
+                          display="flex"
+                          justifyContent="center"
+                          alignItems="center"
+                        >
+                          <img
+                            src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
+                            style={{ width: '48px', marginRight: '15px' }}
+                          />
+                          {ticket.owner_name} проигрывает
+                          <img
+                            src="https://cdn.betterttv.net/emote/656c936c06a047dd60c2de5e/3x.webp"
+                            style={{
+                              width: '48px',
+                              marginLeft: '15px',
+                              transform: 'rotateY(180deg)',
+                            }}
+                          />
+                        </Box>
+                      )
+                    })}
                   </Box>
                 )}
                 <Box
                   marginBottom={'200px'}
                   display={'flex'}
                   justifyContent={'center'}
+                  gap="20px"
                 >
-                  <TicketBox
-                    ticket={superGameTicket}
-                    matches={superGameTicketMatches}
-                    owner={allUsersById[superGameTicket.owner_id]}
-                    big
-                  />
+                  {superGameTickets.map((ticket, i) => {
+                    return (
+                      <TicketBox
+                        ticket={ticket}
+                        matches={superGameTicketStateMap[ticket.id].matches}
+                        owner={allUsersById[ticket.owner_id]}
+                        big
+                      />
+                    )
+                  })}
                 </Box>
               </Box>
             </Box>

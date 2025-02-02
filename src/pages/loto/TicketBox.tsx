@@ -1,6 +1,6 @@
 import { Box, Tooltip, useTheme } from '@mui/material'
 import { Fragment } from 'react'
-import { Ticket2 as Ticket } from './types'
+import { Ticket } from './types'
 import TicketImg1 from '@/assets/ticket1.svg'
 import TicketImg2 from '@/assets/ticket2.svg'
 import TicketImg3 from '@/assets/ticket3.svg'

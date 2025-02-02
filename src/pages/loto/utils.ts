@@ -1,6 +1,6 @@
 import { sample, sampleSize, shuffle, uniq } from 'lodash'
 import { ChatUser } from '@/pages/turnir/api'
-import { Ticket2 as Ticket } from './types'
+import { Ticket } from './types'
 
 type Props = {
   owner_id: string
@@ -23,15 +23,19 @@ export function genTicket({
     owner_id,
     owner_name,
     value,
-    color: sample([
-      '#634f5f', // dark red
-      '#654b3c', // brown
-      '#4a4857', // greyish
-      '#0c5159', // dark green
-    ]),
+    color: randomTicketColor(),
     variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
     source,
   } as Ticket
+}
+
+export function randomTicketColor() {
+  return sample([
+    '#634f5f', // dark red
+    '#654b3c', // brown
+    '#4a4857', // greyish
+    '#0c5159', // dark green
+  ])
 }
 
 function genTicketNumber(drawOptions: string[], text?: string) {

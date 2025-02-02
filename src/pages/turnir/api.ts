@@ -91,6 +91,7 @@ export async function fetchMessages({
   platform,
 }: FetchMessagesParams): Promise<ChatMessagesResponse> {
   if (MOCK_API) {
+    // console.log('fetching messages', channel, ts, textFilter, platform)
     const makeBadge = () => {
       return {
         id: '232c3913-274a-4c02-8d23-6576f7d48e98',
@@ -176,10 +177,10 @@ export async function fetchMessages({
     }
 
     const makeSuperGameMessage = () => {
-      const user_id = 13
+      const user_id = 23
       return {
-        id: '93152579111',
-        message: '+супер 8 17 23 41 99',
+        id: `${user_id}-super`,
+        message: '+супер 8 17 10 41 99',
         ts: Math.round(new Date().getTime() / 1000),
         user: {
           id: `${user_id}`,
@@ -188,9 +189,9 @@ export async function fetchMessages({
       }
     }
 
-    const messages: ChatMessage[] = Array.from({ length: 20 }, makeMessage)
-    const gameMessages = [makeGameMessage(), makeGameMessage()]
-    // return { chat_messages: messages }
+    const messages: ChatMessage[] = Array.from({ length: 40 }, makeMessage)
+    // const gameMessages = [makeGameMessage(), makeGameMessage()]
+    return { chat_messages: [makeSuperGameMessage()] }
     return { chat_messages: messages }
   }
 

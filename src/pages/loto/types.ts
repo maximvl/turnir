@@ -1,13 +1,6 @@
-export type Ticket = {
-  owner: string
-  value: string
-  color: string
-  variant: number
-}
-
 export type TicketId = string
 
-export type Ticket2 = {
+export type Ticket = {
   id: TicketId
   owner_id: string
   owner_name: string
