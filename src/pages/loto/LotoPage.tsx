@@ -542,7 +542,6 @@ export default function LotoPage() {
                   <Button
                     variant="contained"
                     color="primary"
-                    style={{ marginLeft: '30px' }}
                     onClick={() => setState('playing')}
                     disabled={totalTickets.length === 0}
                   >
