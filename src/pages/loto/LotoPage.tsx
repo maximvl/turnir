@@ -685,8 +685,13 @@ export default function LotoPage() {
                   />
                 </Box>
                 <Box marginBottom={'30px'}>
+                  <Box display="flex" justifyContent="center" marginTop="10px">
+                    {superGameRevealedIds.length}
+                    {'/'}
+                    {superGameDrawsAmount}
+                  </Box>
                   <Box
-                    marginTop={'20px'}
+                    marginTop={'10px'}
                     fontSize={'48px'}
                     display={'flex'}
                     alignItems={'center'}
