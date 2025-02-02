@@ -22,10 +22,18 @@ import './styles.css'
 import TicketBox from './TicketBox'
 import { Ticket2 as Ticket, Ticket2, TicketId } from './types'
 import ChatBox from './ChatBox'
-import { genTicket, isUserSubscriber, NumberToFancyName } from './utils'
+import {
+  genTicket,
+  isUserSubscriber,
+  NumberToFancyName,
+  formatSeconds,
+  formatSecondsZero,
+  generateSuperGameOptions,
+} from './utils'
 import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
 import useTimer from '@/common/hooks/useTimer'
+import SuperGameBox from './SuperGameBox'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -41,7 +49,7 @@ resetDrawingNumbers()
 
 const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
-const SuperGameBaseDraws = 10
+const SuperGameBaseDraws = 5
 const SuperGameTicketLength = 5
 
 export default function LotoPage() {
@@ -52,7 +60,8 @@ export default function LotoPage() {
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
 
   const [superGameGuesses, setSuperGameGuesses] = useState<string[]>([])
-  const [superGameDraws, setSuperGameDraws] = useState<string[]>([])
+  const [superGameOptions, setSuperGameOptions] = useState<string[]>([])
+  const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
   const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>(
     {}
@@ -197,14 +206,6 @@ export default function LotoPage() {
         if (state === 'playing') {
           setDrawnNumbers((prev) => [...prev, nextNumber])
         }
-        if (state === 'super_game') {
-          if (hostSuperNumbers.length > 0) {
-            nextNumber = hostSuperNumbers.shift() ?? nextNumber
-            setNextNumber(nextNumber)
-            nextNumberRef.current = nextNumber
-          }
-          setSuperGameDraws((prev) => [...prev, nextNumber])
-        }
       }, 3000)
     }
   }, [nextDigitState, nextNumber, state])
@@ -336,9 +337,9 @@ export default function LotoPage() {
           const limitedGuess = superGameGuesses.slice(0, SuperGameTicketLength)
 
           setState('super_game')
+          setSuperGameOptions(generateSuperGameOptions(limitedGuess, 30))
           setSuperGameGuesses(limitedGuess)
-          resetDrawingNumbers()
-          setNextNumber('')
+
           // scroll to the top smoothly
           window.scrollTo({
             top: 0,
@@ -367,7 +368,8 @@ export default function LotoPage() {
     setHostSuperNumbers(inputGuesses)
   }
 
-  let superGameMatches: number[] = []
+  let superGameTicketMatches: number[] = []
+  let superGameBoxMatches: number[] = []
   let superGameTicket: Ticket2 | null = null
   let superGameMatchesCount = 0
   if (state === 'super_game') {
@@ -375,24 +377,37 @@ export default function LotoPage() {
       ...winners[0],
       value: superGameGuesses,
     }
-    superGameMatches = superGameTicket.value.map((number) =>
-      superGameDraws.includes(number) ? 1 : 0
+    const revealedOptions = superGameRevealedIds.map((n) => superGameOptions[n])
+    superGameTicketMatches = superGameGuesses.map((number) =>
+      revealedOptions.includes(number) ? 1 : 0
     )
-    superGameMatchesCount = superGameMatches.reduce((acc, val) => acc + val, 0)
+    superGameMatchesCount = superGameTicketMatches.reduce(
+      (acc, val) => acc + val,
+      0
+    )
+    superGameBoxMatches = superGameRevealedIds.filter((n) =>
+      superGameGuesses.includes(superGameOptions[n])
+    )
   }
 
-  const superGameFinalAmount = superGameMatchesCount * 2 + SuperGameBaseDraws
+  const superGameFinalAmount = superGameMatchesCount + SuperGameBaseDraws
 
   const superGameFinished =
     state === 'super_game' &&
-    (superGameDraws.length === superGameFinalAmount ||
+    (superGameRevealedIds.length === superGameFinalAmount ||
       superGameMatchesCount === SuperGameTicketLength)
 
-  const nextNumberText = NumberToFancyName[nextNumber]
+  let nextNumberText = NumberToFancyName[nextNumber]
 
   const currentNumberMatchesAmount = totalTickets.filter((ticket) =>
     ticket.value.includes(nextNumber)
   ).length
+
+  let lastRevealedOption = undefined
+  if (superGameRevealedIds.length > 0) {
+    lastRevealedOption = superGameOptions[superGameRevealedIds.slice(-1)[0]]
+    nextNumberText = NumberToFancyName[lastRevealedOption]
+  }
 
   return (
     <Box onClick={startMusic} className="loto-page">
@@ -623,10 +638,10 @@ export default function LotoPage() {
                   justifyContent="center"
                 >
                   <InfoPanel>
-                    Угадай любое из {SuperGameBaseDraws} чисел
+                    Ведущий открывает {SuperGameBaseDraws} чисел
                     <br /> И получи супер-приз!
                     <br />
-                    Каждое угаданное число дает 2 дополнительных ролла!
+                    Каждое угаданное число дает дополнительный ролл
                   </InfoPanel>
                 </Box>
                 <Box
@@ -636,31 +651,17 @@ export default function LotoPage() {
                 >
                   Супер Игра с {superGameTicket.owner_name}
                 </Box>
-                <Box
-                  display={'flex'}
-                  justifyContent={'center'}
-                  textAlign={'center'}
-                  width={'900px'}
-                  flexWrap={'wrap'}
-                >
-                  {superGameDraws.map((value, index) => {
-                    const highlight = superGameTicket.value.includes(value)
-                    return (
-                      <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
-                        <DrawnNumber value={value} highlight={highlight} />
-                      </Box>
-                    )
-                  })}
-                  {Array.from({
-                    length: superGameFinalAmount - superGameDraws.length,
-                  }).map((value, index) => {
-                    return (
-                      <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
-                        <DrawnNumber value={'?'} />
-                      </Box>
-                    )
-                  })}
-                </Box>
+                <SuperGameBox
+                  options={superGameOptions}
+                  revealedOptionsIds={superGameRevealedIds}
+                  onOptionClick={(id: number) => {
+                    if (superGameRevealedIds.length < superGameFinalAmount) {
+                      setSuperGameRevealedIds((prev) => [...prev, id])
+                    }
+                  }}
+                  matches={superGameBoxMatches}
+                  revealAll={superGameFinished}
+                />
                 <Box marginBottom={'30px'}>
                   <Box
                     marginTop={'20px'}
@@ -670,9 +671,9 @@ export default function LotoPage() {
                     justifyContent={'center'}
                     textAlign={'center'}
                   >
-                    {nextNumber.length > 0 && (
+                    {lastRevealedOption && (
                       <DrawnNumber
-                        value={nextNumber}
+                        value={lastRevealedOption}
                         big
                         matchAnimation={
                           nextDigitState === 'idle' &&
@@ -682,7 +683,7 @@ export default function LotoPage() {
                     )}
                     {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
                   </Box>
-                  {nextNumberText && nextDigitState === 'idle' && (
+                  {lastRevealedOption && (
                     <Box
                       fontSize={'18px'}
                       textAlign={'center'}
@@ -692,21 +693,6 @@ export default function LotoPage() {
                     </Box>
                   )}
                 </Box>
-                {!superGameFinished && (
-                  <Box
-                    marginBottom={'40px'}
-                    marginTop={'20px'}
-                    textAlign={'center'}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={() => setNextDigitState('roll_start')}
-                      disabled={nextDigitState !== 'idle'}
-                    >
-                      Достать бочонок
-                    </Button>
-                  </Box>
-                )}
                 {superGameFinished && (
                   <Box
                     marginBottom={'40px'}
@@ -761,7 +747,7 @@ export default function LotoPage() {
                 >
                   <TicketBox
                     ticket={superGameTicket}
-                    matches={superGameMatches}
+                    matches={superGameTicketMatches}
                     owner={allUsersById[superGameTicket.owner_id]}
                     big
                   />
@@ -806,7 +792,6 @@ export default function LotoPage() {
 
 function drawNumber(next: string) {
   DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
-  // console.log('DrawingNumbers', DrawingNumbers)
   return next
 }
 
@@ -851,18 +836,4 @@ function getNewTickets(
     return newOwnersTicketsFiltered
   }
   return []
-}
-
-function formatSeconds(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}м ${remainingSeconds.toString().padStart(2, '0')}с`
-}
-
-function formatSecondsZero(seconds: number) {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
-    .toString()
-    .padStart(2, '0')}`
 }

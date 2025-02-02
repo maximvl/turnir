@@ -1,4 +1,4 @@
-import { sample, sampleSize, uniq } from 'lodash'
+import { sample, sampleSize, shuffle, uniq } from 'lodash'
 import { ChatUser } from '@/pages/turnir/api'
 import { Ticket2 as Ticket } from './types'
 
@@ -225,4 +225,31 @@ export function isBrightColor(hexColor: string): boolean {
   // console.log(hexColor, luminance)
 
   return luminance > 0.1
+}
+
+export function formatSeconds(seconds: number) {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}м ${remainingSeconds.toString().padStart(2, '0')}с`
+}
+
+export function formatSecondsZero(seconds: number) {
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
+    .toString()
+    .padStart(2, '0')}`
+}
+
+export function generateSuperGameOptions(userValues: string[], amount: number) {
+  // generate amount numbers of random 1-99 including userValues
+  const result = new Set<string>(userValues)
+  while (result.size < amount) {
+    result.add(
+      Math.floor(Math.random() * 99 + 1)
+        .toString()
+        .padStart(2, '0')
+    )
+  }
+  return shuffle(Array.from(result))
 }

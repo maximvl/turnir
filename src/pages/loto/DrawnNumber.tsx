@@ -1,23 +1,27 @@
 import { Box, useTheme } from '@mui/material'
-import wood from '@/assets/wood.png'
 
 type Props = {
   value: string
   big?: boolean
   matchAnimation?: boolean
-  highlight?: boolean
+  variant?: 'green' | 'grey'
 }
 
 export default function DrawnNumber({
   value,
   big,
   matchAnimation,
-  highlight,
+  variant,
 }: Props) {
   const theme = useTheme()
-  const color = highlight
-    ? theme.palette.success.main
-    : theme.palette.error.main
+  let color = theme.palette.error.main
+  if (variant === 'green') {
+    color = theme.palette.success.main
+  }
+  if (variant === 'grey') {
+    color = theme.palette.grey[500]
+  }
+
   return (
     <Box
       className={matchAnimation ? 'enlarge-item' : ''}
