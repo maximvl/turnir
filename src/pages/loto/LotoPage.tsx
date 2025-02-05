@@ -678,7 +678,7 @@ export default function LotoPage() {
                     revealedOptionsIds={superGameRevealedIds}
                     onOptionClick={(id: number) => {
                       if (superGameRevealedIds.length < superGameDrawsAmount) {
-                        setSuperGameRevealedIds((prev) => [...prev, id])
+                        setSuperGameRevealedIds((prev) => uniq([...prev, id]))
                       }
                     }}
                     matches={superGameRevealedMatchesIds}
