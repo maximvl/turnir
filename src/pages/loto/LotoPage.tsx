@@ -682,9 +682,8 @@ export default function LotoPage() {
                 >
                   {superGameGuesses.map((guess, index) => {
                     return (
-                      <Box marginBottom="20px">
+                      <Box marginBottom="20px" key={index}>
                         <SuperGamePlayerStats
-                          key={index}
                           owner_name={guess.owner_name}
                           result={superGameResultMap[guess.id]}
                           guessesAmount={
