@@ -1,6 +1,6 @@
 import { sample, sampleSize, shuffle, uniq } from 'lodash'
 import { ChatUser } from '@/pages/turnir/api'
-import { Ticket } from './types'
+import { SuperGameResultItem, Ticket } from './types'
 
 type Props = {
   owner_id: string
@@ -248,15 +248,35 @@ export function formatSecondsZero(seconds: number) {
     .padStart(2, '0')}`
 }
 
-export function generateSuperGameOptions(userValues: string[], amount: number) {
-  // generate amount numbers of random 1-99 including userValues
-  const result = new Set<string>(userValues)
-  while (result.size < amount) {
-    result.add(
-      Math.floor(Math.random() * 99 + 1)
-        .toString()
-        .padStart(2, '0')
-    )
+type GenerateParams = {
+  amount: number
+  smallPrizes: number
+  mediumPrizes: number
+  bigPrizes: number
+}
+
+export function generateSuperGameValues({
+  amount,
+  smallPrizes,
+  mediumPrizes,
+  bigPrizes,
+}: GenerateParams) {
+  const result: SuperGameResultItem[] = []
+  // insert small prizes
+  for (let i = 0; i < smallPrizes; i++) {
+    result.push('x1')
+  }
+  // insert medium prizes
+  for (let i = 0; i < mediumPrizes; i++) {
+    result.push('x2')
+  }
+  // insert big prizes
+  for (let i = 0; i < bigPrizes; i++) {
+    result.push('x3')
+  }
+  // fill the rest with empty values
+  for (let i = 0; i < amount - smallPrizes - mediumPrizes - bigPrizes; i++) {
+    result.push('empty')
   }
   return shuffle(Array.from(result))
 }

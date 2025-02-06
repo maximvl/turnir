@@ -5,14 +5,26 @@ type Props = {
   frontSide: React.ReactNode
   backSide: React.ReactNode
   disabled?: boolean
+  onFlip?: () => void
 }
 
-export default function Flipper({ frontSide, backSide, disabled }: Props) {
+export default function Flipper({
+  frontSide,
+  backSide,
+  disabled,
+  onFlip,
+}: Props) {
   const [isFlipped, setIsFlipped] = useState(false)
 
   const handleFlip = () => {
     if (disabled) return
     setIsFlipped(!isFlipped)
+  }
+
+  const handleAnimationComplete = () => {
+    if (isFlipped && !disabled) {
+      onFlip?.()
+    }
   }
 
   return (
@@ -36,6 +48,7 @@ export default function Flipper({ frontSide, backSide, disabled }: Props) {
         onClick={handleFlip}
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={{ duration: 0.6 }}
+        onAnimationComplete={handleAnimationComplete}
       >
         {/* Front of the card */}
         <motion.div

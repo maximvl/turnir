@@ -1,14 +1,16 @@
 import { Box, useTheme } from '@mui/material'
 
+export type Variant = 'green' | 'grey' | 'orange'
+
 type Props = {
-  value: string
+  children?: React.ReactNode
   big?: boolean
   matchAnimation?: boolean
-  variant?: 'green' | 'grey'
+  variant?: Variant
 }
 
 export default function DrawnNumber({
-  value,
+  children,
   big,
   matchAnimation,
   variant,
@@ -21,9 +23,16 @@ export default function DrawnNumber({
   if (variant === 'grey') {
     color = theme.palette.grey[500]
   }
+  if (variant === 'orange') {
+    color = theme.palette.info.main
+  }
 
   return (
     <Box
+      display="flex"
+      alignContent="center"
+      justifyContent="center"
+      alignItems="center"
       className={matchAnimation ? 'enlarge-item' : ''}
       border={`3px solid ${color}`}
       borderRadius={'50%'}
@@ -39,7 +48,7 @@ export default function DrawnNumber({
       }}
       textAlign="center"
     >
-      {value}
+      {children}
     </Box>
   )
 }
