@@ -50,8 +50,7 @@ resetDrawingNumbers()
 
 const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
 
-const SuperGameBaseDraws = 5
-const SuperGameTicketLength = 5
+const SuperGameBaseGuessAmount = 5
 const WinMatchAmount = 3
 const SuperGameOptionsAmount = 30
 
@@ -310,9 +309,27 @@ export default function LotoPage() {
 
   // console.log('msgs', chatMessages, 'winners', winners)
 
+  const superGameResultMap: {
+    [k: string]: SuperGameResultItem[]
+  } = {}
+
+  const superGameBonusGuesses: { [k: string]: number } = {}
+
+  if (state === 'super_game') {
+    superGameGuesses.forEach((guess) => {
+      const matchingIds = guess.value.filter((n) =>
+        superGameRevealedIds.includes(n)
+      )
+      const result = matchingIds.map((n) => superGameValues[n])
+      superGameResultMap[guess.id] = result
+      superGameBonusGuesses[guess.id] = result.filter(
+        (r) => r !== 'empty'
+      ).length
+    })
+  }
+
   if (
     (state === 'win' || state === 'super_game') &&
-    superGameRevealedIds.length === 0 &&
     chatMessages.length > 0 &&
     winners.length > 0
   ) {
@@ -336,70 +353,63 @@ export default function LotoPage() {
         if (superGameMessages.length > 0) {
           for (const msg of superGameMessages) {
             const trimmed = msg.message.trim()
-            const superGameGuesses = uniq(
+            const currentGuess = uniq(
               trimmed
                 .split(' ')
                 .map((n) => parseInt(n) - 1)
-                .filter((n) => n > 0 && n < SuperGameOptionsAmount)
+                .filter((n) => n >= 0 && n < SuperGameOptionsAmount)
             )
 
-            const limitedGuess = superGameGuesses.slice(0, SuperGameGuessAmount)
+            const messageFromSameUser = superGameGuesses.find(
+              (guess) => guess.owner_id === msg.user.id
+            )
 
-            const guess: SuperGameGuess = {
-              id: msg.id,
-              owner_id: msg.user.id,
-              owner_name: msg.user.username,
-              value: limitedGuess,
+            if (messageFromSameUser) {
+              const bonusGuessesAmount =
+                superGameBonusGuesses[messageFromSameUser.id]
+              const limitedGuess = currentGuess.slice(0, bonusGuessesAmount)
+              messageFromSameUser.value = uniq([
+                ...messageFromSameUser.value,
+                ...limitedGuess,
+              ])
+              setSuperGameGuesses([...superGameGuesses])
+            } else {
+              const limitedGuess = currentGuess.slice(
+                0,
+                SuperGameBaseGuessAmount
+              )
+
+              const guess: SuperGameGuess = {
+                id: msg.id,
+                owner_id: msg.user.id,
+                owner_name: msg.user.username,
+                value: limitedGuess,
+              }
+
+              setSuperGameGuesses((prev) => [...prev, guess])
             }
-
-            setSuperGameGuesses((prev) => [...prev, guess])
           }
 
-          setState('super_game')
-
-          // scroll to the top smoothly
-          window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-          })
+          if (state === 'win') {
+            setState('super_game')
+          }
         }
       }
     }
   }
 
-  const superGameResultMap: {
-    [k: string]: SuperGameResultItem[]
-  } = {}
-
-  if (state === 'super_game') {
-    superGameGuesses.forEach((guess) => {
-      const matchingIds = guess.value.filter((n) =>
-        superGameRevealedIds.includes(n)
-      )
-      const result = matchingIds.map((n) => superGameValues[n])
-      superGameResultMap[guess.id] = result
-    })
-  }
-
-  const superGameMatches = superGameRevealedIds.map((id) => superGameValues[id])
-  const superGameTotalMatchesCount = superGameMatches.filter(
-    (item) => item !== 'empty'
-  ).length
-
   const superGameSelectedIds = uniq(
     flatten(superGameGuesses.map((guess) => guess.value))
   )
 
-  const superGameDrawsAmount = superGameTotalMatchesCount + SuperGameBaseDraws
   const allSuperGuessesRevealed =
     Object.keys(superGameResultMap).filter(
-      (key) => superGameResultMap[key].length === SuperGameGuessAmount
+      (key) =>
+        superGameResultMap[key].length === SuperGameBaseGuessAmount &&
+        superGameBonusGuesses[key] === 0
     ).length === Object.keys(superGameResultMap).length
 
-  const superGameFinished =
-    state === 'super_game' &&
-    (superGameRevealedIds.length === superGameDrawsAmount ||
-      allSuperGuessesRevealed)
+  const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
 
   let nextNumberText = NumberToFancyName[nextNumber]
 
@@ -634,8 +644,8 @@ export default function LotoPage() {
               <Box>
                 <Box textAlign="center" display="flex" justifyContent="center">
                   <InfoPanel>
-                    Ведущий открывает {SuperGameBaseDraws} чисел
-                    <br /> И получи супер-приз!
+                    Победитель открывает {SuperGameBaseGuessAmount} ячеек
+                    <br /> И может выиграть супер-приз!
                     <br />
                     Каждое угаданное число дает дополнительный ролл
                   </InfoPanel>
@@ -655,25 +665,16 @@ export default function LotoPage() {
                     options={superGameValues}
                     revealedOptionsIds={superGameRevealedIds}
                     onOptionReveal={(id: number) => {
-                      if (superGameRevealedIds.length < superGameDrawsAmount) {
-                        setSuperGameRevealedIds((prev) => uniq([...prev, id]))
-                      }
+                      setSuperGameRevealedIds((prev) => uniq([...prev, id]))
                     }}
                     revealAll={superGameFinished}
                     selected={superGameSelectedIds}
                   />
                 </Box>
-                <Box marginBottom={'30px'}>
-                  <Box display="flex" justifyContent="center" marginTop="10px">
-                    {superGameRevealedIds.length}
-                    {'/'}
-                    {superGameDrawsAmount}
-                  </Box>
-                </Box>
 
                 <Box
                   marginBottom={'40px'}
-                  marginTop={'20px'}
+                  marginTop={'50px'}
                   textAlign={'center'}
                   fontSize={'32px'}
                   justifyContent="center"
@@ -681,12 +682,17 @@ export default function LotoPage() {
                 >
                   {superGameGuesses.map((guess, index) => {
                     return (
-                      <SuperGamePlayerStats
-                        key={index}
-                        owner_name={guess.owner_name}
-                        result={superGameResultMap[guess.id]}
-                        isFinished={superGameFinished}
-                      />
+                      <Box marginBottom="20px">
+                        <SuperGamePlayerStats
+                          key={index}
+                          owner_name={guess.owner_name}
+                          result={superGameResultMap[guess.id]}
+                          guessesAmount={
+                            superGameBonusGuesses[guess.id] +
+                            SuperGameBaseGuessAmount
+                          }
+                        />
+                      </Box>
                     )
                   })}
                 </Box>

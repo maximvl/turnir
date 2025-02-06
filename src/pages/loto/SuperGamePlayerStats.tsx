@@ -4,14 +4,17 @@ import { SuperGameResultItem } from './types'
 type Props = {
   result: SuperGameResultItem[]
   owner_name: string
-  isFinished: boolean
+  guessesAmount: number
 }
 
 export default function SuperGamePlayerStats({
   result,
   owner_name,
-  isFinished,
+  guessesAmount,
 }: Props) {
+  const revealedAmount = result.length
+
+  const isFinished = revealedAmount === guessesAmount
   const score =
     result.reduce((acc, val) => {
       if (val === 'x1') {
@@ -29,7 +32,7 @@ export default function SuperGamePlayerStats({
   if (!isFinished) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center">
-        {owner_name} очки: {score}
+        {owner_name} очки: {score} ({revealedAmount}/{guessesAmount})
       </Box>
     )
   }

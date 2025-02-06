@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Tooltip } from '@mui/material'
 import DrawnNumber, { Variant } from './DrawnNumber'
 import Flipper from './Flipper'
 import { SuperGameResultItem } from './types'
@@ -29,7 +29,12 @@ export default function SuperGameBox({
     >
       {options.map((option, index) => {
         const revealed = revealedOptionsIds.includes(index)
-        const displayItem = <DisplayItem item={option} />
+        let displayItem = <DisplayItem item={option} />
+        if (revealAll && !revealed) {
+          displayItem = (
+            <Box style={{ filter: 'brightness(40%)' }}>{displayItem}</Box>
+          )
+        }
 
         const hiddenValue = revealAll
           ? displayItem
@@ -74,34 +79,64 @@ type DisplayProps = {
 function DisplayItem({ item }: DisplayProps) {
   if (item === 'x1') {
     return (
-      <img
-        src="https://images.live.vkvideo.ru/smile/2ec232fd-bb31-4122-b3d1-4c8e7b721561/icon/size/medium"
-        width="30px"
-        height="30px"
-        alt="option"
-      />
+      <Tooltip title="1 очко">
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <img
+            src="https://images.live.vkvideo.ru/smile/2ec232fd-bb31-4122-b3d1-4c8e7b721561/icon/size/medium"
+            width="30px"
+            height="30px"
+            alt="option"
+          />
+        </Box>
+      </Tooltip>
     )
   }
 
   if (item === 'x2') {
     return (
-      <img
-        src="https://images.live.vkvideo.ru/smile/c78b5408-e42c-4aeb-b6f5-9ca21d73c0f1/icon/size/medium"
-        width="30px"
-        height="30px"
-        alt="option"
-      />
+      <Tooltip title="2 очка">
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <img
+            src="https://images.live.vkvideo.ru/smile/c78b5408-e42c-4aeb-b6f5-9ca21d73c0f1/icon/size/medium"
+            width="30px"
+            height="30px"
+            alt="option"
+          />
+        </Box>
+      </Tooltip>
     )
   }
 
   if (item === 'x3') {
     return (
-      <img
-        src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
-        width="40px"
-        height="40px"
-        alt="option"
-      />
+      <Tooltip title="3 очка">
+        <Box
+          width="100%"
+          height="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <img
+            src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+            width="40px"
+            height="40px"
+            alt="option"
+          />
+        </Box>
+      </Tooltip>
     )
   }
   return null
