@@ -365,7 +365,11 @@ export default function LotoPage() {
             if (messageFromSameUser) {
               const bonusGuessesAmount =
                 superGameBonusGuesses[messageFromSameUser.id]
-              const limitedGuess = currentGuess.slice(0, bonusGuessesAmount)
+              const totalGuessesAmount =
+                bonusGuessesAmount + SuperGameBaseGuessAmount
+              const remaining =
+                totalGuessesAmount - messageFromSameUser.value.length
+              const limitedGuess = currentGuess.slice(0, remaining)
               messageFromSameUser.value = uniq([
                 ...messageFromSameUser.value,
                 ...limitedGuess,
