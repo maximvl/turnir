@@ -344,10 +344,8 @@ export default function LotoPage() {
       if (newMessages.length > 0) {
         setWinnerMessages([...winnerMessages, ...newMessages])
 
-        const superGameMessages = newMessages.filter(
-          (msg) =>
-            msg.message.toLowerCase().startsWith('+супер') &&
-            msg.message.match(/(\d{1,2}\s){4}\d{1,2}/)
+        const superGameMessages = newMessages.filter((msg) =>
+          msg.message.toLowerCase().startsWith('+супер')
         )
 
         if (superGameMessages.length > 0) {
@@ -405,8 +403,8 @@ export default function LotoPage() {
   const allSuperGuessesRevealed =
     Object.keys(superGameResultMap).filter(
       (key) =>
-        superGameResultMap[key].length === SuperGameBaseGuessAmount &&
-        superGameBonusGuesses[key] === 0
+        superGameResultMap[key].length ===
+        SuperGameBaseGuessAmount + superGameBonusGuesses[key]
     ).length === Object.keys(superGameResultMap).length
 
   const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
