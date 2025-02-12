@@ -84,6 +84,29 @@ export type FetchMessagesParams = {
   textFilter?: string
 }
 
+let chatResultMock: ChatMessagesResponse | null = null
+
+declare global {
+  interface Window {
+    debugSendChat: (user_id: string, message: string) => void
+  }
+}
+
+if (MOCK_API) {
+  window.debugSendChat = function (user_id: string, message: string) {
+    chatResultMock = {
+      chat_messages: [
+        {
+          id: Math.random().toString() + Math.random().toString(),
+          message,
+          ts: Math.round(new Date().getTime() / 1000),
+          user: { id: user_id, username: user_id },
+        },
+      ],
+    }
+  }
+}
+
 export async function fetchMessages({
   channel,
   ts,
@@ -177,10 +200,10 @@ export async function fetchMessages({
     }
 
     const makeSuperGameMessage = () => {
-      const user_id = 23
+      const user_id = 58
       return {
-        id: `${user_id}-super`,
-        message: '+супер 8 17 10 41 99',
+        id: `${user_id}-super6`,
+        message: '+супер 1 2',
         ts: Math.round(new Date().getTime() / 1000),
         user: {
           id: `${user_id}`,
@@ -189,9 +212,15 @@ export async function fetchMessages({
       }
     }
 
+    if (chatResultMock) {
+      const result = chatResultMock
+      chatResultMock = null
+      return result
+    }
+
     const messages: ChatMessage[] = Array.from({ length: 40 }, makeMessage)
-    // const gameMessages = [makeGameMessage(), makeGameMessage()]
-    return { chat_messages: [makeSuperGameMessage()] }
+    const gameMessages = [makeGameMessage(), makeGameMessage()]
+    // return { chat_messages: [makeSuperGameMessage()] }
     return { chat_messages: messages }
   }
 

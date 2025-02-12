@@ -29,13 +29,19 @@ export function genTicket({
   } as Ticket
 }
 
-export function randomTicketColor() {
-  return sample([
+export function randomTicketColor(target?: number) {
+  const colors = [
     '#634f5f', // dark red
     '#654b3c', // brown
     '#4a4857', // greyish
     '#0c5159', // dark green
-  ])
+  ]
+
+  if (target !== undefined) {
+    return colors[target % colors.length]
+  }
+
+  return sample(colors)
 }
 
 function genTicketNumber(drawOptions: string[], text?: string) {
@@ -109,7 +115,7 @@ export const NumberToFancyName: { [k: string]: string } = {
   '30': 'Астрахань',
   '31': 'Белгород',
   '32': 'Брянск',
-  '33': 'Владимир',
+  '33': 'Кудри',
   '34': 'Волгоград',
   '35': 'Вологда',
   '36': 'Воронеж',

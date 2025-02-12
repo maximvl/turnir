@@ -29,6 +29,7 @@ import {
   formatSeconds,
   formatSecondsZero,
   generateSuperGameValues,
+  randomTicketColor,
 } from './utils'
 import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
@@ -310,20 +311,19 @@ export default function LotoPage() {
   // console.log('msgs', chatMessages, 'winners', winners)
 
   const superGameResultMap: {
-    [k: string]: SuperGameResultItem[]
+    [k: string]: (SuperGameResultItem | null)[]
   } = {}
 
   const superGameBonusGuesses: { [k: string]: number } = {}
 
   if (state === 'super_game') {
     superGameGuesses.forEach((guess) => {
-      const matchingIds = guess.value.filter((n) =>
-        superGameRevealedIds.includes(n)
+      const result = guess.value.map((n) =>
+        superGameRevealedIds.includes(n) ? superGameValues[n] : null
       )
-      const result = matchingIds.map((n) => superGameValues[n])
       superGameResultMap[guess.id] = result
       superGameBonusGuesses[guess.id] = result.filter(
-        (r) => r !== 'empty'
+        (r) => r !== null && r !== 'empty'
       ).length
     })
   }
@@ -356,6 +356,7 @@ export default function LotoPage() {
                 .split(' ')
                 .map((n) => parseInt(n) - 1)
                 .filter((n) => n >= 0 && n < SuperGameOptionsAmount)
+                .filter((n) => !superGameRevealedIds.includes(n))
             )
 
             const messageFromSameUser = superGameGuesses.find(
@@ -369,7 +370,12 @@ export default function LotoPage() {
                 bonusGuessesAmount + SuperGameBaseGuessAmount
               const remaining =
                 totalGuessesAmount - messageFromSameUser.value.length
-              const limitedGuess = currentGuess.slice(0, remaining)
+
+              const previousGuessFiltered = currentGuess.filter(
+                (n) => !messageFromSameUser.value.includes(n)
+              )
+
+              const limitedGuess = previousGuessFiltered.slice(0, remaining)
               messageFromSameUser.value = uniq([
                 ...messageFromSameUser.value,
                 ...limitedGuess,
@@ -404,12 +410,13 @@ export default function LotoPage() {
     flatten(superGameGuesses.map((guess) => guess.value))
   )
 
-  const allSuperGuessesRevealed =
-    Object.keys(superGameResultMap).filter(
-      (key) =>
-        superGameResultMap[key].length ===
-        SuperGameBaseGuessAmount + superGameBonusGuesses[key]
-    ).length === Object.keys(superGameResultMap).length
+  // console.log('super game guesses', superGameResultMap)
+
+  const allSuperGuessesRevealed = Object.keys(superGameResultMap).every(
+    (key) =>
+      superGameResultMap[key].filter((v) => v !== null).length ===
+      SuperGameBaseGuessAmount + superGameBonusGuesses[key]
+  )
 
   const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
 
@@ -684,9 +691,16 @@ export default function LotoPage() {
                 >
                   {superGameGuesses.map((guess, index) => {
                     return (
-                      <Box marginBottom="20px" key={index}>
+                      <Box
+                        marginBottom="20px"
+                        key={index}
+                        style={{ backgroundColor: randomTicketColor(index) }}
+                        borderRadius="10px"
+                        paddingLeft="20px"
+                        paddingRight="20px"
+                      >
                         <SuperGamePlayerStats
-                          owner_name={guess.owner_name}
+                          guess={guess}
                           result={superGameResultMap[guess.id]}
                           guessesAmount={
                             superGameBonusGuesses[guess.id] +
