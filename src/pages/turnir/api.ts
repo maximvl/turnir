@@ -322,3 +322,77 @@ export async function chatConnect({
     method: 'POST',
   }).then((res) => res.json())
 }
+
+type SuperGameStatus = 'skip' | 'win' | 'lose'
+
+type LotWinner = {
+  username: string
+  super_game_status: SuperGameStatus
+}
+
+export type LotoWinnersCreate = {
+  server: string
+  channel: string
+  winners: LotWinner[]
+}
+
+type LotoWinnerCreateResponse = {
+  ids: { [key: string]: number }
+}
+
+export async function createLotoWinners({
+  server,
+  channel,
+  winners,
+}: LotoWinnersCreate): Promise<LotoWinnerCreateResponse> {
+  return fetch(`${URL_PREFIX}/turnir-api/loto_winners`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ winners, channel, server }),
+  }).then((res) => res.json())
+}
+
+export type LotoWinnerUpdate = {
+  id: number
+  super_game_status: SuperGameStatus
+  server: string
+  channel: string
+}
+
+export async function updateLotoWinner({
+  id,
+  super_game_status,
+  server,
+  channel,
+}: LotoWinnerUpdate): Promise<Response> {
+  return fetch(`${URL_PREFIX}/turnir-api/loto_winners/${id}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ super_game_status, server, channel }),
+  })
+}
+
+type LotoWinner = {
+  id: number
+  username: string
+  super_game_status: SuperGameStatus
+  created_at: number
+  stream_channel: string
+}
+
+type FetchLotoWinnersResponse = {
+  winners: LotoWinner[]
+}
+
+export async function fetchLotoWinners(
+  server: string,
+  channel: string
+): Promise<FetchLotoWinnersResponse> {
+  return fetch(
+    `${URL_PREFIX}/turnir-api/loto_winners?server=${server}&channel=${channel}`
+  ).then((res) => res.json())
+}

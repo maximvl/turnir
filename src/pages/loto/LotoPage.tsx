@@ -10,7 +10,16 @@ import {
 import { MusicContext } from '@/common/hooks/MusicContext'
 import MainMenu from '@/common/MainMenu'
 import { flatten, sample, uniq, uniqBy } from 'lodash'
-import { ChatMessage, ChatUser, VkMention } from '@/pages/turnir/api'
+import {
+  ChatMessage,
+  ChatUser,
+  createLotoWinners,
+  fetchLotoWinners,
+  LotoWinnersCreate,
+  LotoWinnerUpdate,
+  updateLotoWinner,
+  VkMention,
+} from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -30,12 +39,15 @@ import {
   formatSecondsZero,
   generateSuperGameValues,
   randomTicketColor,
+  formatUnixToDate,
 } from './utils'
 import DrawnNumber from './DrawnNumber'
 import useChatMessages from '@/common/hooks/useChatMessages'
 import useTimer from '@/common/hooks/useTimer'
 import SuperGameBox from './SuperGameBox'
 import SuperGamePlayerStats from './SuperGamePlayerStats'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import useLocalStorage from '@/common/hooks/useLocalStorage'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -95,7 +107,30 @@ export default function LotoPage() {
   const { value: timerRef, setValue: setTimerValue } = useTimer(60 * 3)
   const [timerStatus, setTimerStatus] = useState<'off' | 'on'>('off')
 
+  const [savedWinnersIds, setSavedWinnersIds] = useState<{
+    [k: string]: number
+  }>({})
+
   const timerValue = timerRef.current
+
+  const { mutate: saveWinners } = useMutation({
+    mutationFn: (params: LotoWinnersCreate) => createLotoWinners(params),
+  })
+
+  const { mutate: updateWinner } = useMutation({
+    mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
+  })
+
+  const { value: channel } = useLocalStorage({ key: 'chat_channel' })
+  const { value: platform } = useLocalStorage({ key: 'chat_platform' })
+
+  const { data: pastLotoWinnersData } = useQuery({
+    queryKey: ['loto-winners'],
+    queryFn: () => fetchLotoWinners(platform, channel),
+  })
+
+  let pastLotoWinners = pastLotoWinnersData?.winners || []
+  pastLotoWinners.sort((a, b) => b.created_at - a.created_at)
 
   const startTimer = () => {
     setTimerStatus('on')
@@ -295,6 +330,20 @@ export default function LotoPage() {
   useEffect(() => {
     if (highestMatches >= WinMatchAmount && state === 'playing') {
       setState('win')
+
+      const winners = ticketsWithHighestMatches.map((ticket) => ({
+        username: allUsersById[ticket.owner_id].username,
+        super_game_status: 'skip' as const,
+      }))
+
+      saveWinners(
+        { winners, server: platform, channel },
+        {
+          onSuccess: (response) => {
+            setSavedWinnersIds(response.ids)
+          },
+        }
+      )
     }
   }, [highestMatches, state])
 
@@ -420,6 +469,44 @@ export default function LotoPage() {
 
   const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
 
+  useEffect(() => {
+    const superGameWinners = superGameGuesses.filter((guess) => {
+      const result = superGameResultMap[guess.id]
+      return result.some((r) => r !== 'empty')
+    })
+
+    const superGameLosers = superGameGuesses.filter((guess) => {
+      const result = superGameResultMap[guess.id]
+      return result.every((r) => r === 'empty')
+    })
+
+    superGameWinners.forEach((winner) => {
+      const user = allUsersById[winner.owner_id]
+      const winnerId = savedWinnersIds[user.username]
+      if (winnerId) {
+        updateWinner({
+          id: winnerId,
+          super_game_status: 'win',
+          server: platform,
+          channel,
+        })
+      }
+    })
+
+    superGameLosers.forEach((loser) => {
+      const user = allUsersById[loser.owner_id]
+      const winnerId = savedWinnersIds[user.id]
+      if (winnerId) {
+        updateWinner({
+          id: winnerId,
+          super_game_status: 'lose',
+          server: platform,
+          channel,
+        })
+      }
+    })
+  }, [superGameFinished])
+
   let nextNumberText = NumberToFancyName[nextNumber]
 
   const currentNumberMatchesAmount = totalTickets.filter((ticket) =>
@@ -493,6 +580,42 @@ export default function LotoPage() {
                 >
                   Запустить таймер
                 </Button>
+                <Box
+                  marginTop="20px"
+                  padding="10px"
+                  borderRadius="5px"
+                  style={{ backgroundColor: '#654b3c' }}
+                >
+                  Прошлые победители:
+                  {pastLotoWinners.map((winner, i) => {
+                    let icon = null
+                    if (winner.super_game_status === 'win') {
+                      icon = (
+                        <img
+                          src="https://cdn.betterttv.net/emote/5590b223b344e2c42a9e28e3/3x.webp"
+                          width="25px"
+                        />
+                      )
+                    }
+
+                    if (winner.super_game_status === 'lose') {
+                      icon = (
+                        <img
+                          src="https://cdn.7tv.app/emote/01H96150H00003CY09NFH3G999/3x.avif"
+                          height="25px"
+                        />
+                      )
+                    }
+
+                    return (
+                      <Box key={i} display="flex" alignItems="center">
+                        {formatUnixToDate(winner.created_at)} {winner.username}
+                        <span style={{ marginLeft: '10px' }} />
+                        {icon}
+                      </Box>
+                    )
+                  })}
+                </Box>
               </Box>
               <Box
                 display={'flex'}

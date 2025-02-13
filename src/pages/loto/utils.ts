@@ -286,3 +286,12 @@ export function generateSuperGameValues({
   }
   return shuffle(Array.from(result))
 }
+
+export function formatUnixToDate(unix: number) {
+  const date = new Date(unix * 1000)
+  // only show localised month and day
+  return date.toLocaleDateString('ru-RU', {
+    month: 'short',
+    day: 'numeric',
+  })
+}
