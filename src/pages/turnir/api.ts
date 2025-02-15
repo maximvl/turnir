@@ -392,6 +392,34 @@ export async function fetchLotoWinners(
   server: string,
   channel: string
 ): Promise<FetchLotoWinnersResponse> {
+  if (MOCK_API) {
+    return {
+      winners: [
+        {
+          id: 1,
+          username: 'user1',
+          super_game_status: 'win',
+          stream_channel: '',
+          created_at: Date.now() / 1000,
+        },
+        {
+          id: 2,
+          username: 'user2',
+          super_game_status: 'lose',
+          stream_channel: '',
+          created_at: Date.now() / 1000,
+        },
+        {
+          id: 3,
+          username: 'user3',
+          super_game_status: 'skip',
+          stream_channel: '',
+          created_at: Date.now() / 1000,
+        },
+      ],
+    }
+  }
+
   return fetch(
     `${URL_PREFIX}/turnir-api/loto_winners?server=${server}&channel=${channel}`
   ).then((res) => res.json())

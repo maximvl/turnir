@@ -23,10 +23,6 @@ import {
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
-import bingo1 from '@/assets/bingo1.gif'
-import bingo2 from '@/assets/bingo2.gif'
-import bingo3 from '@/assets/bingo3.webp'
-import bingo4 from '@/assets/bingo4.webp'
 import './styles.css'
 import TicketBox from './TicketBox'
 import { SuperGameGuess, SuperGameResultItem, Ticket, TicketId } from './types'
@@ -48,6 +44,7 @@ import SuperGameBox from './SuperGameBox'
 import SuperGamePlayerStats from './SuperGamePlayerStats'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
+import WinnersList from './WinnersList'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -61,7 +58,12 @@ function resetDrawingNumbers() {
 }
 resetDrawingNumbers()
 
-const BingoImage = sample([bingo1, bingo2, bingo3, bingo4])
+const BingoImage = sample([
+  'https://s3.gifyu.com/images/b2PmQ.gif',
+  'https://s3.gifyu.com/images/b2Pmn.gif',
+  'https://s3.gifyu.com/images/b2PqT.gif',
+  'https://s3.gifyu.com/images/b2Pmf.gif',
+])
 
 const SuperGameBaseGuessAmount = 5
 const WinMatchAmount = 3
@@ -123,14 +125,6 @@ export default function LotoPage() {
 
   const { value: channel } = useLocalStorage({ key: 'chat_channel' })
   const { value: platform } = useLocalStorage({ key: 'chat_platform' })
-
-  const { data: pastLotoWinnersData } = useQuery({
-    queryKey: ['loto-winners'],
-    queryFn: () => fetchLotoWinners(platform, channel),
-  })
-
-  let pastLotoWinners = pastLotoWinnersData?.winners || []
-  pastLotoWinners.sort((a, b) => b.created_at - a.created_at)
 
   const startTimer = () => {
     setTimerStatus('on')
@@ -580,42 +574,7 @@ export default function LotoPage() {
                 >
                   Запустить таймер
                 </Button>
-                <Box
-                  marginTop="20px"
-                  padding="10px"
-                  borderRadius="5px"
-                  style={{ backgroundColor: '#654b3c' }}
-                >
-                  Прошлые победители:
-                  {pastLotoWinners.map((winner, i) => {
-                    let icon = null
-                    if (winner.super_game_status === 'win') {
-                      icon = (
-                        <img
-                          src="https://cdn.betterttv.net/emote/5590b223b344e2c42a9e28e3/3x.webp"
-                          width="25px"
-                        />
-                      )
-                    }
-
-                    if (winner.super_game_status === 'lose') {
-                      icon = (
-                        <img
-                          src="https://cdn.7tv.app/emote/01H96150H00003CY09NFH3G999/3x.avif"
-                          height="25px"
-                        />
-                      )
-                    }
-
-                    return (
-                      <Box key={i} display="flex" alignItems="center">
-                        {formatUnixToDate(winner.created_at)} {winner.username}
-                        <span style={{ marginLeft: '10px' }} />
-                        {icon}
-                      </Box>
-                    )
-                  })}
-                </Box>
+                <WinnersList />
               </Box>
               <Box
                 display={'flex'}
@@ -660,6 +619,12 @@ export default function LotoPage() {
                 </Box>
               </Box>
             </>
+          )}
+
+          {state !== 'registration' && (
+            <Box position="absolute">
+              <WinnersList />
+            </Box>
           )}
 
           {['playing', 'win'].includes(state) && (
