@@ -510,6 +510,13 @@ export default function LotoPage() {
   return (
     <Box onClick={startMusic} className="loto-page">
       <MainMenu title={'Лото 2.0 с чатом'} />
+
+      {state !== 'registration' && (
+        <Box position="absolute" left="50px">
+          <WinnersList />
+        </Box>
+      )}
+
       <Box
         display="flex"
         justifyContent={'center'}
@@ -519,7 +526,7 @@ export default function LotoPage() {
         <Box marginBottom={'200px'} width={'100%'}>
           {state === 'registration' && (
             <>
-              <Box position="absolute">
+              <Box position="absolute" left="50px">
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
@@ -619,12 +626,6 @@ export default function LotoPage() {
                 </Box>
               </Box>
             </>
-          )}
-
-          {state !== 'registration' && (
-            <Box position="absolute">
-              <WinnersList />
-            </Box>
           )}
 
           {['playing', 'win'].includes(state) && (
