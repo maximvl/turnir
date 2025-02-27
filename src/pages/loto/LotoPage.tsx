@@ -803,7 +803,13 @@ export default function LotoPage() {
             </Box>
           )}
 
-          <Box display={'flex'} flexWrap={'wrap'} justifyContent={'center'}>
+          <Box
+            display={'flex'}
+            flexWrap={'wrap'}
+            justifyContent={'center'}
+            marginLeft="150px"
+            // paddingLeft="200px"
+          >
             {orderedTickets.map((ticket, i) => {
               const isWinner = winners.includes(ticket)
               const chatMessages = winnerMessages.filter(
