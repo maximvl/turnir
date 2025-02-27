@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Tooltip } from '@mui/material'
 import { formatUnixToDate } from './utils'
 import { useQuery } from '@tanstack/react-query'
 import { fetchLotoWinners } from '../turnir/api'
@@ -28,19 +28,23 @@ export default function WinnersList() {
         let icon = null
         if (winner.super_game_status === 'win') {
           icon = (
-            <img
-              src="https://cdn.7tv.app/emote/01F9FS6EEG0006XXD6DX0K9Y04/3x.avif"
-              width="25px"
-            />
+            <Tooltip title="Победил в супер-игре" placement="top">
+              <img
+                src="https://cdn.7tv.app/emote/01F9FS6EEG0006XXD6DX0K9Y04/3x.avif"
+                width="25px"
+              />
+            </Tooltip>
           )
         }
 
         if (winner.super_game_status === 'lose') {
           icon = (
-            <img
-              src="https://cdn.7tv.app/emote/01H96150H00003CY09NFH3G999/3x.avif"
-              height="25px"
-            />
+            <Tooltip title="Проиграл в супер-игре" placement="top">
+              <img
+                src="https://cdn.7tv.app/emote/01H96150H00003CY09NFH3G999/3x.avif"
+                height="25px"
+              />
+            </Tooltip>
           )
         }
 
