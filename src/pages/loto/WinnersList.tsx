@@ -29,7 +29,7 @@ export default function WinnersList() {
         if (winner.super_game_status === 'win') {
           icon = (
             <img
-              src="https://cdn.betterttv.net/emote/5590b223b344e2c42a9e28e3/3x.webp"
+              src="https://cdn.7tv.app/emote/01F9FS6EEG0006XXD6DX0K9Y04/3x.avif"
               width="25px"
             />
           )

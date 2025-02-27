@@ -24,7 +24,7 @@ export default function DrawnNumber({
     color = theme.palette.grey[500]
   }
   if (variant === 'orange') {
-    color = theme.palette.info.main
+    color = theme.palette.secondary.dark
   }
 
   return (
