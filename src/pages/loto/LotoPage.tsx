@@ -126,6 +126,8 @@ export default function LotoPage() {
   const { value: channel } = useLocalStorage({ key: 'chat_channel' })
   const { value: platform } = useLocalStorage({ key: 'chat_platform' })
 
+  const showHappyBirthday = channel && channel.toLowerCase() === 'segall'
+
   const startTimer = () => {
     setTimerStatus('on')
     const interval = setInterval(() => {
@@ -513,6 +515,14 @@ export default function LotoPage() {
 
       {state !== 'registration' && (
         <Box position="absolute" left="50px">
+          {showHappyBirthday && (
+            <Box marginTop="20px" display="flex" justifyContent="center">
+              <img
+                src="https://i.pinimg.com/originals/f9/f9/de/f9f9de0a26e2c59435e60577624dc8c6.gif"
+                style={{ height: '200px' }}
+              />
+            </Box>
+          )}
           <WinnersList />
         </Box>
       )}
@@ -581,6 +591,16 @@ export default function LotoPage() {
                 >
                   Запустить таймер
                 </Button>
+
+                {showHappyBirthday && (
+                  <Box marginTop="20px" display="flex" justifyContent="center">
+                    <img
+                      src="https://i.pinimg.com/originals/f9/f9/de/f9f9de0a26e2c59435e60577624dc8c6.gif"
+                      style={{ height: '200px' }}
+                    />
+                  </Box>
+                )}
+
                 <WinnersList />
               </Box>
               <Box
@@ -702,7 +722,17 @@ export default function LotoPage() {
                       {winners.length > 1 ? 'Победители' : 'Победитель'}:{' '}
                       {winners.map((w) => w.owner_name).join(', ')}
                     </Box>
-                    <img src={BingoImage} alt="bingo" width={'200px'} />
+                    {showHappyBirthday ? (
+                      <Box display="flex" justifyContent="center">
+                        <img
+                          src="https://otkritkis.com/wp-content/uploads/2022/07/iad5f.gif"
+                          height="200px"
+                        />
+                      </Box>
+                    ) : (
+                      <img src={BingoImage} alt="bingo" width={'200px'} />
+                    )}
+
                     <Box
                       textAlign="center"
                       display="flex"
