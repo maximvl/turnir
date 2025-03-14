@@ -64,9 +64,12 @@ export default function ChatConnectionButton(props: Props) {
       return index
     }
 
+    console.log('new messages', newMessages)
+
     if (newMessages.length > 0) {
       const msg = newMessages[0]
       const id = getChannelIdForMessage(msg)
+      console.log('id', id)
       const state = connectionStates[id]
       if (state === 'connecting') {
         setConnectionStates((prev) => {
