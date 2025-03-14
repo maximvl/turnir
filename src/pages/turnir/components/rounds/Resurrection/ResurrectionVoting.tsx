@@ -33,8 +33,6 @@ export default function ResurrectionVoting({
     setState: setVotingState,
     votesMap,
     voteMessages,
-    error,
-    isLoading,
   } = useChatVoting({ items, subscriberOnly })
 
   const { setMusicPlaying } = useContext(MusicContext)
@@ -55,14 +53,6 @@ export default function ResurrectionVoting({
     }, 1000)
     return () => clearInterval(interval)
   }, [time])
-
-  if (error) {
-    return <div>Ошибка: {error.toString()}</div>
-  }
-
-  if (isEmpty(votesMap) && isLoading) {
-    return <div>Загрузка...</div>
-  }
 
   const onVotingStop = () => {
     setVotingState('finished')

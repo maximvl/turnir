@@ -21,7 +21,7 @@ import {
   VkMention,
 } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
-import { MusicType } from '@/pages/turnir/types'
+import { ChatConnection, ChatServerType, MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
 import './styles.css'
 import TicketBox from './TicketBox'
@@ -123,10 +123,14 @@ export default function LotoPage() {
     mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
   })
 
-  const { value: channel } = useLocalStorage({ key: 'chat_channel' })
-  const { value: platform } = useLocalStorage({ key: 'chat_platform' })
+  const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
+    key: 'chat-connections',
+    defaultValue: [],
+  })
 
-  const showHappyBirthday = channel && channel.toLowerCase() === 'segall'
+  const showHappyBirthday = chatConnections.some(
+    (c) => c.channel.toLowerCase() === 'segall'
+  )
 
   const startTimer = () => {
     setTimerStatus('on')
@@ -162,7 +166,7 @@ export default function LotoPage() {
 
   if (state === 'registration' && chatMessages.length > 0) {
     const messagesUsers = uniqBy(
-      chatMessages.map((msg) => msg.user),
+      chatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
       (user) => user.id
     )
     if (messagesUsers.length > 0) {
@@ -192,6 +196,7 @@ export default function LotoPage() {
             user_id: msg.user.id,
             username: msg.user.username,
             text: msg.message,
+            source: msg.source,
           }
         })
 
@@ -213,7 +218,11 @@ export default function LotoPage() {
 
       const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
-        return { user_id: `${mention.id}`, username: mention.displayName }
+        return {
+          user_id: `${mention.id}`,
+          username: mention.displayName,
+          source: msg.source,
+        } as UserInfo
       })
 
       const newTicketsFromPoints = getNewTickets(
@@ -332,14 +341,24 @@ export default function LotoPage() {
         super_game_status: 'skip' as const,
       }))
 
-      saveWinners(
-        { winners, server: platform, channel },
-        {
-          onSuccess: (response) => {
-            setSavedWinnersIds(response.ids)
-          },
+      ticketsWithHighestMatches.forEach((ticket) => {
+        const winner = {
+          username: allUsersById[ticket.owner_id].username,
+          super_game_status: 'skip' as const,
         }
-      )
+        saveWinners(
+          {
+            winners: [winner],
+            server: ticket.source.server,
+            channel: ticket.source.channel,
+          },
+          {
+            onSuccess: (response) => {
+              setSavedWinnersIds(response.ids)
+            },
+          }
+        )
+      })
     }
   }, [highestMatches, state])
 
@@ -483,8 +502,8 @@ export default function LotoPage() {
         updateWinner({
           id: winnerId,
           super_game_status: 'win',
-          server: platform,
-          channel,
+          server: user.source.server,
+          channel: user.source.channel,
         })
       }
     })
@@ -496,8 +515,8 @@ export default function LotoPage() {
         updateWinner({
           id: winnerId,
           super_game_status: 'lose',
-          server: platform,
-          channel,
+          server: user.source.server,
+          channel: user.source.channel,
         })
       }
     })
@@ -888,12 +907,13 @@ type UserInfo = {
   user_id: string
   username: string
   text?: string
+  source: ChatConnection
 }
 
 function getNewTickets(
   currentTickets: Ticket[],
   newMessages: UserInfo[],
-  source: 'chat' | 'points'
+  type: 'chat' | 'points'
 ) {
   const currentOwners = currentTickets.map((ticket) => `${ticket.owner_id}`)
 
@@ -908,8 +928,9 @@ function getNewTickets(
         owner_id: owner.user_id,
         owner_name: owner.username,
         drawOptions: DrawingNumbers,
-        source,
+        type,
         text: owner.text,
+        source: owner.source,
       })
     )
 

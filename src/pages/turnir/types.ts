@@ -119,3 +119,8 @@ export const MusicTypeIds = {
 }
 
 export type ChatServerType = 'twitch' | 'vkvideo' | 'nuum' | 'goodgame'
+
+export type ChatConnection = {
+  server: ChatServerType
+  channel: string
+}

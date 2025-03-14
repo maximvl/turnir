@@ -58,12 +58,14 @@ export default function MusicContextProvider({
   const volumeKey = 'music_volume'
   const { value: volumeRaw, save: saveVolume } = useLocalStorage({
     key: volumeKey,
+    defaultValue: 0.5,
   })
   const volume = volumeRaw ?? 1
 
   const muteKey = 'music_muted'
   const { value: muted, save: saveMuted } = useLocalStorage({
     key: muteKey,
+    defaultValue: false,
   })
 
   useEffect(() => {

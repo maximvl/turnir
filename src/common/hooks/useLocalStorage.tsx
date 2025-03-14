@@ -1,88 +1,54 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 
-type Props = {
+type Props<T> = {
   key: string
+  defaultValue?: T | null
 }
 
-const localState: { [k: string]: string | null } = {}
-const localStateChangeListeners: { [k: string]: (() => void)[] } = {}
-const syncIntervalRef = setInterval(syncLocalState, 1000)
+export default function useLocalStorage<T>(props: {
+  key: string
+  defaultValue: T
+}): {
+  save: (value: T) => void
+  value: T
+}
+export default function useLocalStorage<T>(props: { key: string }): {
+  save: (value: T) => void
+  value: T | null
+}
 
-export default function useLocalStorage({ key }: Props) {
-  const [refreshState, setRefreshState] = useState(false)
+export default function useLocalStorage<T>({
+  key,
+  defaultValue = null,
+}: Props<T>) {
+  const eventKey = `local-storage-${key}`
 
-  const onChange = () => {
-    setRefreshState((prev) => !prev)
-  }
-
-  useEffect(() => {
-    addLocalStateChangeListener(key, onChange)
-    return () => {
-      removeLocalStateChangeListener(key, onChange)
-    }
+  const getSnapshot = useCallback(() => {
+    return localStorage.getItem(key)
   }, [key])
 
-  const save = (value: any) => {
-    saveToLocalState(key, JSON.stringify(value))
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      window.addEventListener(eventKey, onChange)
+      return () => window.removeEventListener(eventKey, onChange)
+    },
+    [eventKey]
+  )
+
+  const valueRaw = useSyncExternalStore(subscribe, getSnapshot)
+
+  const save = (value: T) => {
+    localStorage.setItem(key, JSON.stringify(value))
+    window.dispatchEvent(new Event(eventKey))
   }
 
-  const valueRaw = getFromLocalState(key)
   let currentValue = null
   if (valueRaw !== null) {
-    currentValue = JSON.parse(valueRaw)
+    currentValue = JSON.parse(valueRaw) as T
   }
 
   return {
     save,
-    value: currentValue,
-  }
-}
-
-function getFromLocalState(key: string) {
-  const value = localState[key]
-  if (value !== undefined) {
-    return value
-  }
-  const storageValue = localStorage.getItem(key)
-  localState[key] = storageValue
-  return storageValue
-}
-
-function saveToLocalState(key: string, value: string) {
-  localStorage.setItem(key, value)
-  syncKey(key)
-}
-
-function addLocalStateChangeListener(key: string, listener: () => void) {
-  localStateChangeListeners[key] = localStateChangeListeners[key] || []
-  localStateChangeListeners[key].push(listener)
-}
-
-function removeLocalStateChangeListener(key: string, listener: () => void) {
-  const listeners = localStateChangeListeners[key]
-  if (listeners) {
-    const index = listeners.indexOf(listener)
-    if (index !== -1) {
-      listeners.splice(index, 1)
-    }
-  }
-}
-
-function syncLocalState() {
-  for (const key in localState) {
-    syncKey(key)
-  }
-}
-
-function syncKey(key: string) {
-  const localValue = localState[key]
-  const newValue = localStorage.getItem(key)
-  if (localValue !== newValue) {
-    localState[key] = newValue
-    const listeners = localStateChangeListeners[key]
-    if (!listeners) {
-      return
-    }
-    listeners.forEach((listener) => listener())
+    value: currentValue ?? defaultValue,
   }
 }

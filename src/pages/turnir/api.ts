@@ -1,15 +1,15 @@
 import { random, sample } from 'lodash'
-import { ItemStatus, Item, ChatServerType } from './types'
+import { ItemStatus, Item, ChatServerType, ChatConnection } from './types'
 
 export function createItem(index: string, title: string = ''): Item {
   return { title, status: ItemStatus.Active, id: index }
 }
 
 const URL_PREFIX = '/v2'
-// const URL_PREFIX = 'http://localhost:8080/v2'
+// const URL_PREFIX = 'http://127.0.0.1:8080/v2'
 
 const MOCK_API =
-  import.meta.env.MODE === 'development' && !URL_PREFIX.includes('localhost')
+  import.meta.env.MODE === 'development' && !URL_PREFIX.includes('127.0.0.1')
 
 type VkUserRole = {
   id: string
@@ -54,6 +54,7 @@ export type ChatUser = {
   username: string
   vk_fields?: VkUserFields
   twitch_fields?: TwitchUserFields
+  source: ChatConnection
 }
 
 export type VkMention = {
@@ -71,6 +72,7 @@ export type ChatMessage = {
   message: string
   user: ChatUser
   vk_fields?: VkChatFields
+  source: ChatConnection
 }
 
 export type ChatMessagesResponse = {
@@ -100,7 +102,12 @@ if (MOCK_API) {
           id: Math.random().toString() + Math.random().toString(),
           message,
           ts: Math.round(new Date().getTime() / 1000),
-          user: { id: user_id, username: user_id },
+          user: {
+            id: user_id,
+            username: user_id,
+            source: { server: 'vk' as ChatServerType, channel: 'test' },
+          },
+          source: { server: 'vk' as ChatServerType, channel: 'test' },
         },
       ],
     }
@@ -150,11 +157,16 @@ export async function fetchMessages({
 
       return {
         id: '93152579',
+        source: {
+          server: platform,
+          channel,
+        },
         message: sample(['+лото']),
         ts: Math.round(new Date().getTime() / 1000),
         user: {
           id: `${user_id}`,
           username: user_id.toString(),
+          source: { server: platform, channel },
           // vk_fields: {
           //   nickColor: 0,
           //   isChatModerator: false,

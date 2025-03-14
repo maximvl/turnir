@@ -25,8 +25,10 @@ export default function ViewerChoiceRound({
   logFormatter,
   subscriberOnly,
 }: Props) {
-  const { votesMap, voteMessages, state, setState, error, isLoading } =
-    useChatVoting({ items, subscriberOnly })
+  const { votesMap, voteMessages, state, setState } = useChatVoting({
+    items,
+    subscriberOnly,
+  })
 
   const { setMusicPlaying } = useContext(MusicContext)
 
@@ -49,14 +51,6 @@ export default function ViewerChoiceRound({
     }, 1000)
     return () => clearInterval(interval)
   }, [time])
-
-  if (error) {
-    return <div>Ошибка: {error.toString()}</div>
-  }
-
-  if (isEmpty(votesMap) && isLoading) {
-    return <div>Загрузка...</div>
-  }
 
   return (
     <Box

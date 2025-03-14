@@ -1,3 +1,5 @@
+import { ChatConnection, ChatServerType } from '../turnir/types'
+
 export type TicketId = string
 
 export type Ticket = {
@@ -7,7 +9,8 @@ export type Ticket = {
   value: string[]
   color: string
   variant: number
-  source: 'chat' | 'points'
+  type: 'chat' | 'points'
+  source: ChatConnection
 }
 
 export type SuperGameGuess = {

@@ -102,7 +102,7 @@ export default function TicketBox({
   ]
 
   let ticketBackground = ticket.color
-  if (ticket.source === 'points' || twitchBadges.length > 0) {
+  if (ticket.type === 'points' || twitchBadges.length > 0) {
     ticketBackground = gradients[ticket.variant]
   }
   if (isAnime) {

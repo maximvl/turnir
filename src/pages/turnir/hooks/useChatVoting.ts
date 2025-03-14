@@ -26,12 +26,7 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
 
   const itemIds = new Set(items.map((item) => item.id))
 
-  const {
-    newMessages: messages,
-    isLoading,
-    error,
-    reset: resetChat,
-  } = useChatMessages({
+  const { newMessages: messages, reset: resetChat } = useChatMessages({
     fetching: state === 'voting',
   })
 
@@ -41,7 +36,7 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length])
 
-  if (!error && !isLoading && !isEmpty(messages)) {
+  if (!isEmpty(messages)) {
     // todo remove duplicates votes for same user id
     // use only the latest one
     const msgsPerUser: { [key: string]: ChatMessage } = {}
@@ -84,7 +79,5 @@ export default function useChatVoting({ items, subscriberOnly }: Props) {
     voteMessages,
     state,
     setState,
-    error,
-    isLoading,
   }
 }

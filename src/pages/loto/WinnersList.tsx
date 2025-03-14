@@ -5,12 +5,17 @@ import { fetchLotoWinners } from '../turnir/api'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
 
 export default function WinnersList() {
-  const { value: channel } = useLocalStorage({ key: 'chat_channel' })
-  const { value: platform } = useLocalStorage({ key: 'chat_platform' })
+  const { value: channel } = useLocalStorage<string>({ key: 'chat_channel' })
+  const { value: platform } = useLocalStorage<string>({ key: 'chat_platform' })
 
   const { data: pastLotoWinnersData } = useQuery({
     queryKey: ['loto-winners'],
-    queryFn: () => fetchLotoWinners(platform, channel),
+    queryFn: () => {
+      if (!channel || !platform) {
+        return
+      }
+      return fetchLotoWinners(platform, channel)
+    },
   })
 
   let pastLotoWinners = pastLotoWinnersData?.winners || []

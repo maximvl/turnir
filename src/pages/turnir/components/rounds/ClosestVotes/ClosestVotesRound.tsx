@@ -34,8 +34,6 @@ export default function ClosestVotesRound({
     setState: setVotingState,
     votesMap,
     voteMessages,
-    error,
-    isLoading,
   } = useChatVoting({ items, subscriberOnly })
   const { setMusicPlaying } = useContext(MusicContext)
 
@@ -67,14 +65,6 @@ export default function ClosestVotesRound({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items.length])
   // console.log("target:", targetNumber)
-
-  if (error) {
-    return <div>Ошибка: {error.toString()}</div>
-  }
-
-  if (isEmpty(votesMap) && isLoading) {
-    return <div>Загрузка...</div>
-  }
 
   const votesByOption: { [key: string]: number } = {}
   for (const vote of Object.values(votesMap)) {
