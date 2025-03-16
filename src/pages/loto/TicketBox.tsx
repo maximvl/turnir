@@ -111,6 +111,15 @@ export default function TicketBox({
 
   const itemSize = big ? '36px' : '24px'
 
+  const channelName = `${ticket.source.server}/${ticket.source.channel}`
+  let iconLink = 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
+  if (ticket.source.server === 'twitch') {
+    iconLink = 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png'
+  }
+  if (ticket.source.server === 'vkvideo') {
+    iconLink = 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8'
+  }
+
   return (
     <Box position="relative">
       {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
@@ -146,6 +155,7 @@ export default function TicketBox({
           textAlign={'center'}
           alignItems={'center'}
           fontSize={itemSize}
+          position="relative"
         >
           <Box
             display="flex"
@@ -207,6 +217,11 @@ export default function TicketBox({
               )
             })}
             <span style={{ color: userColor }}>{ticket.owner_name}</span>
+          </Box>
+          <Box position="absolute" right={'0px'} top={'0px'}>
+            <Tooltip title={channelName} placement="top">
+              <img src={iconLink} width={itemSize} height={itemSize} alt={''} />
+            </Tooltip>
           </Box>
         </Box>
         <Box

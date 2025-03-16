@@ -1,4 +1,9 @@
-import { Error, RadioButtonChecked, Settings } from '@mui/icons-material'
+import {
+  DeleteForever,
+  Error,
+  RadioButtonChecked,
+  Settings,
+} from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -64,12 +69,9 @@ export default function ChatConnectionButton(props: Props) {
       return index
     }
 
-    console.log('new messages', newMessages)
-
     if (newMessages.length > 0) {
       const msg = newMessages[0]
       const id = getChannelIdForMessage(msg)
-      console.log('id', id)
       const state = connectionStates[id]
       if (state === 'connecting') {
         setConnectionStates((prev) => {
@@ -149,6 +151,11 @@ export default function ChatConnectionButton(props: Props) {
     saveChatConnections([...chatConnections, { server: 'twitch', channel: '' }])
   }
 
+  const removeChatConnection = (index: number) => {
+    const newConnections = chatConnections.filter((_, idx) => idx !== index)
+    saveChatConnections(newConnections)
+  }
+
   return (
     <Box>
       <Box display="flex" flexDirection="column">
@@ -213,7 +220,7 @@ export default function ChatConnectionButton(props: Props) {
                 >
                   <InputLabel>Сервер</InputLabel>
                   <Select
-                    style={{ minWidth: '150px', marginBottom: '2.5px' }}
+                    style={{ minWidth: '150px' }}
                     onChange={(e) =>
                       handleSaveServer(conn, e.target.value as ChatServerType)
                     }
@@ -226,11 +233,19 @@ export default function ChatConnectionButton(props: Props) {
                     <MenuItem value="goodgame">goodgame.ru</MenuItem>
                   </Select>
                 </FormControl>
-                <span style={{ marginBottom: '5px' }}>&nbsp;/</span>
+                <span
+                  style={{
+                    marginBottom: '3px',
+                    marginLeft: '5px',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  &nbsp;/
+                </span>
                 <Box
                   display="flex"
-                  alignItems="baseline"
-                  sx={{ marginLeft: '10px' }}
+                  alignItems="flex-end"
+                  sx={{ marginLeft: '5px' }}
                 >
                   <Input
                     placeholder="канал"
@@ -244,6 +259,13 @@ export default function ChatConnectionButton(props: Props) {
                     disabled={state === 'connecting'}
                   >
                     Подключиться
+                  </Button>
+                  <Button
+                    variant="contained"
+                    style={{ marginLeft: '10px' }}
+                    onClick={() => removeChatConnection(idx)}
+                  >
+                    <DeleteForever />
                   </Button>
                 </Box>
                 {state === 'connected' && (

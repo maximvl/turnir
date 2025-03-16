@@ -76,20 +76,19 @@ export default function useChatMessages({ fetching }: Props) {
 
         const queryKey = queries[index].queryKey as [
           string,
-          [ChatServerType, string],
+          ChatConnection,
           number,
         ]
         const source = queryKey[1]
 
         const dataMessages = chatData?.chat_messages ?? []
-
         const updatedMessages = dataMessages.map((msg) => {
           return {
             ...msg,
-            key: `${source[0]}-${msg.id}`,
+            key: `${source.server}-${source.channel}-${msg.id}`,
             source: {
-              server: source[0],
-              channel: source[1],
+              server: source.server,
+              channel: source.channel,
             },
           }
         })
