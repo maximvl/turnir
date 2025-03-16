@@ -1,24 +1,36 @@
 import { Box, Tooltip } from '@mui/material'
 import { formatUnixToDate } from './utils'
-import { useQuery } from '@tanstack/react-query'
-import { fetchLotoWinners } from '../turnir/api'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import { fetchLotoWinners, LotoWinner } from '../turnir/api'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
+import { ChatConnection } from '../turnir/types'
 
 export default function WinnersList() {
+  const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
+    key: 'chat-connections',
+    defaultValue: [],
+  })
   const { value: channel } = useLocalStorage<string>({ key: 'chat_channel' })
   const { value: platform } = useLocalStorage<string>({ key: 'chat_platform' })
 
-  const { data: pastLotoWinnersData } = useQuery({
-    queryKey: ['loto-winners'],
-    queryFn: () => {
-      if (!channel || !platform) {
-        return
-      }
-      return fetchLotoWinners(platform, channel)
-    },
+  const queries = chatConnections.map((connection) => {
+    return {
+      queryKey: ['loto-winners', connection.server, connection.channel],
+      queryFn: () => {
+        return fetchLotoWinners(connection.server, connection.channel)
+      },
+    }
   })
 
-  let pastLotoWinners = pastLotoWinnersData?.winners || []
+  const results = useQueries({ queries })
+
+  let pastLotoWinners: LotoWinner[] = []
+  results.map(({ data: winnersList }) => {
+    if (winnersList && winnersList.winners) {
+      pastLotoWinners = [...pastLotoWinners, ...winnersList.winners]
+    }
+  })
+
   pastLotoWinners.sort((a, b) => b.created_at - a.created_at)
 
   return (
@@ -53,8 +65,21 @@ export default function WinnersList() {
           )
         }
 
+        let iconLink = 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
+        if (winner.stream_channel.startsWith('twitch')) {
+          iconLink = 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png'
+        }
+        if (winner.stream_channel.startsWith('vkvideo')) {
+          iconLink =
+            'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8'
+        }
+
         return (
           <Box key={i} display="flex" alignItems="center" whiteSpace="nowrap">
+            <Tooltip title={winner.stream_channel} placement="top">
+              <img src={iconLink} width="25px" />
+            </Tooltip>
+            <span style={{ marginLeft: '10px' }} />
             {formatUnixToDate(winner.created_at)} {winner.username}
             <span style={{ marginLeft: '10px' }} />
             {icon}

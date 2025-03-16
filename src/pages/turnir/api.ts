@@ -388,7 +388,7 @@ export async function updateLotoWinner({
   })
 }
 
-type LotoWinner = {
+export type LotoWinner = {
   id: number
   username: string
   super_game_status: SuperGameStatus
@@ -411,14 +411,14 @@ export async function fetchLotoWinners(
           id: 1,
           username: 'user1',
           super_game_status: 'win',
-          stream_channel: '',
+          stream_channel: 'twitch/lasqa',
           created_at: Date.now() / 1000,
         },
         {
           id: 2,
           username: 'user2',
           super_game_status: 'lose',
-          stream_channel: '',
+          stream_channel: 'vkvideo/lasqa',
           created_at: Date.now() / 1000,
         },
         {
