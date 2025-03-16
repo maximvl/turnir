@@ -533,7 +533,7 @@ export default function LotoPage() {
       <MainMenu title={'Лото 2.0 с чатом'} />
 
       {state !== 'registration' && (
-        <Box position="absolute" left="50px">
+        <Box position="absolute" left="20px">
           {showHappyBirthday && (
             <Box marginTop="20px" display="flex" justifyContent="center">
               <img
@@ -555,7 +555,7 @@ export default function LotoPage() {
         <Box marginBottom={'200px'} width={'100%'}>
           {state === 'registration' && (
             <>
-              <Box position="absolute" left="50px">
+              <Box position="absolute" left="20px">
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
