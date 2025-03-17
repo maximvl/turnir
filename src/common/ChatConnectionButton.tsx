@@ -122,7 +122,14 @@ export default function ChatConnectionButton(props: Props) {
 
   useEffect(() => {
     if (!open) {
-      chatConnections.forEach((conn, idx) => {
+      const nonEmptyConnections = chatConnections.filter(
+        (conn) => conn.channel !== ''
+      )
+      if (nonEmptyConnections.length !== chatConnections.length) {
+        saveChatConnections(nonEmptyConnections)
+      }
+
+      nonEmptyConnections.forEach((conn, idx) => {
         const state = connectionStates[idx]
         if (state === 'idle') {
           handleConnect(conn)

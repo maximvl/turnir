@@ -29,20 +29,22 @@ export default function useChatMessages({ fetching }: Props) {
     setLastTs(Math.floor(Date.now() / 1000))
   }
 
-  const queries = chatConnections.map((conn) => {
-    return {
-      queryKey: ['chatMessages', conn, lastTs],
-      queryFn: () => {
-        return fetchMessages({
-          platform: conn.server,
-          channel: conn.channel,
-          ts: lastTs,
-        })
-      },
-      refetchInterval: REFETCH_INTERVAL,
-      enabled: fetching,
-    }
-  })
+  const queries = chatConnections
+    .filter((conn) => conn.channel !== '')
+    .map((conn) => {
+      return {
+        queryKey: ['chatMessages', conn, lastTs],
+        queryFn: () => {
+          return fetchMessages({
+            platform: conn.server,
+            channel: conn.channel,
+            ts: lastTs,
+          })
+        },
+        refetchInterval: REFETCH_INTERVAL,
+        enabled: fetching,
+      }
+    })
 
   // const { data: chatData, error, isLoading }
   const results = useQueries({ queries })
