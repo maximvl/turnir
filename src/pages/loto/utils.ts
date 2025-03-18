@@ -10,6 +10,7 @@ type Props = {
   type: 'chat' | 'points'
   text?: string
   source: ChatConnection
+  created_at: number
 }
 
 export function genTicket({
@@ -19,6 +20,7 @@ export function genTicket({
   source,
   text,
   type,
+  created_at,
 }: Props): Ticket {
   const value = genTicketNumber(drawOptions, text)
   return {
@@ -30,6 +32,7 @@ export function genTicket({
     variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
     source,
     type,
+    created_at,
   } as Ticket
 }
 

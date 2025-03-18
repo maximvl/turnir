@@ -197,7 +197,8 @@ export default function LotoPage() {
             username: msg.user.username,
             text: msg.message,
             source: msg.source,
-          }
+            created_at: msg.ts,
+          } as UserInfo
         })
 
       const newTicketsFromChat = getNewTickets(
@@ -222,6 +223,7 @@ export default function LotoPage() {
           user_id: `${mention.id}`,
           username: mention.displayName,
           source: msg.source,
+          created_at: msg.ts,
         } as UserInfo
       })
 
@@ -336,11 +338,6 @@ export default function LotoPage() {
     if (highestMatches >= WinMatchAmount && state === 'playing') {
       setState('win')
 
-      const winners = ticketsWithHighestMatches.map((ticket) => ({
-        username: allUsersById[ticket.owner_id].username,
-        super_game_status: 'skip' as const,
-      }))
-
       ticketsWithHighestMatches.forEach((ticket) => {
         const winner = {
           username: allUsersById[ticket.owner_id].username,
@@ -368,9 +365,28 @@ export default function LotoPage() {
     }
   }, [state])
 
-  const winners = ['win', 'super_game'].includes(state)
-    ? ticketsWithHighestMatches
-    : []
+  const winnersCandidatesByMatches = ticketsWithHighestMatches
+    .map((ticket) => {
+      return {
+        id: ticket.id,
+        matches: matchesPerTicket[ticket.id].filter((n) => n === 1).length,
+      }
+    })
+    .sort((a, b) => b.matches - a.matches)
+
+  const highestMatchesAmount = winnersCandidatesByMatches[0]?.matches ?? 0
+  const winnersByMatchesIds = winnersCandidatesByMatches
+    .filter((w) => w.matches === highestMatchesAmount)
+    .map((w) => w.id)
+
+  const winnerCandidate = orderedTickets
+    .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
+    .sort((a, b) => a.created_at - b.created_at)[0]
+
+  const winners =
+    ['win', 'super_game'].includes(state) && winnerCandidate
+      ? [winnerCandidate]
+      : []
 
   // console.log('msgs', chatMessages, 'winners', winners)
 
@@ -673,6 +689,11 @@ export default function LotoPage() {
                 <Box display={'flex'} justifyContent={'center'}>
                   <InfoPanel>
                     <p>Побеждает тот кто соберет 3 или больше чисел в ряд</p>
+                    <p>
+                      При равном количестве чисел побеждает тот у кого больше
+                      совпадений
+                    </p>
+                    <p>В случае равенства - тот кто раньше получил билет</p>
                   </InfoPanel>
                 </Box>
                 {/* <span style={{ fontSize: '24px' }}>Номера:</span> */}
@@ -908,6 +929,7 @@ type UserInfo = {
   username: string
   text?: string
   source: ChatConnection
+  created_at: number
 }
 
 function getNewTickets(
@@ -931,6 +953,7 @@ function getNewTickets(
         type,
         text: owner.text,
         source: owner.source,
+        created_at: owner.created_at,
       })
     )
 

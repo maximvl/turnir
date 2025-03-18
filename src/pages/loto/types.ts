@@ -11,6 +11,7 @@ export type Ticket = {
   variant: number
   type: 'chat' | 'points'
   source: ChatConnection
+  created_at: number
 }
 
 export type SuperGameGuess = {
