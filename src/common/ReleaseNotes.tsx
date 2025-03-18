@@ -19,6 +19,11 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: '1.19',
+    date: '2025-03-18',
+    changes: ['В лото теперь может быть только один победитель'],
+  },
+  {
     version: '1.18',
     date: '2025-03-14',
     changes: ['Добавлена возможность подключать несколько чатов'],
@@ -178,7 +183,7 @@ export default function ReleaseNotes() {
                 <Box display={'flex'} alignItems={'center'}>
                   <Typography variant="h6">
                     {new Date(releaseNote.date).toLocaleDateString(undefined, {
-                      year: '2-digit',
+                      year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                     })}
