@@ -116,7 +116,7 @@ export default function VotingPage() {
             <Grid item xs={1} paddingLeft={2} paddingRight={2}>
               Таймер
               <Slider
-                defaultValue={timer}
+                value={timer}
                 valueLabelDisplay="auto"
                 min={30}
                 max={30 * 20}

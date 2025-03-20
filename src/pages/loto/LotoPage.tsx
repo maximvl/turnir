@@ -106,7 +106,8 @@ export default function LotoPage() {
   const [enablePointsTickets, setEnablePointsTickets] = useState(true)
   const [onlySubscribers, setOnlySubscribers] = useState(false)
 
-  const { value: timerRef, setValue: setTimerValue } = useTimer(60 * 3)
+  const [startTime, setStartTime] = useState(60 * 3)
+  const { value: timerRef, setValue: setTimerValue } = useTimer(startTime)
   const [timerStatus, setTimerStatus] = useState<'off' | 'on'>('off')
 
   const [savedWinnersIds, setSavedWinnersIds] = useState<{
@@ -134,8 +135,9 @@ export default function LotoPage() {
 
   const startTimer = () => {
     setTimerStatus('on')
+    setTimerValue(startTime)
     const interval = setInterval(() => {
-      if (timerRef.current === 0) {
+      if (timerRef.current <= 0) {
         clearInterval(interval)
       } else {
         setTimerValue(timerRef.current - 1)
@@ -609,8 +611,8 @@ export default function LotoPage() {
                   </Tooltip>
                 </FormGroup>
                 <Slider
-                  value={timerValue}
-                  onChange={(_, value) => setTimerValue(value as number)}
+                  value={startTime}
+                  onChange={(_, value) => setStartTime(value as number)}
                   aria-labelledby="discrete-slider"
                   valueLabelDisplay="auto"
                   valueLabelFormat={formatSeconds}
@@ -674,11 +676,17 @@ export default function LotoPage() {
                     onClick={() => setState('playing')}
                     disabled={totalTickets.length === 0}
                   >
-                    Начать розыгрыш{' '}
-                    {timerStatus === 'on' &&
-                      `(${formatSecondsZero(timerValue)})`}
+                    Начать розыгрыш
                   </Button>
                 </Box>
+                {timerStatus === 'on' && (
+                  <Box>
+                    Начало через{' '}
+                    <span style={{ color: timerValue < 60 ? 'red' : 'white' }}>
+                      {formatSecondsZero(timerValue)}
+                    </span>
+                  </Box>
+                )}
               </Box>
             </>
           )}
