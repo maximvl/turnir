@@ -207,7 +207,7 @@ export default function ChatConnectionButton(props: Props) {
           })}
         </Button>
       </Box>
-      <Dialog open={open} maxWidth="sm" fullWidth>
+      <Dialog open={open} maxWidth="xl">
         <DialogTitle>Подключение к чату</DialogTitle>
         <DialogContent
           sx={{
@@ -262,10 +262,13 @@ export default function ChatConnectionButton(props: Props) {
                   />
                   <Button
                     variant="contained"
+                    color={state === 'connected' ? 'success' : 'primary'}
                     onClick={() => handleConnect(conn)}
                     disabled={state === 'connecting'}
                   >
-                    Подключиться
+                    {state === 'connecting' && 'Подключяюсь'}
+                    {state === 'connected' && 'Подключено'}
+                    {state === 'idle' && 'Подключить'}
                   </Button>
                   <Button
                     variant="contained"
@@ -275,11 +278,6 @@ export default function ChatConnectionButton(props: Props) {
                     <DeleteForever />
                   </Button>
                 </Box>
-                {state === 'connected' && (
-                  <Box marginTop="10px" color="green">
-                    Подключено!
-                  </Box>
-                )}
               </Box>
             )
           })}

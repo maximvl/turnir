@@ -270,8 +270,10 @@ export default function LotoPage() {
     participatingUserIds.includes(ticket.owner_id)
   )
 
+  const totalParticiants = uniqBy(totalTickets, (t) => t.owner_id).length
+
   useEffect(() => {
-    document.title = `Лото - ${totalTickets.length} участников`
+    document.title = `Лото - ${totalTickets.length} билетов`
   }, [totalTickets.length])
 
   let matchesPerTicket: { [id: TicketId]: number[] } = {}
@@ -682,8 +684,8 @@ export default function LotoPage() {
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Участников: {participatingUserIds.length}
-                {participatingUserIds.length !== totalTickets.length && (
+                Участников: {totalParticiants}
+                {totalParticiants !== totalTickets.length && (
                   <span style={{ marginLeft: '20px' }}>
                     Билетов: {totalTickets.length}
                   </span>
