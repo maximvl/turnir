@@ -1,3 +1,20 @@
+import { MusicContext } from '@/common/hooks/MusicContext'
+import useChatMessages from '@/common/hooks/useChatMessages'
+import useLocalStorage from '@/common/hooks/useLocalStorage'
+import useTimer from '@/common/hooks/useTimer'
+import MainMenu from '@/common/MainMenu'
+import {
+  ChatMessage,
+  ChatUser,
+  createLotoWinners,
+  LotoWinnersCreate,
+  LotoWinnerUpdate,
+  updateLotoWinner,
+  VkMention,
+} from '@/pages/turnir/api'
+import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
+import { ChatConnection, MusicType } from '@/pages/turnir/types'
+import { Cancel } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -7,43 +24,25 @@ import {
   Slider,
   Tooltip,
 } from '@mui/material'
-import { MusicContext } from '@/common/hooks/MusicContext'
-import MainMenu from '@/common/MainMenu'
+import { useMutation } from '@tanstack/react-query'
 import { flatten, sample, uniq, uniqBy } from 'lodash'
-import {
-  ChatMessage,
-  ChatUser,
-  createLotoWinners,
-  fetchLotoWinners,
-  LotoWinnersCreate,
-  LotoWinnerUpdate,
-  updateLotoWinner,
-  VkMention,
-} from '@/pages/turnir/api'
-import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
-import { ChatConnection, ChatServerType, MusicType } from '@/pages/turnir/types'
 import { useContext, useEffect, useRef, useState } from 'react'
+import ChatBox from './ChatBox'
+import DrawnNumber from './DrawnNumber'
 import './styles.css'
+import SuperGameBox from './SuperGameBox'
+import SuperGamePlayerStats from './SuperGamePlayerStats'
 import TicketBox from './TicketBox'
 import { SuperGameGuess, SuperGameResultItem, Ticket, TicketId } from './types'
-import ChatBox from './ChatBox'
 import {
-  genTicket,
-  isUserSubscriber,
-  NumberToFancyName,
   formatSeconds,
   formatSecondsZero,
   generateSuperGameValues,
+  genTicket,
+  isUserSubscriber,
+  NumberToFancyName,
   randomTicketColor,
-  formatUnixToDate,
 } from './utils'
-import DrawnNumber from './DrawnNumber'
-import useChatMessages from '@/common/hooks/useChatMessages'
-import useTimer from '@/common/hooks/useTimer'
-import SuperGameBox from './SuperGameBox'
-import SuperGamePlayerStats from './SuperGamePlayerStats'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import useLocalStorage from '@/common/hooks/useLocalStorage'
 import WinnersList from './WinnersList'
 
 const CHAT_BOT_NAME = 'ChatBot'
@@ -107,14 +106,24 @@ export default function LotoPage() {
   const [onlySubscribers, setOnlySubscribers] = useState(false)
 
   const [startTime, setStartTime] = useState(60 * 3)
-  const { value: timerRef, setValue: setTimerValue } = useTimer(startTime)
-  const [timerStatus, setTimerStatus] = useState<'off' | 'on'>('off')
+  const {
+    value: timerRef,
+    setValue: setTimerValue,
+    mode: timerMode,
+    startCountdown: startTimer,
+  } = useTimer(startTime)
 
   const [savedWinnersIds, setSavedWinnersIds] = useState<{
     [k: string]: number
   }>({})
 
   const timerValue = timerRef.current
+
+  const {
+    value: deletionTimerRef,
+    startCountdown: startDeletionTimer,
+    reset: resetDeletionTimer,
+  } = useTimer(30)
 
   const { mutate: saveWinners } = useMutation({
     mutationFn: (params: LotoWinnersCreate) => createLotoWinners(params),
@@ -132,18 +141,6 @@ export default function LotoPage() {
   const showHappyBirthday = chatConnections.some(
     (c) => c.channel.toLowerCase() === 'segall'
   )
-
-  const startTimer = () => {
-    setTimerStatus('on')
-    setTimerValue(startTime)
-    const interval = setInterval(() => {
-      if (timerRef.current <= 0) {
-        clearInterval(interval)
-      } else {
-        setTimerValue(timerRef.current - 1)
-      }
-    }, 1000)
-  }
 
   const music = useContext(MusicContext)
 
@@ -363,7 +360,9 @@ export default function LotoPage() {
 
   useEffect(() => {
     if (state === 'win') {
-      setShowWinnerChat((val) => !val)
+      setShowWinnerChat(true)
+      resetDeletionTimer()
+      startDeletionTimer()
     }
   }, [state])
 
@@ -482,6 +481,7 @@ export default function LotoPage() {
 
           if (state === 'win') {
             setState('super_game')
+            window.scrollTo(0, 200)
           }
         }
       }
@@ -545,6 +545,22 @@ export default function LotoPage() {
   const currentNumberMatchesAmount = totalTickets.filter((ticket) =>
     ticket.value.includes(nextNumber)
   ).length
+
+  const deleteWinner = (ticket: Ticket) => {
+    const newTicketsFromChat = ticketsFromChat.filter((t) => t.id !== ticket.id)
+    const newTicketsFromPoints = ticketsFromPoints.filter(
+      (t) => t.id !== ticket.id
+    )
+    setTicketsFromChat(newTicketsFromChat)
+    setTicketsFromPoints(newTicketsFromPoints)
+
+    const newSuperGameGuesses = superGameGuesses.filter(
+      (guess) => guess.owner_id !== ticket.owner_id
+    )
+    setSuperGameGuesses(newSuperGameGuesses)
+    setState('playing')
+    window.scrollTo(0, 0)
+  }
 
   return (
     <Box onClick={startMusic} className="loto-page">
@@ -612,7 +628,10 @@ export default function LotoPage() {
                 </FormGroup>
                 <Slider
                   value={startTime}
-                  onChange={(_, value) => setStartTime(value as number)}
+                  onChange={(_, value) => {
+                    setStartTime(value as number)
+                    setTimerValue(value as number)
+                  }}
                   aria-labelledby="discrete-slider"
                   valueLabelDisplay="auto"
                   valueLabelFormat={formatSeconds}
@@ -624,7 +643,7 @@ export default function LotoPage() {
                 <Button
                   variant="contained"
                   onClick={startTimer}
-                  disabled={timerStatus === 'on'}
+                  disabled={timerMode === 'coundown'}
                 >
                   Запустить таймер
                 </Button>
@@ -663,7 +682,12 @@ export default function LotoPage() {
                 // marginTop={'40px'}
                 marginBottom={'20px'}
               >
-                Билетов: {totalTickets.length}
+                Участников: {participatingUserIds.length}
+                {participatingUserIds.length !== totalTickets.length && (
+                  <span style={{ marginLeft: '20px' }}>
+                    Билетов: {totalTickets.length}
+                  </span>
+                )}
                 <Box
                   marginTop="15px"
                   display={'flex'}
@@ -679,8 +703,8 @@ export default function LotoPage() {
                     Начать розыгрыш
                   </Button>
                 </Box>
-                {timerStatus === 'on' && (
-                  <Box>
+                {(timerMode === 'coundown' || timerValue === 0) && (
+                  <Box marginTop="10px">
                     Начало через{' '}
                     <span style={{ color: timerValue < 60 ? 'red' : 'white' }}>
                       {formatSecondsZero(timerValue)}
@@ -904,11 +928,26 @@ export default function LotoPage() {
                   />
                   {isWinner && (
                     <>
-                      <Button
-                        onClick={() => setShowWinnerChat(!showWinnerChat)}
-                      >
-                        Показать чат
-                      </Button>
+                      <Box display="flex" justifyContent="space-between">
+                        <Button
+                          variant="text"
+                          onClick={() => setShowWinnerChat(!showWinnerChat)}
+                        >
+                          Показать чат
+                        </Button>
+                        <Tooltip title="Удалить победителя и продолжить лото">
+                          <Button
+                            color="error"
+                            variant="text"
+                            disabled={deletionTimerRef.current > 0}
+                            onClick={() => deleteWinner(ticket)}
+                          >
+                            {deletionTimerRef.current > 0 &&
+                              deletionTimerRef.current}
+                            <Cancel />
+                          </Button>
+                        </Tooltip>
+                      </Box>
                       {showWinnerChat && <ChatBox messages={chatMessages} />}
                     </>
                   )}
