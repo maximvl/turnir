@@ -59,7 +59,7 @@ export default function ConfigurationButton(props: Props) {
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
         <DialogTitle>Параметры лото и супер игры</DialogTitle>
         <DialogContent>
-          <Box>Лото</Box>
+          <Box sx={{ fontWeight: 700 }}>Лото</Box>
           <Box display="flex" alignItems="center">
             <Box marginRight="10px">
               Количество совпадений подряд для победы
@@ -83,7 +83,7 @@ export default function ConfigurationButton(props: Props) {
             </FormControl>
           </Box>
           <Divider sx={{ marginTop: '10px', marginBottom: '10px' }} />
-          <Box>Супер игра</Box>
+          <Box sx={{ fontWeight: 700 }}>Супер игра</Box>
           <Box display="flex" alignItems="center">
             <Box marginRight="10px">Количество ячеек в супер игре</Box>
             <FormControl size="small">
