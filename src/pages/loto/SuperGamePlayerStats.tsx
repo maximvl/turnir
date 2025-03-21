@@ -5,12 +5,14 @@ type Props = {
   result: (SuperGameResultItem | null)[]
   guess: SuperGameGuess
   guessesAmount: number
+  maxWinScore: number
 }
 
 export default function SuperGamePlayerStats({
   result,
   guess,
   guessesAmount,
+  maxWinScore,
 }: Props) {
   const theme = useTheme()
 
@@ -35,7 +37,7 @@ export default function SuperGamePlayerStats({
 
   // console.log('res', result)
 
-  const showSuperWin = score === 10
+  const showSuperWin = score === maxWinScore
 
   let scoreHeader = (
     <Box>

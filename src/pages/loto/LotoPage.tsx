@@ -14,7 +14,7 @@ import {
 } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { ChatConnection, MusicType } from '@/pages/turnir/types'
-import { Cancel } from '@mui/icons-material'
+import { Cancel, PlayCircleFilled } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -44,6 +44,7 @@ import {
   randomTicketColor,
 } from './utils'
 import WinnersList from './WinnersList'
+import ConfigurationButton, { defaultConfig } from './ConfigurationButton'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -64,25 +65,47 @@ const BingoImage = sample([
   'https://s3.gifyu.com/images/b2Pmf.gif',
 ])
 
-const SuperGameBaseGuessAmount = 5
-const WinMatchAmount = 3
-const SuperGameOptionsAmount = 30
-
 export default function LotoPage() {
   const [state, setState] = useState<
     'registration' | 'playing' | 'win' | 'super_game'
   >('registration')
+
+  const { value: lotoConfig } = useLocalStorage({
+    key: 'loto-config',
+    defaultValue: defaultConfig,
+  })
+
+  const superGameGuessesAmount = lotoConfig.super_game_guesses_amount
+
   const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
 
-  const [superGameValues] = useState<SuperGameResultItem[]>(() =>
-    generateSuperGameValues({
-      amount: 30,
-      smallPrizes: 3,
-      mediumPrizes: 2,
-      bigPrizes: 1,
-    })
+  const [superGameValues, setSuperGameValues] = useState<SuperGameResultItem[]>(
+    () =>
+      generateSuperGameValues({
+        amount: lotoConfig.super_game_options_amount,
+        smallPrizes: lotoConfig.super_game_1_pointers,
+        mediumPrizes: lotoConfig.super_game_2_pointers,
+        bigPrizes: lotoConfig.super_game_3_pointers,
+      })
   )
+
+  useEffect(() => {
+    setSuperGameValues(
+      generateSuperGameValues({
+        amount: lotoConfig.super_game_options_amount,
+        smallPrizes: lotoConfig.super_game_1_pointers,
+        mediumPrizes: lotoConfig.super_game_2_pointers,
+        bigPrizes: lotoConfig.super_game_3_pointers,
+      })
+    )
+  }, [
+    lotoConfig.super_game_options_amount,
+    lotoConfig.super_game_1_pointers,
+    lotoConfig.super_game_2_pointers,
+    lotoConfig.super_game_3_pointers,
+  ])
+
   const [superGameGuesses, setSuperGameGuesses] = useState<SuperGameGuess[]>([])
   const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
@@ -336,7 +359,10 @@ export default function LotoPage() {
   )
 
   useEffect(() => {
-    if (highestMatches >= WinMatchAmount && state === 'playing') {
+    if (
+      highestMatches >= lotoConfig.win_matches_amount &&
+      state === 'playing'
+    ) {
       setState('win')
 
       ticketsWithHighestMatches.forEach((ticket) => {
@@ -405,9 +431,13 @@ export default function LotoPage() {
         superGameRevealedIds.includes(n) ? superGameValues[n] : null
       )
       superGameResultMap[guess.id] = result
-      superGameBonusGuesses[guess.id] = result.filter(
-        (r) => r !== null && r !== 'empty'
-      ).length
+      if (lotoConfig.super_game_bonus_guesses_enabled) {
+        superGameBonusGuesses[guess.id] = result.filter(
+          (r) => r !== null && r !== 'empty'
+        ).length
+      } else {
+        superGameBonusGuesses[guess.id] = 0
+      }
     })
   }
 
@@ -438,7 +468,9 @@ export default function LotoPage() {
               trimmed
                 .split(' ')
                 .map((n) => parseInt(n) - 1)
-                .filter((n) => n >= 0 && n < SuperGameOptionsAmount)
+                .filter(
+                  (n) => n >= 0 && n < lotoConfig.super_game_options_amount
+                )
                 .filter((n) => !superGameRevealedIds.includes(n))
             )
 
@@ -450,7 +482,7 @@ export default function LotoPage() {
               const bonusGuessesAmount =
                 superGameBonusGuesses[messageFromSameUser.id]
               const totalGuessesAmount =
-                bonusGuessesAmount + SuperGameBaseGuessAmount
+                bonusGuessesAmount + superGameGuessesAmount
               const remaining =
                 totalGuessesAmount - messageFromSameUser.value.length
 
@@ -465,10 +497,7 @@ export default function LotoPage() {
               ])
               setSuperGameGuesses([...superGameGuesses])
             } else {
-              const limitedGuess = currentGuess.slice(
-                0,
-                SuperGameBaseGuessAmount
-              )
+              const limitedGuess = currentGuess.slice(0, superGameGuessesAmount)
 
               const guess: SuperGameGuess = {
                 id: msg.id,
@@ -499,7 +528,7 @@ export default function LotoPage() {
   const allSuperGuessesRevealed = Object.keys(superGameResultMap).every(
     (key) =>
       superGameResultMap[key].filter((v) => v !== null).length ===
-      SuperGameBaseGuessAmount + superGameBonusGuesses[key]
+      superGameGuessesAmount + superGameBonusGuesses[key]
   )
 
   const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
@@ -592,6 +621,7 @@ export default function LotoPage() {
           {state === 'registration' && (
             <>
               <Box position="absolute" left="20px">
+                <ConfigurationButton />
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
@@ -628,27 +658,35 @@ export default function LotoPage() {
                     />
                   </Tooltip>
                 </FormGroup>
-                <Slider
-                  value={startTime}
-                  onChange={(_, value) => {
-                    setStartTime(value as number)
-                    setTimerValue(value as number)
-                  }}
-                  aria-labelledby="discrete-slider"
-                  valueLabelDisplay="auto"
-                  valueLabelFormat={formatSeconds}
-                  step={30}
-                  marks
-                  min={60}
-                  max={400}
-                />
-                <Button
-                  variant="contained"
-                  onClick={startTimer}
-                  disabled={timerMode === 'coundown'}
-                >
-                  Запустить таймер
-                </Button>
+                <Box display="flex" alignItems="center">
+                  <Slider
+                    value={startTime}
+                    onChange={(_, value) => {
+                      setStartTime(value as number)
+                      setTimerValue(value as number)
+                    }}
+                    aria-labelledby="discrete-slider"
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={formatSeconds}
+                    step={30}
+                    marks
+                    min={60}
+                    max={300}
+                  />
+                  <Tooltip title="Запустить таймер">
+                    <Box
+                      sx={{
+                        marginLeft: '5px',
+                        padding: 0,
+                        minWidth: '24px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={startTimer}
+                    >
+                      <PlayCircleFilled style={{ verticalAlign: 'middle' }} />
+                    </Box>
+                  </Tooltip>
+                </Box>
 
                 {showHappyBirthday && (
                   <Box marginTop="20px" display="flex" justifyContent="center">
@@ -722,7 +760,10 @@ export default function LotoPage() {
               <Box>
                 <Box display={'flex'} justifyContent={'center'}>
                   <InfoPanel>
-                    <p>Побеждает тот кто соберет 3 или больше чисел в ряд</p>
+                    <p>
+                      Побеждает тот кто соберет {lotoConfig.win_matches_amount}{' '}
+                      или больше чисел в ряд
+                    </p>
                     <p>
                       При равном количестве чисел побеждает тот у кого больше
                       совпадений
@@ -846,7 +887,7 @@ export default function LotoPage() {
               <Box>
                 <Box textAlign="center" display="flex" justifyContent="center">
                   <InfoPanel>
-                    Победитель открывает {SuperGameBaseGuessAmount} ячеек
+                    Победитель открывает {superGameGuessesAmount} ячеек
                     <br /> И может выиграть супер-приз!
                     <br />
                     Каждое угаданное число дает дополнительный ролл
@@ -897,7 +938,12 @@ export default function LotoPage() {
                           result={superGameResultMap[guess.id]}
                           guessesAmount={
                             superGameBonusGuesses[guess.id] +
-                            SuperGameBaseGuessAmount
+                            superGameGuessesAmount
+                          }
+                          maxWinScore={
+                            lotoConfig.super_game_1_pointers +
+                            lotoConfig.super_game_2_pointers * 2 +
+                            lotoConfig.super_game_3_pointers * 3
                           }
                         />
                       </Box>
