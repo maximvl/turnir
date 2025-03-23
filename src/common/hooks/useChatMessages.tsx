@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { fetchMessages, ChatMessage } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
@@ -7,11 +7,12 @@ import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
 
 type Props = {
   fetching?: boolean
+  debug?: boolean
 }
 
 const REFETCH_INTERVAL = 2000
 
-export default function useChatMessages({ fetching }: Props) {
+export default function useChatMessages({ fetching, debug = true }: Props) {
   const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
     key: 'chat-connections',
     defaultValue: [],
@@ -20,13 +21,11 @@ export default function useChatMessages({ fetching }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessages, setNewMessages] = useState<ChatMessage[]>([])
 
-  const [lastTs, setLastTs] = useState<number>(() =>
-    Math.floor(Date.now() / 1000)
-  )
+  const [lastTs, setLastTs] = useState<number>(() => Date.now())
 
   const reset = () => {
     setMessages([])
-    setLastTs(Math.floor(Date.now() / 1000))
+    setLastTs(Date.now())
   }
 
   const queries = chatConnections
@@ -125,11 +124,9 @@ export default function useChatMessages({ fetching }: Props) {
     lastTsMin = Math.min(...lastTsFiltered)
   }
 
-  useEffect(() => {
-    if (lastTsMin && lastTsMin > lastTs) {
-      setLastTs(lastTsMin)
-    }
-  }, [lastTsMin, lastTs])
+  if (lastTsMin && lastTsMin > lastTs) {
+    setLastTs(lastTsMin)
+  }
 
   return {
     messages,

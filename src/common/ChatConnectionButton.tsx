@@ -53,7 +53,10 @@ export default function ChatConnectionButton(props: Props) {
   const { mutate } = useMutation({ mutationFn: chatConnect })
 
   const anyConnecting = connectionStates.some((state) => state === 'connecting')
-  const { newMessages } = useChatMessages({ fetching: anyConnecting })
+  const { newMessages } = useChatMessages({
+    fetching: anyConnecting,
+    debug: false,
+  })
 
   useEffect(() => {
     const getChannelIdForMessage = (message: ChatMessage) => {
