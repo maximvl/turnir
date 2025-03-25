@@ -199,7 +199,7 @@ export async function fetchMessages({
     }
 
     const makeGameMessage = () => {
-      const user_id = random(1, 100)
+      const user_id = random(1, 300)
       return {
         id: '93152579',
         message: '+игра',
@@ -230,7 +230,7 @@ export async function fetchMessages({
       return result
     }
 
-    const messages: ChatMessage[] = Array.from({ length: 40 }, makeMessage)
+    const messages: ChatMessage[] = Array.from({ length: 500 }, makeMessage)
     const gameMessages = [makeGameMessage(), makeGameMessage()]
     // return { chat_messages: [makeSuperGameMessage()] }
     return { chat_messages: messages }
@@ -435,4 +435,26 @@ export async function fetchLotoWinners(
   return fetch(
     `${URL_PREFIX}/turnir-api/loto_winners?server=${server}&channel=${channel}`
   ).then((res) => res.json())
+}
+
+export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting'
+
+type ConnectionsStatusResponse = {
+  connections: { [key: string]: ConnectionStatus }
+}
+
+export async function getConnectionsStatus(): Promise<ConnectionsStatusResponse> {
+  if (MOCK_API) {
+    return {
+      connections: {
+        'vkvideo/lasqa': 'connecting',
+        'twitch/praden': 'connected',
+        'nuum/segall': 'disconnected',
+        'goodgame/roadhouse': 'disconnected',
+      },
+    }
+  }
+  return fetch(`${URL_PREFIX}/turnir-api/chat_connections`).then((res) =>
+    res.json()
+  )
 }

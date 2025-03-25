@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash'
-import { useEffect, useMemo, useState } from 'react'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQueries } from '@tanstack/react-query'
 import { fetchMessages, ChatMessage } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
-import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
+import { ChatConnection } from '@/pages/turnir/types'
 
 type Props = {
   fetching?: boolean
@@ -21,16 +21,37 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessages, setNewMessages] = useState<ChatMessage[]>([])
 
-  const [lastTs, setLastTs] = useState<number>(() => Date.now())
+  const [lastTsPerConnection, setLastTsPerConnection] = useState<{
+    [key: string]: number
+  }>(() => {
+    const result: { [key: string]: number } = {}
+    for (const conn of chatConnections) {
+      result[connectionToStream(conn)] = Date.now()
+    }
+    return result
+  })
+
+  // const [lastTs, setLastTs] = useState<number>(() => Date.now())
 
   const reset = () => {
     setMessages([])
-    setLastTs(Date.now())
+    setLastTsPerConnection((current) => {
+      const result: { [key: string]: number } = {}
+      for (const key in current) {
+        result[key] = Date.now()
+      }
+      return result
+    })
   }
 
   const queries = chatConnections
     .filter((conn) => conn.channel !== '')
     .map((conn) => {
+      let lastTs = lastTsPerConnection[connectionToStream(conn)]
+      if (!lastTs) {
+        lastTs = Date.now()
+        lastTsPerConnection[connectionToStream(conn)] = lastTs
+      }
       return {
         queryKey: ['chatMessages', conn, lastTs],
         queryFn: () => {
@@ -48,32 +69,11 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
   // const { data: chatData, error, isLoading }
   const results = useQueries({ queries })
 
-  // const {
-  //   data: chatData,
-  //   error,
-  //   isLoading,
-  // } = useQuery({
-  //   queryKey: ['chatMessages', channel, lastTs],
-  //   queryFn: () => {
-  //     if (!channel || !platform) {
-  //       return
-  //     }
-  //     return fetchMessages({ platform, channel, ts: lastTs })
-  //   },
-  //   refetchInterval: REFETCH_INTERVAL,
-  //   enabled: fetching && channel !== null,
-  // })
-
   const lastTsList = results.map(
     ({ error, isLoading, data: chatData }, index) => {
       if (!error && !isLoading && !isEmpty(chatData?.chat_messages)) {
         // todo remove duplicates votes for same user id
         // use only the latest one
-
-        // const messagesPerUser: { [key: number]: ChatMessage } = {}
-        // for (const vote of messagesSorted) {
-        //   messagesPerUser[vote.user.id] = vote
-        // }
 
         const queryKey = queries[index].queryKey as [
           string,
@@ -117,15 +117,26 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     }
   )
 
-  const lastTsFiltered = lastTsList.filter((ts) => ts !== undefined)
+  const lastTsChanges: { [key: string]: number } = {}
+  lastTsList.forEach((ts, index) => {
+    if (ts !== undefined) {
+      const queryKey = queries[index].queryKey as [
+        string,
+        ChatConnection,
+        number,
+      ]
+      const source = queryKey[1]
+      lastTsChanges[connectionToStream(source)] = ts
+    }
+  })
 
-  let lastTsMin = null
-  if (lastTsFiltered.length > 0) {
-    lastTsMin = Math.min(...lastTsFiltered)
-  }
-
-  if (lastTsMin && lastTsMin > lastTs) {
-    setLastTs(lastTsMin)
+  if (Object.keys(lastTsChanges).length > 0) {
+    setLastTsPerConnection((current) => {
+      return {
+        ...current,
+        ...lastTsChanges,
+      }
+    })
   }
 
   return {
@@ -133,4 +144,8 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     newMessages,
     reset,
   }
+}
+
+function connectionToStream(connection: ChatConnection) {
+  return `${connection.server}/${connection.channel}`
 }
