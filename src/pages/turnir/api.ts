@@ -311,8 +311,8 @@ export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
   )
 }
 
-type ChatConnectResponse = {
-  status: 'ok'
+export type ChatConnectResponse = {
+  stream_status: ConnectionStatus
 }
 
 type ChatConnectParams = {
@@ -325,7 +325,8 @@ export async function chatConnect({
   channel,
 }: ChatConnectParams): Promise<ChatConnectResponse> {
   if (MOCK_API) {
-    return { status: 'ok' }
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    return { stream_status: 'connected' }
   }
   const params = new URLSearchParams()
   params.set('channel', channel)

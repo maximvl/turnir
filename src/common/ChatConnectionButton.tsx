@@ -25,11 +25,9 @@ import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
   chatConnect,
-  ChatMessage,
+  ChatConnectResponse,
   ConnectionStatus,
-  getConnectionsStatus,
 } from '@/pages/turnir/api'
-import useChatMessages from './hooks/useChatMessages'
 import debounce from 'lodash/debounce'
 
 type Props = {}
@@ -47,15 +45,6 @@ export default function ChatConnectionButton(props: Props) {
     ],
   })
 
-  const {
-    data: connectionsStatus,
-    refetch: refetchConnectionsStatus,
-    isFetching: isConnectionsStatusFetching,
-  } = useQuery({
-    queryKey: ['chat_connections_status'],
-    queryFn: getConnectionsStatus,
-  })
-
   const [connectionStates, setConnectionStates] = useState<ConnectionStatus[]>(
     () => {
       return chatConnections.map(() => 'disconnected')
@@ -65,63 +54,25 @@ export default function ChatConnectionButton(props: Props) {
   const [open, setOpen] = useState(false)
   const { mutate: connectToChat } = useMutation({
     mutationFn: chatConnect,
-    onSettled: () => {
-      console.log('refetching connections status')
-      refetchConnectionsStatus()
+    onSettled: (data, error, params) => {
+      // console.log('settled', params, data)
+      if (!data || error) {
+        return
+      }
+      setConnectionStates((prev) => {
+        const newState = [...prev]
+        const index = chatConnections.findIndex(
+          (conn) =>
+            conn.server === params.server && conn.channel === params.channel
+        )
+        if (index === -1) {
+          return prev
+        }
+        newState[index] = data.stream_status
+        return newState
+      })
     },
   })
-
-  // const anyConnecting = connectionStates.some((state) => state === 'connecting')
-  // const { newMessages } = useChatMessages({
-  //   fetching: anyConnecting,
-  //   debug: false,
-  // })
-
-  // useEffect(() => {
-  //   const getChannelIdForMessage = (message: ChatMessage) => {
-  //     const connection = chatConnections.find(
-  //       (conn) =>
-  //         conn.channel === message.source.channel &&
-  //         conn.server === message.source.server
-  //     )
-  //     if (!connection) {
-  //       return -1
-  //     }
-  //     const index = chatConnections.indexOf(connection)
-  //     return index
-  //   }
-
-  //   if (newMessages.length > 0) {
-  //     const msg = newMessages[0]
-  //     const id = getChannelIdForMessage(msg)
-  //     const state = connectionStates[id]
-  //     if (state === 'connecting') {
-  //       setConnectionStates((prev) => {
-  //         const newState = [...prev]
-  //         newState[id] = 'connected'
-  //         return newState
-  //       })
-  //     }
-  //   }
-  // }, [newMessages])
-
-  useEffect(() => {
-    console.log('connection status hook')
-    if (!connectionsStatus) {
-      return
-    }
-
-    const newStates = chatConnections.map((conn, idx) => {
-      const stream = `${conn.server}/${conn.channel}`
-      const state = connectionsStatus.connections[stream]
-      if (state === undefined) {
-        return 'disconnected'
-      }
-      return state
-    })
-    console.log('new states', newStates)
-    setConnectionStates(newStates)
-  }, [connectionsStatus, isConnectionsStatusFetching])
 
   const serverNames = {
     twitch: 'twitch.tv',
@@ -130,45 +81,25 @@ export default function ChatConnectionButton(props: Props) {
     goodgame: 'goodgame.ru',
   }
 
-  // const getConnectionMessage = (server: ChatServerType, channel: string) => {
-  //   let statusMessage = 'не подключен'
-  //   if (channel && server) {
-  //     const serverName = serverNames[server as ChatServerType]
-  //     statusMessage = `${serverName}/${channel}`
-  //   }
-  //   return statusMessage
-  // }
-
   const handleConnect = (c: ChatConnection) => {
-    if (
-      connectionStates[chatConnections.indexOf(c)] === 'connecting' ||
-      isConnectionsStatusFetching
-    ) {
-      return
-    }
-
     setConnectionStates((prev) => {
       const newState = [...prev]
       const index = chatConnections.findIndex(
         (conn) => conn.server === c.server && conn.channel === c.channel
       )
+      // console.log('updating index', index)
       if (index === -1) {
         return prev
       }
       newState[index] = 'connecting'
+      // console.log('new state', newState)
       return newState
     })
-    console.log('connecting to', c, connectionStates)
+    // console.log('connecting to', c, connectionStates)
     connectToChat({ channel: c.channel, server: c.server })
   }
 
-  const handleConnectDebounced = debounce(handleConnect, 10000)
-
   const handleOpen = () => {
-    // const newStates: ConnectionStatus[] = chatConnections.map(
-    //   () => 'disconnected'
-    // )
-    // setConnectionStates(newStates)
     setOpen(true)
   }
 
@@ -177,29 +108,23 @@ export default function ChatConnectionButton(props: Props) {
       const nonEmptyConnections = chatConnections.filter(
         (conn) => conn.channel !== ''
       )
-      const hasChanges = nonEmptyConnections.some((conn, idx) => {
-        const currentConn = chatConnections[idx]
-        return (
-          conn.server !== currentConn.server ||
-          conn.channel !== currentConn.channel
-        )
-      })
 
-      if (nonEmptyConnections.length !== chatConnections.length || hasChanges) {
+      if (nonEmptyConnections.length !== chatConnections.length) {
         saveChatConnections(nonEmptyConnections)
         return
       }
-      console.log('reconnection debounced hook')
+      // console.log('reconnection debounced hook', connectionStates)
 
       nonEmptyConnections.forEach((conn, idx) => {
         const state = connectionStates[idx] || 'disconnected'
+        // console.log('effect', conn, connectionStates, state)
         if (state === 'disconnected') {
-          console.log('reconnecting to', conn)
-          // handleConnectDebounced(conn)
+          // console.log('reconnecting to', conn)
+          handleConnect(conn)
         }
       })
     }
-  }, [chatConnections, connectionStates, open])
+  }, [open, connectionStates])
 
   const handleSaveServer = (conn: ChatConnection, server: ChatServerType) => {
     const index = chatConnections.indexOf(conn)
