@@ -1,3 +1,5 @@
+import { chatConnect, ConnectionStatus } from '@/pages/turnir/api'
+import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
 import {
   DeleteForever,
   Error,
@@ -19,16 +21,9 @@ import {
   Select,
   Tooltip,
 } from '@mui/material'
+import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import useLocalStorage from './hooks/useLocalStorage'
-import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import {
-  chatConnect,
-  ChatConnectResponse,
-  ConnectionStatus,
-} from '@/pages/turnir/api'
-import debounce from 'lodash/debounce'
 
 type Props = {}
 
@@ -262,7 +257,7 @@ export default function ChatConnectionButton(props: Props) {
                     onClick={() => handleConnect(conn)}
                     disabled={state === 'connecting'}
                   >
-                    {state === 'connecting' && 'Подключяюсь'}
+                    {state === 'connecting' && 'Подключаюсь'}
                     {state === 'connected' && 'Подключено'}
                     {state === 'disconnected' && 'Подключить'}
                   </Button>
