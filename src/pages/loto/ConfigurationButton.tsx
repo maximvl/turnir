@@ -20,6 +20,7 @@ import { useState } from 'react'
 type Props = {}
 
 export const defaultConfig = {
+  roll_time_seconds: 3,
   win_matches_amount: 3,
   super_game_options_amount: 30,
   super_game_guesses_amount: 5,
@@ -30,16 +31,28 @@ export const defaultConfig = {
 }
 
 export default function ConfigurationButton(props: Props) {
-  const { value: config, save: updateConfig } = useLocalStorage({
+  const { value: savedConfig, save: updateConfig } = useLocalStorage({
     key: 'loto-config',
     defaultValue: defaultConfig,
   })
+
+  const config = {
+    ...defaultConfig,
+    ...savedConfig,
+  }
 
   const [modalOpen, setModalOpen] = useState(false)
   const theme = useTheme()
 
   const resetConfig = () => {
     updateConfig(defaultConfig)
+  }
+
+  const setField = (field: keyof typeof config, value: number | boolean) => {
+    updateConfig({
+      ...config,
+      [field]: value,
+    })
   }
 
   const superGameWinChange =
@@ -61,6 +74,24 @@ export default function ConfigurationButton(props: Props) {
         <DialogContent>
           <Box sx={{ fontWeight: 700 }}>Лото</Box>
           <Box display="flex" alignItems="center">
+            <Box marginRight="10px">Время доставания боченка (секунды)</Box>
+            <FormControl size="small">
+              <Select
+                value={config.roll_time_seconds}
+                onChange={(e) =>
+                  setField('roll_time_seconds', Number(e.target.value))
+                }
+              >
+                <MenuItem value={0.5}>0.5</MenuItem>
+                {range(1, 6).map((value) => (
+                  <MenuItem key={value} value={value}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Box display="flex" alignItems="center">
             <Box marginRight="10px">
               Количество совпадений подряд для победы
             </Box>
@@ -68,10 +99,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.win_matches_amount}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    win_matches_amount: Number(e.target.value),
-                  })
+                  setField('win_matches_amount', Number(e.target.value))
                 }
               >
                 {range(1, 9).map((value) => (
@@ -90,10 +118,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.super_game_options_amount}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    super_game_options_amount: Number(e.target.value),
-                  })
+                  setField('super_game_options_amount', Number(e.target.value))
                 }
               >
                 {range(1, 100).map((value) => (
@@ -110,10 +135,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.super_game_guesses_amount}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    super_game_guesses_amount: Number(e.target.value),
-                  })
+                  setField('super_game_guesses_amount', Number(e.target.value))
                 }
               >
                 {range(1, 21).map((value) => (
@@ -130,10 +152,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.super_game_1_pointers}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    super_game_1_pointers: Number(e.target.value),
-                  })
+                  setField('super_game_1_pointers', Number(e.target.value))
                 }
               >
                 {range(0, 21).map((value) => (
@@ -150,10 +169,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.super_game_2_pointers}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    super_game_2_pointers: Number(e.target.value),
-                  })
+                  setField('super_game_2_pointers', Number(e.target.value))
                 }
               >
                 {range(0, 21).map((value) => (
@@ -170,10 +186,7 @@ export default function ConfigurationButton(props: Props) {
               <Select
                 value={config.super_game_3_pointers}
                 onChange={(e) =>
-                  updateConfig({
-                    ...config,
-                    super_game_3_pointers: Number(e.target.value),
-                  })
+                  setField('super_game_3_pointers', Number(e.target.value))
                 }
               >
                 {range(0, 21).map((value) => (
@@ -191,10 +204,7 @@ export default function ConfigurationButton(props: Props) {
             <Checkbox
               checked={config.super_game_bonus_guesses_enabled}
               onChange={(e) =>
-                updateConfig({
-                  ...config,
-                  super_game_bonus_guesses_enabled: e.target.checked,
-                })
+                setField('super_game_bonus_guesses_enabled', e.target.checked)
               }
             />
           </Box>

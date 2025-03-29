@@ -277,7 +277,7 @@ export default function LotoPage() {
         if (state === 'playing') {
           setDrawnNumbers((prev) => [...prev, nextNumber])
         }
-      }, 3000)
+      }, lotoConfig.roll_time_seconds * 1000)
     }
   }, [nextDigitState, nextNumber, state])
 
