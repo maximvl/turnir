@@ -981,7 +981,7 @@ export default function LotoPage() {
                           variant="text"
                           onClick={() => setShowWinnerChat(!showWinnerChat)}
                         >
-                          Показать чат
+                          {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
                         </Button>
                         <Tooltip title="Удалить победителя и продолжить лото">
                           <Button
