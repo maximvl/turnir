@@ -70,10 +70,15 @@ export default function LotoPage() {
     'registration' | 'playing' | 'win' | 'super_game'
   >('registration')
 
-  const { value: lotoConfig } = useLocalStorage({
+  const { value: lotoConfigLoaded } = useLocalStorage({
     key: 'loto-config',
     defaultValue: defaultConfig,
   })
+
+  const lotoConfig = {
+    ...defaultConfig,
+    ...(lotoConfigLoaded as typeof defaultConfig),
+  }
 
   const superGameGuessesAmount = lotoConfig.super_game_guesses_amount
 
