@@ -1,0 +1,46 @@
+/* src/components/ActionLog.css */
+.action-log {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #fdfdfd;
+  padding: 15px;
+  height: 400px; /* Fixed height */
+  display: flex;
+  flex-direction: column;
+  color: black;
+}
+
+.action-log h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: center;
+  flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.log-entries {
+  flex-grow: 1; /* Allow entries div to take remaining space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  font-size: 0.9em;
+  line-height: 1.4;
+}
+
+.log-entry {
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px dashed #eee;
+  max-width: 700px;
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.log-timestamp {
+  color: #888;
+  margin-right: 8px;
+  font-family: monospace;
+}
+
+.log-message {
+  color: #333;
+}

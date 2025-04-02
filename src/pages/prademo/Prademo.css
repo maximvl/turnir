@@ -1,0 +1,74 @@
+/* src/App.css */
+body {
+  font-family: sans-serif;
+  margin: 0;
+  background-color: #eef;
+}
+
+.app-container {
+  padding: 20px;
+}
+
+.app-container h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.main-layout {
+  display: flex;
+  flex-direction: row; /* Default layout */
+  gap: 20px; /* Space between board/player area and log */
+  align-items: flex-start; /* Align items to the top */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: center; /* Center items when wrapped */
+}
+
+.board-section {
+  display: flex;
+  flex-direction: column; /* Stack board and player panel */
+  align-items: center; /* Center board and panel horizontally */
+  flex-basis: 700px; /* Give board section a base width */
+  flex-grow: 1; /* Allow it to grow */
+  min-width: 400px; /* Minimum width before wrapping */
+}
+
+.log-section {
+  flex-basis: 300px; /* Give log section a base width */
+  flex-grow: 1; /* Allow it to grow */
+  max-width: 400px; /* Prevent log from becoming too wide */
+  min-width: 250px; /* Minimum width */
+}
+
+/* Example of a simple media query for smaller screens */
+@media (max-width: 800px) {
+  .main-layout {
+    flex-direction: column; /* Stack board/player and log vertically */
+    align-items: center; /* Center items */
+  }
+  .board-section,
+  .log-section {
+    flex-basis: auto; /* Reset basis */
+    width: 95%; /* Take most of the width */
+    max-width: 600px; /* Limit max width */
+  }
+  .log-section {
+    margin-top: 20px; /* Add space when stacked */
+  }
+
+  /* Adjust board cell sizes for smaller screens if needed */
+  .board-row .cell {
+    width: 60px;
+    min-width: 50px;
+  }
+  .board-col .cell {
+    min-width: 60px;
+    height: 50px;
+  }
+  .top-row .cell:first-child,
+  .top-row .cell:last-child,
+  .bottom-row .cell:first-child,
+  .bottom-row .cell:last-child {
+    min-width: 60px;
+  }
+}

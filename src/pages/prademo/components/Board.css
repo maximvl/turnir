@@ -1,0 +1,83 @@
+/* src/components/Board.css */
+.board-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.board-layout {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid #555;
+  background-color: #c3e5c3; /* Light green background */
+  width: min-content; /* Fit content width */
+}
+
+.board-row,
+.board-col {
+  display: flex;
+}
+
+.board-row .cell {
+  /* Cells in rows have fixed height, width can adjust slightly if needed */
+  min-height: 60px;
+  min-width: 60px;
+  width: 80px; /* Example fixed width for horizontal cells */
+}
+
+.board-col .cell {
+  /* Cells in columns have fixed width, height can adjust slightly */
+  min-width: 80px; /* Make vertical cells wider */
+  min-height: 60px;
+  height: 60px; /* Example fixed height for vertical cells */
+}
+
+.top-row {
+  flex-direction: row;
+}
+
+.bottom-row {
+  /* flex-direction: row-reverse; /* Numbers decrease right-to-left */ */
+}
+
+.board-middle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between; /* Push cols to edges */
+}
+
+.left-col {
+  flex-direction: column-reverse; /* Numbers increase bottom-to-top */
+}
+
+.right-col {
+  flex-direction: column; /* Numbers increase top-to-bottom */
+}
+
+.board-center-space {
+  flex-grow: 1; /* Takes up the remaining space */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  /* Make center space visually distinct */
+  background-color: #aaddaa;
+  border-left: 2px solid #555;
+  border-right: 2px solid #555;
+}
+
+.board-center-space h2 {
+  color: #333;
+}
+
+/* Ensure corners are sized consistently */
+.top-row .cell:first-child,
+.top-row .cell:last-child,
+.bottom-row .cell:first-child,
+.bottom-row .cell:last-child {
+  min-width: 80px; /* Match column width */
+  min-height: 60px; /* Match row height */
+  /* You might need specific corner styling */
+  /* font-weight: bold; */
+}

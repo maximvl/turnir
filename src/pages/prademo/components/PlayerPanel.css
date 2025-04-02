@@ -1,0 +1,67 @@
+/* src/components/PlayerPanel.css */
+.player-panel {
+  color: black;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin-top: 20px;
+}
+
+.player-panel h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.player-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.player-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.player-item:last-child {
+  border-bottom: none;
+}
+
+.player-color-indicator {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  margin-right: 10px;
+  border: 1px solid #555;
+}
+
+.player-name {
+  font-weight: bold;
+  flex-grow: 1; /* Push button to the right */
+  margin-right: 10px;
+}
+
+.player-position {
+  font-size: 0.9em;
+  color: #666;
+  margin-right: 15px;
+}
+
+.turn-button {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: 1px solid #007bff;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.turn-button:hover {
+  background-color: #0056b3;
+}
