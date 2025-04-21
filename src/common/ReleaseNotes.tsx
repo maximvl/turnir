@@ -19,6 +19,13 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: '1.24',
+    date: '2025-04-21',
+    changes: [
+      'Пофикшен баг с возможностью получать в билете больше чисел чем положено',
+    ],
+  },
+  {
     version: '1.23',
     date: '2025-03-29',
     changes: [
