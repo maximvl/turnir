@@ -82,11 +82,9 @@ function genTicketNumber(drawOptions: string[], text?: string) {
     const validOptions = sampleOptions.filter((o) => !ticket.includes(o))
     ticket.push(...sampleSize(validOptions, 8 - ticket.length))
   }
-  if (ticket.length > 8) {
-    // limit to 5 items
-    ticket.slice(0, 5)
-  }
-  return ticket
+
+  // limit to first 8 items
+  return ticket.slice(0, 8)
 }
 
 export const NumberToFancyName: { [k: string]: string } = {
