@@ -95,22 +95,6 @@ export default function LotoPage() {
       })
   )
 
-  useEffect(() => {
-    setSuperGameValues(
-      generateSuperGameValues({
-        amount: lotoConfig.super_game_options_amount,
-        smallPrizes: lotoConfig.super_game_1_pointers,
-        mediumPrizes: lotoConfig.super_game_2_pointers,
-        bigPrizes: lotoConfig.super_game_3_pointers,
-      })
-    )
-  }, [
-    lotoConfig.super_game_options_amount,
-    lotoConfig.super_game_1_pointers,
-    lotoConfig.super_game_2_pointers,
-    lotoConfig.super_game_3_pointers,
-  ])
-
   const [superGameGuesses, setSuperGameGuesses] = useState<SuperGameGuess[]>([])
   const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
@@ -396,6 +380,17 @@ export default function LotoPage() {
       setShowWinnerChat(true)
       resetDeletionTimer()
       startDeletionTimer()
+
+      setSuperGameValues(
+        generateSuperGameValues({
+          amount: lotoConfig.super_game_options_amount,
+          smallPrizes: lotoConfig.super_game_1_pointers,
+          mediumPrizes: lotoConfig.super_game_2_pointers,
+          bigPrizes: lotoConfig.super_game_3_pointers,
+        })
+      )
+      setSuperGameGuesses([])
+      setSuperGameRevealedIds([])
     }
   }, [state])
 
