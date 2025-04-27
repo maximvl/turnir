@@ -11,15 +11,31 @@ import {
   FormControl,
   MenuItem,
   Select,
-  Slider,
+  Tooltip,
   useTheme,
 } from '@mui/material'
 import { range } from 'lodash'
 import { useState } from 'react'
+import { VkRole } from '../turnir/api'
 
-type Props = {}
+type Props = {
+  streamsRewards: { [k: string]: { roles: VkRole[] } }
+}
 
-export const defaultConfig = {
+export type VkRewards = { [k: string]: { [v: string]: number } }
+type ConfigType = {
+  roll_time_seconds: number
+  win_matches_amount: number
+  super_game_options_amount: number
+  super_game_guesses_amount: number
+  super_game_1_pointers: number
+  super_game_2_pointers: number
+  super_game_3_pointers: number
+  super_game_bonus_guesses_enabled: boolean
+  super_game_vk_rewards?: VkRewards
+}
+
+export const defaultConfig: ConfigType = {
   roll_time_seconds: 3,
   win_matches_amount: 3,
   super_game_options_amount: 30,
@@ -28,9 +44,10 @@ export const defaultConfig = {
   super_game_2_pointers: 2,
   super_game_3_pointers: 1,
   super_game_bonus_guesses_enabled: true,
+  super_game_vk_rewards: {},
 }
 
-export default function ConfigurationButton(props: Props) {
+export default function ConfigurationButton({ streamsRewards }: Props) {
   const { value: savedConfig, save: updateConfig } = useLocalStorage({
     key: 'loto-config',
     defaultValue: defaultConfig,
@@ -52,6 +69,21 @@ export default function ConfigurationButton(props: Props) {
     updateConfig({
       ...config,
       [field]: value,
+    })
+  }
+
+  const handleRewardChange = (stream: string, role: VkRole, value: number) => {
+    const streamRewards = config.super_game_vk_rewards?.[stream] || {}
+    const updatedRewards = {
+      ...config.super_game_vk_rewards,
+      [stream]: {
+        ...streamRewards,
+        [role.id]: value,
+      },
+    }
+    updateConfig({
+      ...config,
+      super_game_vk_rewards: updatedRewards,
     })
   }
 
@@ -218,6 +250,39 @@ export default function ConfigurationButton(props: Props) {
           >
             Шанс победы в супер-игре: {superGameWinChange.toFixed(2)}%
           </Box>
+          <Box marginTop="10px">
+            (VkVideo) Ячейки для наград канала в супер игре:
+            {Object.keys(streamsRewards).map((key, idx) => (
+              <Box key={idx} marginTop="5px" textAlign="center">
+                {key}
+                {streamsRewards[key].roles.map((role, roleId) => (
+                  <Box key={roleId} display="flex" alignItems="center" gap={1}>
+                    <Tooltip title={role.description}>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        {role.name} <img src={role.largeUrl} height="20px" />
+                      </Box>
+                    </Tooltip>
+                    <FormControl size="small">
+                      <Select
+                        value={
+                          config.super_game_vk_rewards?.[key]?.[role.id] || 0
+                        }
+                        onChange={(e) =>
+                          handleRewardChange(key, role, Number(e.target.value))
+                        }
+                      >
+                        {range(0, 10).map((value) => (
+                          <MenuItem key={value} value={value}>
+                            {value}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                ))}
+              </Box>
+            ))}
+          </Box>
         </DialogContent>
         <DialogActions>
           <Box display="flex" justifyContent="space-between" width="100%">
@@ -265,6 +330,3 @@ function winningProbability(
 
   return 1 - waysToDrawNoWinningNumbers / totalWaysToDraw
 }
-
-// Example usage: 50 total numbers, 10 winning numbers, player draws 5
-// console.log(winningProbability(50, 10, 5)) // Output: ~0.623

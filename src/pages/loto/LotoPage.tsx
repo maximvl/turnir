@@ -7,10 +7,12 @@ import {
   ChatMessage,
   ChatUser,
   createLotoWinners,
+  fetchStreamInfo,
   LotoWinnersCreate,
   LotoWinnerUpdate,
   updateLotoWinner,
   VkMention,
+  VkRole,
 } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { ChatConnection, MusicType } from '@/pages/turnir/types'
@@ -24,7 +26,7 @@ import {
   Slider,
   Tooltip,
 } from '@mui/material'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueries } from '@tanstack/react-query'
 import { flatten, sample, uniq, uniqBy } from 'lodash'
 import { useContext, useEffect, useRef, useState } from 'react'
 import ChatBox from './ChatBox'
@@ -92,6 +94,7 @@ export default function LotoPage() {
         smallPrizes: lotoConfig.super_game_1_pointers,
         mediumPrizes: lotoConfig.super_game_2_pointers,
         bigPrizes: lotoConfig.super_game_3_pointers,
+        customPrizes: lotoConfig.super_game_vk_rewards,
       })
   )
 
@@ -151,7 +154,25 @@ export default function LotoPage() {
   })
 
   const showHappyBirthday = chatConnections.some(
-    (c) => c.channel.toLowerCase() === 'segall'
+    (c) => c.channel.toLowerCase() === 'segall' && false
+  )
+
+  const infoQueries = chatConnections.map((connection) => ({
+    queryKey: ['streamInfo', connection.server, connection.channel],
+    queryFn: () => fetchStreamInfo(connection.server, connection.channel),
+  }))
+
+  const infoResults = useQueries({ queries: infoQueries })
+
+  const streamsInfo = infoResults.reduce(
+    (acc, result, idx) => {
+      if (result.data && result.data.roles) {
+        const key = `${infoQueries[idx].queryKey[1]}/${infoQueries[idx].queryKey[2]}`
+        acc[key] = { roles: result.data.roles.data.rewards }
+      }
+      return acc
+    },
+    {} as { [key: string]: { roles: VkRole[] } }
   )
 
   const music = useContext(MusicContext)
@@ -387,6 +408,7 @@ export default function LotoPage() {
           smallPrizes: lotoConfig.super_game_1_pointers,
           mediumPrizes: lotoConfig.super_game_2_pointers,
           bigPrizes: lotoConfig.super_game_3_pointers,
+          customPrizes: lotoConfig.super_game_vk_rewards,
         })
       )
       setSuperGameGuesses([])
@@ -621,7 +643,7 @@ export default function LotoPage() {
           {state === 'registration' && (
             <>
               <Box position="absolute" left="20px">
-                <ConfigurationButton />
+                <ConfigurationButton streamsRewards={streamsInfo} />
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
@@ -874,6 +896,7 @@ export default function LotoPage() {
                         selected={[]}
                         revealedOptionsIds={[]}
                         onOptionReveal={() => {}}
+                        streamsRewards={{}}
                       />
                     </Box>
                   </Box>
@@ -912,6 +935,7 @@ export default function LotoPage() {
                     }}
                     revealAll={superGameFinished}
                     selected={superGameSelectedIds}
+                    streamsRewards={streamsInfo}
                   />
                 </Box>
 

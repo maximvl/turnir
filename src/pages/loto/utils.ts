@@ -2,6 +2,7 @@ import { sample, sampleSize, shuffle, uniq } from 'lodash'
 import { ChatUser } from '@/pages/turnir/api'
 import { SuperGameResultItem, Ticket } from './types'
 import { ChatConnection, ChatServerType } from '../turnir/types'
+import { VkRewards } from './ConfigurationButton'
 
 type Props = {
   owner_id: string
@@ -264,6 +265,7 @@ type GenerateParams = {
   smallPrizes: number
   mediumPrizes: number
   bigPrizes: number
+  customPrizes?: VkRewards
 }
 
 export function generateSuperGameValues({
@@ -271,6 +273,7 @@ export function generateSuperGameValues({
   smallPrizes,
   mediumPrizes,
   bigPrizes,
+  customPrizes,
 }: GenerateParams) {
   const result: SuperGameResultItem[] = []
   // insert small prizes
@@ -285,8 +288,20 @@ export function generateSuperGameValues({
   for (let i = 0; i < bigPrizes; i++) {
     result.push('x3')
   }
+  // insert custom prizes
+  if (customPrizes) {
+    for (const [streamKey, value] of Object.entries(customPrizes)) {
+      for (const [prizeKey, count] of Object.entries(value)) {
+        for (let i = 0; i < count; i++) {
+          result.push(prizeKey)
+        }
+      }
+    }
+  }
+
   // fill the rest with empty values
-  for (let i = 0; i < amount - smallPrizes - mediumPrizes - bigPrizes; i++) {
+  const filledFields = result.length
+  for (let i = 0; i < amount - filledFields; i++) {
     result.push('empty')
   }
   return shuffle(Array.from(result))

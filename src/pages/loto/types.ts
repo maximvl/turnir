@@ -21,4 +21,4 @@ export type SuperGameGuess = {
   value: number[]
 }
 
-export type SuperGameResultItem = 'empty' | 'x1' | 'x2' | 'x3'
+export type SuperGameResultItem = 'empty' | 'x1' | 'x2' | 'x3' | string

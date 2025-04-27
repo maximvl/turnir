@@ -2,6 +2,7 @@ import { Box, Tooltip } from '@mui/material'
 import DrawnNumber, { Variant } from './DrawnNumber'
 import Flipper from './Flipper'
 import { SuperGameResultItem } from './types'
+import { VkRole } from '../turnir/api'
 
 type Props = {
   options: SuperGameResultItem[]
@@ -9,6 +10,7 @@ type Props = {
   onOptionReveal: (id: number) => void
   revealAll?: boolean
   selected: number[]
+  streamsRewards: { [k: string]: { roles: VkRole[] } }
 }
 
 export default function SuperGameBox({
@@ -17,6 +19,7 @@ export default function SuperGameBox({
   onOptionReveal,
   revealAll,
   selected,
+  streamsRewards,
 }: Props) {
   return (
     <Box
@@ -29,7 +32,9 @@ export default function SuperGameBox({
     >
       {options.map((option, index) => {
         const revealed = revealedOptionsIds.includes(index)
-        let displayItem = <DisplayItem item={option} />
+        let displayItem = (
+          <DisplayItem item={option} streamsRewards={streamsRewards} />
+        )
         if (revealAll && !revealed) {
           displayItem = (
             <Box style={{ filter: 'brightness(40%)' }}>{displayItem}</Box>
@@ -74,9 +79,10 @@ export default function SuperGameBox({
 
 type DisplayProps = {
   item: SuperGameResultItem
+  streamsRewards: { [k: string]: { roles: VkRole[] } }
 }
 
-function DisplayItem({ item }: DisplayProps) {
+function DisplayItem({ item, streamsRewards }: DisplayProps) {
   if (item === 'x1') {
     return (
       <Tooltip title="1 очко">
@@ -139,5 +145,31 @@ function DisplayItem({ item }: DisplayProps) {
       </Tooltip>
     )
   }
+
+  for (const [key, value] of Object.entries(streamsRewards)) {
+    for (const role of value.roles) {
+      if (item === role.id) {
+        return (
+          <Tooltip title={role.name}>
+            <Box
+              width="100%"
+              height="100%"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <img
+                src={role.largeUrl}
+                width="30px"
+                height="30px"
+                alt="option"
+              />
+            </Box>
+          </Tooltip>
+        )
+      }
+    }
+  }
+
   return null
 }

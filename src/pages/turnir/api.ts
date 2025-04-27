@@ -459,3 +459,57 @@ export async function getConnectionsStatus(): Promise<ConnectionsStatusResponse>
     res.json()
   )
 }
+
+export type VkRole = {
+  id: string
+  name: string
+  largeUrl: string
+  description: string
+  bgColor: number
+  price: number
+}
+
+type VkRolesResponse = {
+  roles: {
+    data: {
+      rewards: VkRole[]
+    }
+  }
+}
+
+export function fetchStreamInfo(
+  server: ChatServerType,
+  channel: string
+): Promise<VkRolesResponse> {
+  if (MOCK_API) {
+    return Promise.resolve({
+      roles: {
+        data: {
+          rewards: [
+            {
+              id: '1',
+              name: 'Топ 1',
+              largeUrl:
+                'https://images.live.vkplay.ru/badge/232c3913-274a-4c02-8d23-6576f7d48e98/icon/size/large?change_time=1691761874',
+              description: 'Топ 1',
+              bgColor: 0,
+              price: 0,
+            },
+            {
+              id: '2',
+              name: 'Топ 2',
+              largeUrl:
+                'https://images.live.vkplay.ru/badge/232c3913-274a-4c02-8d23-6576f7d48e98/icon/size/large?change_time=1691761874',
+              description: 'Топ 2',
+              bgColor: 0,
+              price: 0,
+            },
+          ],
+        },
+      },
+    })
+  }
+  return fetch(
+    `${URL_PREFIX}/turnir-api/stream_info?platform=${server}&channel=${channel}`
+  ).then((res) => res.json())
+}
