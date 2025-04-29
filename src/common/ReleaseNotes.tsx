@@ -19,6 +19,13 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: '1.25',
+    date: '2025-04-28',
+    changes: [
+      'Добавлена возможность розыгрывать награды стрима в супер игре лото (пока только на vkvideo)',
+    ],
+  },
+  {
     version: '1.24',
     date: '2025-04-21',
     changes: [

@@ -166,9 +166,11 @@ export default function LotoPage() {
 
   const streamsInfo = infoResults.reduce(
     (acc, result, idx) => {
-      if (result.data && result.data.roles) {
+      if (result.data && result.data?.roles?.data?.rewards) {
         const key = `${infoQueries[idx].queryKey[1]}/${infoQueries[idx].queryKey[2]}`
-        acc[key] = { roles: result.data.roles.data.rewards }
+        const rewards = result.data.roles.data.rewards
+        const rewardsWithImages = rewards.filter((r) => r.largeUrl !== '')
+        acc[key] = { roles: rewardsWithImages }
       }
       return acc
     },
