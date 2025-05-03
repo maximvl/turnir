@@ -406,30 +406,19 @@ export async function fetchLotoWinners(
   channel: string
 ): Promise<FetchLotoWinnersResponse> {
   if (MOCK_API) {
+    const makeWinner = (): LotoWinner => {
+      const id = random(1, 10000)
+      return {
+        id,
+        username: `user-${id}-very-very-long-name`,
+        super_game_status: sample(['win', 'lose', 'skip']) as SuperGameStatus,
+        created_at: Date.now() / 1000,
+        stream_channel: sample(['twitch/lasqa', 'vkvideo/lasqa']),
+      }
+    }
+
     return {
-      winners: [
-        {
-          id: 1,
-          username: 'user1',
-          super_game_status: 'win',
-          stream_channel: 'twitch/lasqa',
-          created_at: Date.now() / 1000,
-        },
-        {
-          id: 2,
-          username: 'user2',
-          super_game_status: 'lose',
-          stream_channel: 'vkvideo/lasqa',
-          created_at: Date.now() / 1000,
-        },
-        {
-          id: 3,
-          username: 'user3',
-          super_game_status: 'skip',
-          stream_channel: '',
-          created_at: Date.now() / 1000,
-        },
-      ],
+      winners: Array.from({ length: 100 }, makeWinner),
     }
   }
 

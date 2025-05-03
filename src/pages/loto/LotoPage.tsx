@@ -1001,29 +1001,31 @@ export default function LotoPage() {
                     owner={allUsersById[ticket.owner_id]}
                   />
                   {isWinner && (
-                    <>
+                    <Box position="relative">
                       <Box display="flex" justifyContent="space-between">
                         <Button
-                          variant="text"
+                          size="small"
+                          variant="contained"
                           onClick={() => setShowWinnerChat(!showWinnerChat)}
                         >
                           {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
                         </Button>
                         <Tooltip title="Удалить победителя и продолжить лото">
                           <Button
+                            size="small"
                             color="error"
                             variant="text"
                             disabled={deletionTimerRef.current > 0}
                             onClick={() => deleteWinner(ticket)}
                           >
                             {deletionTimerRef.current > 0 &&
-                              deletionTimerRef.current}
-                            <Cancel />
+                              deletionTimerRef.current}{' '}
+                            Удалить
                           </Button>
                         </Tooltip>
                       </Box>
                       {showWinnerChat && <ChatBox messages={chatMessages} />}
-                    </>
+                    </Box>
                   )}
                 </Box>
               )
