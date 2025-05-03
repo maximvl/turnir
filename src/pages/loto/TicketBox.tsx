@@ -119,6 +119,9 @@ export default function TicketBox({
   if (ticket.source.server === 'vkvideo') {
     iconLink = 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8'
   }
+  if (ticket.source.server === 'kick') {
+    iconLink = 'https://kick.com/favicon.ico'
+  }
 
   return (
     <Box position="relative">

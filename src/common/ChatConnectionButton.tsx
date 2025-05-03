@@ -24,6 +24,7 @@ import {
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import useLocalStorage from './hooks/useLocalStorage'
+import { debounce } from 'lodash'
 
 type Props = {}
 
@@ -74,6 +75,7 @@ export default function ChatConnectionButton(props: Props) {
     vkvideo: 'vkvideo.ru',
     nuum: 'nuum.ru',
     goodgame: 'goodgame.ru',
+    kick: 'kick.com',
   }
 
   const handleConnect = (c: ChatConnection) => {
@@ -93,6 +95,8 @@ export default function ChatConnectionButton(props: Props) {
     // console.log('connecting to', c, connectionStates)
     connectToChat({ channel: c.channel, server: c.server })
   }
+
+  const handleConnectDebourced = debounce(handleConnect, 1500)
 
   const handleOpen = () => {
     setOpen(true)
@@ -115,7 +119,7 @@ export default function ChatConnectionButton(props: Props) {
         // console.log('effect', conn, connectionStates, state)
         if (state === 'disconnected') {
           // console.log('reconnecting to', conn)
-          handleConnect(conn)
+          handleConnectDebourced(conn)
         }
       })
     }
@@ -226,9 +230,10 @@ export default function ChatConnectionButton(props: Props) {
                     label="Сервер"
                   >
                     <MenuItem value="twitch">twitch.tv</MenuItem>
+                    <MenuItem value="kick">kick.com</MenuItem>
                     <MenuItem value="vkvideo">vkvideo.ru</MenuItem>
-                    <MenuItem value="nuum">nuum.ru</MenuItem>
                     <MenuItem value="goodgame">goodgame.ru</MenuItem>
+                    <MenuItem value="nuum">nuum.ru</MenuItem>
                   </Select>
                 </FormControl>
                 <span
