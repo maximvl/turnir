@@ -256,7 +256,7 @@ export default function ChatConnectionButton(props: Props) {
                     onChange={(e) => handleSaveChannel(conn, e.target.value)}
                     sx={{ marginTop: '10px', marginRight: '20px' }}
                   />
-                  <Button
+                  {/* <Button
                     variant="contained"
                     color={state === 'connected' ? 'success' : 'primary'}
                     onClick={() => handleConnect(conn)}
@@ -265,7 +265,7 @@ export default function ChatConnectionButton(props: Props) {
                     {state === 'connecting' && 'Подключаюсь'}
                     {state === 'connected' && 'Подключено'}
                     {state === 'disconnected' && 'Подключить'}
-                  </Button>
+                  </Button> */}
                   <Button
                     color="error"
                     variant="contained"

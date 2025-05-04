@@ -8,6 +8,7 @@ import TicketImg4 from '@/assets/ticket4.svg'
 import AnimeBackground from '@/assets/sakura1.webp'
 import { isBrightColor, VkColorsMap } from './utils'
 import { ChatUser } from '@/pages/turnir/api'
+import { ChatServerType } from '../turnir/types'
 
 type MatchRange = {
   start: number
@@ -21,6 +22,14 @@ type Props = {
   isWinner?: boolean
   big?: boolean
   superHighlight?: boolean
+}
+
+const ServerIcons: { [k in ChatServerType]: string } = {
+  twitch: 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png',
+  vkvideo: 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8',
+  kick: 'https://kick.com/favicon.ico',
+  goodgame: 'https://static.goodgame.ru/images/favicon/favicon-32x32.png',
+  nuum: 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png',
 }
 
 export default function TicketBox({
@@ -112,16 +121,7 @@ export default function TicketBox({
   const itemSize = big ? '36px' : '24px'
 
   const channelName = `${ticket.source.server}/${ticket.source.channel}`
-  let iconLink = 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
-  if (ticket.source.server === 'twitch') {
-    iconLink = 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png'
-  }
-  if (ticket.source.server === 'vkvideo') {
-    iconLink = 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8'
-  }
-  if (ticket.source.server === 'kick') {
-    iconLink = 'https://kick.com/favicon.ico'
-  }
+  const iconLink = ServerIcons[ticket.source.server]
 
   return (
     <Box position="relative">
