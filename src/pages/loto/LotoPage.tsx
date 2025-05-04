@@ -370,33 +370,54 @@ export default function LotoPage() {
     (ticket) => consequentMatchesMap[ticket.id] === highestMatches
   )
 
+  const winnersCandidatesByMatches = ticketsWithHighestMatches
+    .map((ticket) => {
+      return {
+        id: ticket.id,
+        matches: matchesPerTicket[ticket.id].filter((n) => n === 1).length,
+      }
+    })
+    .sort((a, b) => b.matches - a.matches)
+
+  const highestMatchesAmount = winnersCandidatesByMatches[0]?.matches ?? 0
+  const winnersByMatchesIds = winnersCandidatesByMatches
+    .filter((w) => w.matches === highestMatchesAmount)
+    .map((w) => w.id)
+
+  const winnerCandidate = orderedTickets
+    .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
+    .sort((a, b) => a.created_at - b.created_at)[0]
+
+  const winner =
+    ['win', 'super_game'].includes(state) && winnerCandidate
+      ? winnerCandidate
+      : undefined
+
   useEffect(() => {
     if (
       highestMatches >= lotoConfig.win_matches_amount &&
+      winnerCandidate &&
       state === 'playing'
     ) {
       setState('win')
-
-      ticketsWithHighestMatches.forEach((ticket) => {
-        const winner = {
-          username: allUsersById[ticket.owner_id].username,
-          super_game_status: 'skip' as const,
-        }
-        saveWinners(
-          {
-            winners: [winner],
-            server: ticket.source.server,
-            channel: ticket.source.channel,
+      const winnerData = {
+        username: allUsersById[winnerCandidate.owner_id].username,
+        super_game_status: 'skip' as const,
+      }
+      saveWinners(
+        {
+          winners: [winnerData],
+          server: winnerCandidate.source.server,
+          channel: winnerCandidate.source.channel,
+        },
+        {
+          onSuccess: (response) => {
+            setSavedWinnersIds(response.ids)
           },
-          {
-            onSuccess: (response) => {
-              setSavedWinnersIds(response.ids)
-            },
-          }
-        )
-      })
+        }
+      )
     }
-  }, [highestMatches, state])
+  }, [highestMatches, state, winnerCandidate])
 
   useEffect(() => {
     if (state === 'win') {
@@ -417,29 +438,6 @@ export default function LotoPage() {
       setSuperGameRevealedIds([])
     }
   }, [state])
-
-  const winnersCandidatesByMatches = ticketsWithHighestMatches
-    .map((ticket) => {
-      return {
-        id: ticket.id,
-        matches: matchesPerTicket[ticket.id].filter((n) => n === 1).length,
-      }
-    })
-    .sort((a, b) => b.matches - a.matches)
-
-  const highestMatchesAmount = winnersCandidatesByMatches[0]?.matches ?? 0
-  const winnersByMatchesIds = winnersCandidatesByMatches
-    .filter((w) => w.matches === highestMatchesAmount)
-    .map((w) => w.id)
-
-  const winnerCandidate = orderedTickets
-    .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
-    .sort((a, b) => a.created_at - b.created_at)[0]
-
-  const winners =
-    ['win', 'super_game'].includes(state) && winnerCandidate
-      ? [winnerCandidate]
-      : []
 
   // console.log('msgs', chatMessages, 'winners', winners)
 
@@ -468,10 +466,10 @@ export default function LotoPage() {
   if (
     (state === 'win' || state === 'super_game') &&
     chatMessages.length > 0 &&
-    winners.length > 0
+    winner
   ) {
-    const messagesFromWinners = chatMessages.filter((msg) =>
-      winners.some((w) => msg.user.id === w.owner_id)
+    const messagesFromWinners = chatMessages.filter(
+      (msg) => msg.user.id === winner.owner_id
     )
     if (messagesFromWinners.length > 0) {
       const currentMessagesIds = winnerMessages.map((m) => m.id)
@@ -546,8 +544,6 @@ export default function LotoPage() {
   const superGameSelectedIds = uniq(
     flatten(superGameGuesses.map((guess) => guess.value))
   )
-
-  // console.log('super game guesses', superGameResultMap)
 
   const allSuperGuessesRevealed = Object.keys(superGameResultMap).every(
     (key) =>
@@ -855,12 +851,9 @@ export default function LotoPage() {
                     </Box>
                   </>
                 )}
-                {state === 'win' && (
+                {state === 'win' && winner && (
                   <Box marginTop={'10px'}>
-                    <Box fontSize={'48px'}>
-                      {winners.length > 1 ? 'Победители' : 'Победитель'}:{' '}
-                      {winners.map((w) => w.owner_name).join(', ')}
-                    </Box>
+                    <Box fontSize={'48px'}>Победитель: {winner.owner_name}</Box>
                     {showHappyBirthday ? (
                       <Box display="flex" justifyContent="center">
                         <img
@@ -988,7 +981,7 @@ export default function LotoPage() {
             // paddingLeft="200px"
           >
             {orderedTickets.map((ticket, i) => {
-              const isWinner = winners.includes(ticket)
+              const isWinner = ticket.id === winner?.id
               const chatMessages = winnerMessages.filter(
                 (msg) => msg.user.id === ticket.owner_id
               )
@@ -1011,17 +1004,19 @@ export default function LotoPage() {
                           {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
                         </Button>
                         <Tooltip title="Удалить победителя и продолжить лото">
-                          <Button
-                            size="small"
-                            color="error"
-                            variant="text"
-                            disabled={deletionTimerRef.current > 0}
-                            onClick={() => deleteWinner(ticket)}
-                          >
-                            {deletionTimerRef.current > 0 &&
-                              deletionTimerRef.current}{' '}
-                            Удалить
-                          </Button>
+                          <Box>
+                            <Button
+                              size="small"
+                              color="error"
+                              variant="text"
+                              disabled={deletionTimerRef.current > 0}
+                              onClick={() => deleteWinner(ticket)}
+                            >
+                              {deletionTimerRef.current > 0 &&
+                                deletionTimerRef.current}{' '}
+                              Удалить
+                            </Button>
+                          </Box>
                         </Tooltip>
                       </Box>
                       {showWinnerChat && <ChatBox messages={chatMessages} />}
