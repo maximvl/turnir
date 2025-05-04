@@ -125,32 +125,22 @@ export default function TicketBox({
 
   return (
     <Box position="relative">
-      {/* <Ticket width={'auto'} height={'80px'} style={{ color: ticket.color }} /> */}
       <Box
-        // position="absolute"
-        // top={'8px'}
-        // left={'15px'}
         style={{
           backgroundColor: ticket.color,
           backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
           backgroundSize: 'cover',
           background: ticketBackground,
         }}
-        // width={'140px'}
-        // height={'64px'}
         border={
           isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`
         }
         borderRadius={'10px'}
-        // paddingLeft={'12px'}
-        // paddingRight={'10px'}
         paddingTop={'5px'}
         paddingBottom={'5px'}
         paddingLeft={'10px'}
         paddingRight={'10px'}
         lineHeight={'1.0'}
-        // overflow={'hidden'}
-        // whiteSpace="nowrap"
       >
         <Box
           display={'flex'}
@@ -221,7 +211,16 @@ export default function TicketBox({
             })}
             <span style={{ color: userColor }}>{ticket.owner_name}</span>
           </Box>
-          <Box position="absolute" right={'0px'} top={'0px'}>
+          <Box
+            position="absolute"
+            right={'0px'}
+            top={'0px'}
+            style={
+              ticket.source.server === 'goodgame'
+                ? { backgroundColor: 'black' }
+                : {}
+            }
+          >
             <Tooltip title={channelName} placement="top">
               <img src={iconLink} width={itemSize} height={itemSize} alt={''} />
             </Tooltip>
