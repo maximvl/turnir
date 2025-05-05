@@ -1,12 +1,13 @@
 import { Box, useTheme } from '@mui/material'
 
-export type Variant = 'green' | 'grey' | 'orange'
+export type Variant = 'match' | 'empty' | 'inactive' | 'active'
 
 type Props = {
   children?: React.ReactNode
   big?: boolean
   matchAnimation?: boolean
-  variant?: Variant
+  variant: Variant
+  animationColor?: string
 }
 
 export default function DrawnNumber({
@@ -14,18 +15,27 @@ export default function DrawnNumber({
   big,
   matchAnimation,
   variant,
+  animationColor,
 }: Props) {
   const theme = useTheme()
   let color = theme.palette.error.main
-  if (variant === 'green') {
+  if (variant === 'empty') {
+    color = theme.palette.error.main
+  }
+  if (variant === 'match') {
     color = theme.palette.success.main
   }
-  if (variant === 'grey') {
+  if (variant === 'inactive') {
     color = theme.palette.grey[500]
   }
-  if (variant === 'orange') {
+  if (variant === 'active') {
     color = theme.palette.secondary.dark
   }
+
+  const borderColorValue =
+    variant === 'inactive' ? theme.palette.grey[500] : color
+
+  const backgroundColor = animationColor ?? '#f4e1c7'
 
   return (
     <Box
@@ -34,17 +44,15 @@ export default function DrawnNumber({
       justifyContent="center"
       alignItems="center"
       className={matchAnimation ? 'enlarge-item' : ''}
-      border={`3px solid ${color}`}
+      border={`3px solid ${borderColorValue}`}
       borderRadius={'50%'}
-      // paddingLeft={'5px'}
-      // paddingRight={'5px'}
       color={color}
       width={big ? '68px' : '54px'}
       height={big ? '68px' : '54px'}
       style={{
         fontSize: big ? '42px' : '32px',
         fontFamily: 'monospace',
-        backgroundColor: '#f4e1c7',
+        backgroundColor,
       }}
       textAlign="center"
     >

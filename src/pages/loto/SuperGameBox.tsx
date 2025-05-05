@@ -3,6 +3,7 @@ import DrawnNumber, { Variant } from './DrawnNumber'
 import Flipper from './Flipper'
 import { SuperGameResultItem } from './types'
 import { VkRole } from '../turnir/api'
+import { useEffect, useState } from 'react'
 
 type Props = {
   options: SuperGameResultItem[]
@@ -11,6 +12,7 @@ type Props = {
   revealAll?: boolean
   selected: number[]
   streamsRewards: { [k: string]: { roles: VkRole[] } }
+  animate?: boolean
 }
 
 export default function SuperGameBox({
@@ -20,7 +22,40 @@ export default function SuperGameBox({
   revealAll,
   selected,
   streamsRewards,
+  animate,
 }: Props) {
+  const [animationIndex, setAnimationIndex] = useState(0)
+  const colors = [
+    '#1A1F33', // dark
+
+    '#76FF03', // green
+    '#64FFDA', // teal
+
+    '#00E5FF', // water blue
+
+    '#845C71', // white
+    '#B22222', // reddish
+    '#FFD54F', // yellow
+  ]
+
+  const animationWavesSpaceBetween = 3
+  const spaceBetweenPlusAnimated = animationWavesSpaceBetween + 1
+  const totalAnimations = spaceBetweenPlusAnimated * colors.length
+
+  useEffect(() => {
+    if (!animate) return
+    const interval = setInterval(() => {
+      setAnimationIndex((prev) => {
+        // console.log({ prev })
+        return (prev + 1) % totalAnimations
+      })
+      // setColorIndex((prev) => Math.floor(Math.random() * colors.length))
+      // setColorIndex((prev) => (prev + 1) % colors.length)
+    }, 500) // Change color every 500ms
+
+    return () => clearInterval(interval)
+  }, [animate])
+
   return (
     <Box
       display="flex"
@@ -48,22 +83,57 @@ export default function SuperGameBox({
         const clickable =
           selected.includes(index) && !revealedOptionsIds.includes(index)
 
-        let frontVariant: Variant = 'grey'
+        let frontVariant: Variant = 'inactive'
         if (selected.includes(index)) {
-          frontVariant = 'orange'
+          frontVariant = 'active'
         }
         if (revealed && option !== 'empty') {
-          frontVariant = 'green'
+          frontVariant = 'match'
+        }
+
+        const waveNumber = Math.floor(animationIndex / spaceBetweenPlusAnimated)
+        // const indexInWave = animationIndex % 10
+
+        const indexInRow = index % 10
+        const row = Math.floor(index / 10)
+        // + row
+        const cellPos = indexInRow + row
+        const animatedCell =
+          animationIndex % spaceBetweenPlusAnimated ===
+          cellPos % spaceBetweenPlusAnimated
+
+        const colorIndex = animationIndex - cellPos
+        const colorId =
+          colorIndex < 0
+            ? colors.length + (colorIndex % colors.length)
+            : colorIndex % colors.length
+
+        let animationColor = animatedCell ? colors[colorId] : undefined
+
+        animationColor = undefined
+
+        const animationEven = animationIndex % 2 === 0
+        const isEven = index % 2 === 0 && row % 2 === 0
+        if (isEven && animationEven) {
+          animationColor = colors[animationIndex % colors.length]
+        }
+        if (!isEven && !animationEven) {
+          animationColor = colors[animationIndex % colors.length]
         }
 
         return (
           <Box key={index} style={{ cursor: clickable ? 'pointer' : 'none' }}>
             <Flipper
               frontSide={
-                <DrawnNumber variant={frontVariant}>{hiddenValue}</DrawnNumber>
+                <DrawnNumber
+                  variant={frontVariant}
+                  animationColor={animate ? animationColor : undefined}
+                >
+                  {hiddenValue}
+                </DrawnNumber>
               }
               backSide={
-                <DrawnNumber variant={option === 'empty' ? undefined : 'green'}>
+                <DrawnNumber variant={option === 'empty' ? 'empty' : 'match'}>
                   {displayItem}
                 </DrawnNumber>
               }

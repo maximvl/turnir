@@ -892,6 +892,7 @@ export default function LotoPage() {
                         revealedOptionsIds={[]}
                         onOptionReveal={() => {}}
                         streamsRewards={{}}
+                        animate
                       />
                     </Box>
                   </Box>
