@@ -229,12 +229,14 @@ type KPLinkProps = {
 }
 
 function KPLink({ item }: KPLinkProps) {
+  const titlePart = item.title.split('-')[0].trim()
+
   return (
     <Link
       tabIndex={-1}
       target="_blank"
       rel="noopener noreferrer"
-      href={`https://www.kinopoisk.ru/index.php?kp_query=${item.title}`}
+      href={`https://www.kinopoisk.ru/index.php?kp_query=${titlePart}`}
     >
       <Tooltip title="Найти на Кинопоиске">
         <Button variant="outlined" size="small" tabIndex={-1}>
