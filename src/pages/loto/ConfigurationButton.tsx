@@ -22,7 +22,7 @@ type Props = {
   streamsRewards: { [k: string]: { roles: VkRole[] } }
 }
 
-export type VkRewards = { [k: string]: { [v: string]: number } }
+export type VkRewards = { [stream: string]: { [roleId: string]: number } }
 type ConfigType = {
   roll_time_seconds: number
   win_matches_amount: number

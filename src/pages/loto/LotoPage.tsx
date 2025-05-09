@@ -72,10 +72,28 @@ export default function LotoPage() {
     'registration' | 'playing' | 'win' | 'super_game'
   >('registration')
 
+  const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
+    key: 'chat-connections',
+    defaultValue: [],
+  })
+
   const { value: lotoConfigLoaded } = useLocalStorage({
     key: 'loto-config',
     defaultValue: defaultConfig,
   })
+
+  const vkStreams = chatConnections
+    .filter((c) => c.server === 'vkvideo')
+    .map((c) => `${c.server}/${c.channel}`)
+
+  const customVkRewardsEnabled: { [stream: string]: {} } = {}
+  for (const [key, value] of Object.entries(
+    lotoConfigLoaded.super_game_vk_rewards ?? {}
+  )) {
+    if (vkStreams.includes(key)) {
+      customVkRewardsEnabled[key] = value
+    }
+  }
 
   const lotoConfig = {
     ...defaultConfig,
@@ -94,7 +112,7 @@ export default function LotoPage() {
         smallPrizes: lotoConfig.super_game_1_pointers,
         mediumPrizes: lotoConfig.super_game_2_pointers,
         bigPrizes: lotoConfig.super_game_3_pointers,
-        customPrizes: lotoConfig.super_game_vk_rewards,
+        customPrizes: customVkRewardsEnabled,
       })
   )
 
@@ -146,11 +164,6 @@ export default function LotoPage() {
 
   const { mutate: updateWinner } = useMutation({
     mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
-  })
-
-  const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
-    key: 'chat-connections',
-    defaultValue: [],
   })
 
   const showHappyBirthday = chatConnections.some(
@@ -431,7 +444,7 @@ export default function LotoPage() {
           smallPrizes: lotoConfig.super_game_1_pointers,
           mediumPrizes: lotoConfig.super_game_2_pointers,
           bigPrizes: lotoConfig.super_game_3_pointers,
-          customPrizes: lotoConfig.super_game_vk_rewards,
+          customPrizes: customVkRewardsEnabled,
         })
       )
       setSuperGameGuesses([])
