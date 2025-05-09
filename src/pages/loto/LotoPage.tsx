@@ -554,36 +554,34 @@ export default function LotoPage() {
   const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
 
   useEffect(() => {
-    const superGameWinners = superGameGuesses.filter((guess) => {
-      const result = superGameResultMap[guess.id]
-      return result.some((r) => r !== 'empty')
-    })
+    const superGameWinnersIds = superGameGuesses
+      .filter((guess) => {
+        const result = superGameResultMap[guess.id]
+        return result.some((r) => r !== 'empty')
+      })
+      .map((guess) => guess.id)
 
-    const superGameLosers = superGameGuesses.filter((guess) => {
-      const result = superGameResultMap[guess.id]
-      return result.every((r) => r === 'empty')
-    })
+    const superGameLosersIds = superGameGuesses
+      .filter((guess) => {
+        const result = superGameResultMap[guess.id]
+        return result.every((r) => r === 'empty')
+      })
+      .map((guess) => guess.id)
 
-    superGameWinners.forEach((winner) => {
-      const user = allUsersById[winner.owner_id]
+    superGameGuesses.forEach((guess) => {
+      const user = allUsersById[guess.owner_id]
       const winnerId = savedWinnersIds[user.username]
-      if (winnerId) {
-        updateWinner({
-          id: winnerId,
-          super_game_status: 'win',
-          server: user.source.server,
-          channel: user.source.channel,
-        })
+      let status: 'win' | 'lose' | null = null
+      if (superGameWinnersIds.includes(guess.id)) {
+        status = 'win'
+      } else if (superGameLosersIds.includes(guess.id)) {
+        status = 'lose'
       }
-    })
 
-    superGameLosers.forEach((loser) => {
-      const user = allUsersById[loser.owner_id]
-      const winnerId = savedWinnersIds[user.id]
-      if (winnerId) {
+      if (winnerId && status) {
         updateWinner({
           id: winnerId,
-          super_game_status: 'lose',
+          super_game_status: status,
           server: user.source.server,
           channel: user.source.channel,
         })
@@ -803,7 +801,7 @@ export default function LotoPage() {
                     {drawnNumbers.map((value, index) => {
                       return (
                         <Box marginLeft={'5px'} marginRight={'5px'} key={index}>
-                          <DrawnNumber>{value}</DrawnNumber>
+                          <DrawnNumber variant="empty">{value}</DrawnNumber>
                         </Box>
                       )
                     })}
@@ -822,7 +820,9 @@ export default function LotoPage() {
                       textAlign={'center'}
                     >
                       {nextNumber.length > 0 && (
-                        <DrawnNumber big>{nextNumber}</DrawnNumber>
+                        <DrawnNumber variant="empty" big>
+                          {nextNumber}
+                        </DrawnNumber>
                       )}
                       {nextNumber.length === 0 && (
                         <Box marginTop={'40px'}></Box>

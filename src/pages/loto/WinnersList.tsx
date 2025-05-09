@@ -1,9 +1,9 @@
 import { Box, Tooltip } from '@mui/material'
-import { formatUnixToDate } from './utils'
+import { formatUnixToDate, ServerIcons } from './utils'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { fetchLotoWinners, LotoWinner } from '../turnir/api'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
-import { ChatConnection } from '../turnir/types'
+import { ChatConnection, ChatServerType } from '../turnir/types'
 
 export default function WinnersList() {
   const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
@@ -65,14 +65,11 @@ export default function WinnersList() {
           )
         }
 
-        let iconLink = 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
-        if (winner.stream_channel.startsWith('twitch')) {
-          iconLink = 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png'
-        }
-        if (winner.stream_channel.startsWith('vkvideo')) {
-          iconLink =
-            'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8'
-        }
+        const server = winner.stream_channel.split('/')[0] as ChatServerType
+
+        const iconLink =
+          ServerIcons[server] ??
+          'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
 
         return (
           <Box key={i} display="flex" alignItems="center" whiteSpace="nowrap">

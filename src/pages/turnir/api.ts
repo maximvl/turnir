@@ -120,7 +120,17 @@ export async function fetchMessages({
   textFilter,
   platform,
 }: FetchMessagesParams): Promise<ChatMessagesResponse> {
+  const params = new URLSearchParams()
+  params.set('platform', platform)
+  params.set('channel', channel)
+  params.set('ts', ts.toString())
+  if (textFilter && textFilter.length > 0) {
+    params.set('text_filter', textFilter)
+  }
+  const url = `${URL_PREFIX}/turnir-api/chat_messages?${params.toString()}`
+
   if (MOCK_API) {
+    console.log(`GET ${url}`)
     // console.log('fetching messages', channel, ts, textFilter, platform)
     const makeBadge = () => {
       return {
@@ -236,19 +246,17 @@ export async function fetchMessages({
     return { chat_messages: messages }
   }
 
-  const params = new URLSearchParams()
-  params.set('platform', platform)
-  params.set('channel', channel)
-  params.set('ts', ts.toString())
-  if (textFilter && textFilter.length > 0) {
-    params.set('text_filter', textFilter)
-  }
-  return fetch(
-    `${URL_PREFIX}/turnir-api/chat_messages?${params.toString()}`
-  ).then((res) => res.json())
+  return fetch(url).then((res) => res.json())
 }
 
 export async function resetVotes(options: string[]): Promise<number> {
+  const url = `${URL_PREFIX}/turnir-api/votes/reset`
+  const body = JSON.stringify({ vote_options: options })
+  if (MOCK_API) {
+    console.log(`POST ${url}`, body)
+    return 200
+  }
+
   return fetch(`${URL_PREFIX}/turnir-api/votes/reset`, {
     method: 'POST',
     headers: {
@@ -273,15 +281,19 @@ export async function savePreset(
   title: string,
   options: string[]
 ): Promise<Preset | ErrorResponse> {
+  const url = `${URL_PREFIX}/turnir-api/presets`
+  const body = JSON.stringify({ options, title })
+
   if (MOCK_API) {
+    console.log(`POST ${url}`, body)
     return { id: 'test', options, title }
   }
-  return fetch(`${URL_PREFIX}/turnir-api/presets`, {
+  return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ options, title }),
+    body,
   }).then((res) => res.json())
 }
 
@@ -290,25 +302,28 @@ export async function updatePreset(
   title: string,
   options: string[]
 ): Promise<Preset | ErrorResponse> {
+  const url = `${URL_PREFIX}/turnir-api/presets/${id}`
+  const body = JSON.stringify({ options, title })
   if (MOCK_API) {
+    console.log(`POST ${url}`, body)
     return { id, options, title }
   }
-  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`, {
+  return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ options, title }),
+    body,
   }).then((res) => res.json())
 }
 
 export async function fetchPreset(id: string): Promise<Preset | ErrorResponse> {
+  const url = `${URL_PREFIX}/turnir-api/presets/${id}`
   if (MOCK_API) {
+    console.log(`GET ${url}`)
     return { id, options: ['a', 'b', 'c'], title: `test ${random(1, 1000)}` }
   }
-  return fetch(`${URL_PREFIX}/turnir-api/presets/${id}`).then((res) =>
-    res.json()
-  )
+  return fetch(url).then((res) => res.json())
 }
 
 export type ChatConnectResponse = {
@@ -324,14 +339,18 @@ export async function chatConnect({
   server,
   channel,
 }: ChatConnectParams): Promise<ChatConnectResponse> {
-  if (MOCK_API) {
-    await new Promise((resolve) => setTimeout(resolve, 3000))
-    return { stream_status: 'connected' }
-  }
   const params = new URLSearchParams()
   params.set('channel', channel)
   params.set('platform', server)
-  return fetch(`${URL_PREFIX}/turnir-api/chat_connect?${params.toString()}`, {
+  const url = `${URL_PREFIX}/turnir-api/chat_connect?${params.toString()}`
+
+  if (MOCK_API) {
+    console.log(`POST ${url}`)
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    return { stream_status: 'connected' }
+  }
+
+  return fetch(url, {
     method: 'POST',
   }).then((res) => res.json())
 }
@@ -358,12 +377,27 @@ export async function createLotoWinners({
   channel,
   winners,
 }: LotoWinnersCreate): Promise<LotoWinnerCreateResponse> {
-  return fetch(`${URL_PREFIX}/turnir-api/loto_winners`, {
+  const url = `${URL_PREFIX}/turnir-api/loto_winners`
+  const body = JSON.stringify({
+    winners,
+    channel,
+    server,
+  })
+  if (MOCK_API) {
+    console.log(`POST ${url}`, body)
+    return {
+      ids: winners.reduce(
+        (acc, winner) => ({ ...acc, [winner.username]: random(1, 10000) }),
+        {}
+      ),
+    }
+  }
+  return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ winners, channel, server }),
+    body,
   }).then((res) => res.json())
 }
 
@@ -380,12 +414,23 @@ export async function updateLotoWinner({
   server,
   channel,
 }: LotoWinnerUpdate): Promise<Response> {
-  return fetch(`${URL_PREFIX}/turnir-api/loto_winners/${id}`, {
+  const url = `${URL_PREFIX}/turnir-api/loto_winners/${id}`
+  const body = JSON.stringify({
+    super_game_status,
+    server,
+    channel,
+  })
+  if (MOCK_API) {
+    console.log(`POST ${url}`, body)
+    return new Response()
+  }
+
+  return fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ super_game_status, server, channel }),
+    body,
   })
 }
 
@@ -405,7 +450,10 @@ export async function fetchLotoWinners(
   server: string,
   channel: string
 ): Promise<FetchLotoWinnersResponse> {
+  const url = `${URL_PREFIX}/turnir-api/loto_winners?server=${server}&channel=${channel}`
+
   if (MOCK_API) {
+    console.log(`GET ${url}`)
     const makeWinner = (): LotoWinner => {
       const id = random(1, 10000)
       return {
@@ -413,18 +461,20 @@ export async function fetchLotoWinners(
         username: `user-${id}-very-very-long-name`,
         super_game_status: sample(['win', 'lose', 'skip']) as SuperGameStatus,
         created_at: Date.now() / 1000,
-        stream_channel: sample(['twitch/lasqa', 'vkvideo/lasqa']),
+        stream_channel: sample([
+          'twitch/lasqa',
+          'vkvideo/lasqa',
+          'goodgame/lasqa',
+        ]),
       }
     }
 
     return {
-      winners: Array.from({ length: 100 }, makeWinner),
+      winners: Array.from({ length: 10 }, makeWinner),
     }
   }
 
-  return fetch(
-    `${URL_PREFIX}/turnir-api/loto_winners?server=${server}&channel=${channel}`
-  ).then((res) => res.json())
+  return fetch(url).then((res) => res.json())
 }
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'connecting'
@@ -434,7 +484,10 @@ type ConnectionsStatusResponse = {
 }
 
 export async function getConnectionsStatus(): Promise<ConnectionsStatusResponse> {
+  const url = `${URL_PREFIX}/turnir-api/chat_connections`
+
   if (MOCK_API) {
+    console.log(`GET ${url}`)
     return {
       connections: {
         'vkvideo/lasqa': 'connecting',
@@ -444,9 +497,7 @@ export async function getConnectionsStatus(): Promise<ConnectionsStatusResponse>
       },
     }
   }
-  return fetch(`${URL_PREFIX}/turnir-api/chat_connections`).then((res) =>
-    res.json()
-  )
+  return fetch(url).then((res) => res.json())
 }
 
 export type VkRole = {
@@ -470,7 +521,13 @@ export function fetchStreamInfo(
   server: ChatServerType,
   channel: string
 ): Promise<VkRolesResponse> {
+  const params = new URLSearchParams()
+  params.set('platform', server)
+  params.set('channel', channel)
+  const url = `${URL_PREFIX}/turnir-api/stream_info?${params.toString()}`
+
   if (MOCK_API) {
+    console.log(`GET ${url}`)
     return Promise.resolve({
       roles: {
         data: {
@@ -498,7 +555,5 @@ export function fetchStreamInfo(
       },
     })
   }
-  return fetch(
-    `${URL_PREFIX}/turnir-api/stream_info?platform=${server}&channel=${channel}`
-  ).then((res) => res.json())
+  return fetch(url).then((res) => res.json())
 }

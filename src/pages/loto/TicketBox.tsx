@@ -6,7 +6,7 @@ import TicketImg2 from '@/assets/ticket2.svg'
 import TicketImg3 from '@/assets/ticket3.svg'
 import TicketImg4 from '@/assets/ticket4.svg'
 import AnimeBackground from '@/assets/sakura1.webp'
-import { isBrightColor, VkColorsMap } from './utils'
+import { isBrightColor, ServerIcons, VkColorsMap } from './utils'
 import { ChatUser } from '@/pages/turnir/api'
 import { ChatServerType } from '../turnir/types'
 
@@ -22,14 +22,6 @@ type Props = {
   isWinner?: boolean
   big?: boolean
   superHighlight?: boolean
-}
-
-const ServerIcons: { [k in ChatServerType]: string } = {
-  twitch: 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png',
-  vkvideo: 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8',
-  kick: 'https://kick.com/favicon.ico',
-  goodgame: 'https://static.goodgame.ru/images/favicon/favicon-32x32.png',
-  nuum: 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png',
 }
 
 export default function TicketBox({
