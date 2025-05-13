@@ -19,6 +19,11 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: '1.29',
+    date: '2025-05-13',
+    changes: ['Добавлена интеграция с YouTube'],
+  },
+  {
     version: '1.28',
     date: '2025-05-09',
     changes: ['Пофикшено сохранение статуса супер игры'],

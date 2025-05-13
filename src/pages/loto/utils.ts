@@ -322,4 +322,6 @@ export const ServerIcons: { [k in ChatServerType]: string } = {
   kick: 'https://kick.com/favicon.ico',
   goodgame: 'https://static.goodgame.ru/images/favicon/favicon-32x32.png',
   nuum: 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png',
+  youtube:
+    'https://www.youtube.com/s/desktop/e1590144/img/logos/favicon_32x32.png',
 }

@@ -76,6 +76,7 @@ export default function ChatConnectionButton(props: Props) {
     nuum: 'nuum.ru',
     goodgame: 'goodgame.ru',
     kick: 'kick.com',
+    youtube: 'youtube.com',
   }
 
   const handleConnect = (c: ChatConnection) => {
@@ -140,7 +141,14 @@ export default function ChatConnectionButton(props: Props) {
   const handleSaveChannel = (conn: ChatConnection, channel: string) => {
     const index = chatConnections.indexOf(conn)
     const newConnections = [...chatConnections]
-    newConnections[index] = { ...conn, channel }
+
+    let finalChannel = channel
+    if (conn.server === 'youtube') {
+      if (!channel.startsWith('@')) {
+        finalChannel = '@' + channel
+      }
+    }
+    newConnections[index] = { ...conn, channel: finalChannel }
     saveChatConnections(newConnections)
     setConnectionStates((prev) => {
       const newState = [...prev]
@@ -232,6 +240,7 @@ export default function ChatConnectionButton(props: Props) {
                     <MenuItem value="twitch">twitch.tv</MenuItem>
                     <MenuItem value="kick">kick.com</MenuItem>
                     <MenuItem value="vkvideo">vkvideo.ru</MenuItem>
+                    <MenuItem value="youtube">youtube.com</MenuItem>
                     <MenuItem value="goodgame">goodgame.ru</MenuItem>
                     <MenuItem value="nuum">nuum.ru</MenuItem>
                   </Select>
