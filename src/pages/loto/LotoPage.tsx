@@ -27,6 +27,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { useMutation, useQueries } from '@tanstack/react-query'
+import { motion, AnimatePresence } from 'framer-motion'
 import { flatten, sample, uniq, uniqBy } from 'lodash'
 import { useContext, useEffect, useRef, useState } from 'react'
 import ChatBox from './ChatBox'
@@ -841,13 +842,17 @@ export default function LotoPage() {
                         <Box marginTop={'40px'}></Box>
                       )}
                     </Box>
-                    {nextNumberText && nextDigitState === 'idle' && (
-                      <Box fontSize={'18px'}>{nextNumberText}</Box>
+                    {nextNumberText && nextDigitState === 'idle' ? (
+                      <Box fontSize="18px">{nextNumberText}</Box>
+                    ) : (
+                      <Box fontSize="18px">&nbsp;</Box>
                     )}
-                    {nextDigitState === 'idle' && nextNumber && (
+                    {nextDigitState === 'idle' && nextNumber ? (
                       <Box marginTop="5px">
                         Билетов с числом: {currentNumberMatchesAmount}
                       </Box>
+                    ) : (
+                      <Box marginTop="5px">&nbsp;</Box>
                     )}
                   </Box>
                 )}
@@ -987,59 +992,68 @@ export default function LotoPage() {
             </Box>
           )}
 
-          <Box
-            display={'flex'}
-            flexWrap={'wrap'}
-            justifyContent={'center'}
-            marginLeft="150px"
+          <motion.div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              gap: '20px',
+              marginLeft: '150px',
+            }}
             // paddingLeft="200px"
           >
-            {orderedTickets.map((ticket, i) => {
-              const isWinner = ticket.id === winner?.id
-              const chatMessages = winnerMessages.filter(
-                (msg) => msg.user.id === ticket.owner_id
-              )
-              return (
-                <Box key={i} marginTop={'20px'} marginRight={'20px'}>
-                  <TicketBox
-                    ticket={ticket}
-                    matches={matchesPerTicket[ticket.id]}
-                    isWinner={isWinner}
-                    owner={allUsersById[ticket.owner_id]}
-                  />
-                  {isWinner && (
-                    <Box position="relative">
-                      <Box display="flex" justifyContent="space-between">
-                        <Button
-                          size="small"
-                          variant="contained"
-                          onClick={() => setShowWinnerChat(!showWinnerChat)}
-                        >
-                          {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
-                        </Button>
-                        <Tooltip title="Удалить победителя и продолжить лото">
-                          <Box>
-                            <Button
-                              size="small"
-                              color="error"
-                              variant="text"
-                              disabled={deletionTimerRef.current > 0}
-                              onClick={() => deleteWinner(ticket)}
-                            >
-                              {deletionTimerRef.current > 0 &&
-                                deletionTimerRef.current}{' '}
-                              Удалить
-                            </Button>
-                          </Box>
-                        </Tooltip>
+            <AnimatePresence>
+              {orderedTickets.map((ticket, i) => {
+                const isWinner = ticket.id === winner?.id
+                const chatMessages = winnerMessages.filter(
+                  (msg) => msg.user.id === ticket.owner_id
+                )
+                return (
+                  <motion.div
+                    key={ticket.id}
+                    layout
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                  >
+                    <TicketBox
+                      ticket={ticket}
+                      matches={matchesPerTicket[ticket.id]}
+                      isWinner={isWinner}
+                      owner={allUsersById[ticket.owner_id]}
+                    />
+                    {isWinner && (
+                      <Box position="relative">
+                        <Box display="flex" justifyContent="space-between">
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => setShowWinnerChat(!showWinnerChat)}
+                          >
+                            {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
+                          </Button>
+                          <Tooltip title="Удалить победителя и продолжить лото">
+                            <Box>
+                              <Button
+                                size="small"
+                                color="error"
+                                variant="text"
+                                disabled={deletionTimerRef.current > 0}
+                                onClick={() => deleteWinner(ticket)}
+                              >
+                                {deletionTimerRef.current > 0 &&
+                                  deletionTimerRef.current}{' '}
+                                Удалить
+                              </Button>
+                            </Box>
+                          </Tooltip>
+                        </Box>
+                        {showWinnerChat && <ChatBox messages={chatMessages} />}
                       </Box>
-                      {showWinnerChat && <ChatBox messages={chatMessages} />}
-                    </Box>
-                  )}
-                </Box>
-              )
-            })}
-          </Box>
+                    )}
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </motion.div>
         </Box>
       </Box>
     </Box>
