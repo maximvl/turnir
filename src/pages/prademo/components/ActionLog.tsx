@@ -9,7 +9,7 @@ interface ActionLogProps {
 const ActionLog: React.FC<ActionLogProps> = ({ logEntries }) => {
   return (
     <div className="action-log">
-      <h3>Лог действий</h3>
+      <h3>Лог ходов ({logEntries.length})</h3>
       <div className="log-entries">
         {logEntries.map((entry) => (
           <div key={entry.id} className="log-entry">

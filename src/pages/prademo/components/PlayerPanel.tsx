@@ -5,9 +5,19 @@ import './PlayerPanel.css' // We'll create this CSS file
 interface PlayerPanelProps {
   players: Player[]
   onMakeTurn: (playerId: string) => void // Callback when button is clicked
+  onMakeMultipleTurns: (playerIds: string[]) => void // Callback when multiple turns are made
 }
 
-const PlayerPanel: React.FC<PlayerPanelProps> = ({ players, onMakeTurn }) => {
+const PlayerPanel: React.FC<PlayerPanelProps> = ({
+  players,
+  onMakeTurn,
+  onMakeMultipleTurns,
+}) => {
+  const makeTurnWithEachPlayer = () => {
+    const playerIds = players.map((player) => player.id)
+    onMakeMultipleTurns(playerIds)
+  }
+
   return (
     <div className="player-panel">
       <h3>Игроки</h3>
@@ -19,18 +29,31 @@ const PlayerPanel: React.FC<PlayerPanelProps> = ({ players, onMakeTurn }) => {
               style={{ backgroundColor: player.color }}
             ></span>
             <span className="player-name">
-              {player.name} - очки {player.score}
+              {player.name} - очки {player.gameScore}
             </span>
-            <span className="player-position">(Клетка: {player.position})</span>
+            <span className="player-position">
+              (от владения: {player.ownerScore})
+            </span>
             <button
               className="turn-button"
               onClick={() => onMakeTurn(player.id)}
             >
-              Make Turn
+              Ходить
             </button>
           </li>
         ))}
       </ul>
+      <div
+        style={{
+          marginTop: '10px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <button className="turn-button" onClick={makeTurnWithEachPlayer}>
+          Сделать ход каждым
+        </button>
+      </div>
     </div>
   )
 }

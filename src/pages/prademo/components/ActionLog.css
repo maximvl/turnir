@@ -19,7 +19,7 @@
 
 .log-entries {
   flex-grow: 1; /* Allow entries div to take remaining space */
-  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-y: scroll; /* Enable vertical scrolling */
   font-size: 0.9em;
   line-height: 1.4;
 }

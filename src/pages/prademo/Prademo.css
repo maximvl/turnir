@@ -1,12 +1,8 @@
 /* src/App.css */
-body {
-  font-family: sans-serif;
-  margin: 0;
-  background-color: #eef;
-}
 
 .app-container {
   padding: 20px;
+  background-color: #483d8b !important;
 }
 
 .app-container h1 {

@@ -38,4 +38,31 @@
   position: absolute; /* Position dots relative to .player-dots */
   /* transform offsets applied via inline style */
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+/* Container for the bars inside the cell */
+.bar-container {
+  position: absolute;
+  /* Position it within the cell, leaving a small margin */
+  top: 5%;
+  left: 5%;
+  bottom: 5%;
+  right: 5%;
+  /* Use flexbox to arrange the bars */
+  display: flex;
+  align-items: center; /* Vertically center bars in the container */
+  justify-content: flex-start; /* Align bars to the start (left) */
+  gap: 2px; /* Space between bars */
+  height: 90%; /* Corresponds to top/bottom 5% */
+  width: 90%; /* Corresponds to left/right 5% */
+}
+
+/* Individual bar style */
+.bar {
+  height: 100%; /* Fill the vertical space of the bar-container */
+  width: 5px; /* Adjust width as needed. 5px * 8 + 7 * 2px gap = 54px, fits within 90% of 60px */
+  background-color: #ccc; /* Default color */
+  border-radius: 1px; /* Optional: slightly rounded corners */
+  flex-shrink: 0; /* Prevent bars from shrinking if space is tight */
 }

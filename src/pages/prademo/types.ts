@@ -4,7 +4,8 @@ export interface Player {
   name: string
   color: string
   position: number // Cell number (1-based)
-  score: number
+  gameScore: number
+  ownerScore: number
   cellsOwned: { [cellNumber: number]: number }
 }
 

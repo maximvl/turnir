@@ -10,6 +10,7 @@ const BootstrapTooltip = styled(({ className, ...props }: TooltipProps) => (
     color: theme.palette.common.black,
   },
   [`& .${tooltipClasses.tooltip}`]: {
+    fontSize: '20px',
     backgroundColor: theme.palette.common.black,
   },
 }))
@@ -21,11 +22,31 @@ interface CellProps {
 }
 
 const Cell: React.FC<CellProps> = ({ cellNumber, playersOnCell, owners }) => {
+  const getTooltipPlacement = () => {
+    // 2-9 bottom, 10-21 left, 22-29 top, 30-40 left, 1 - right
+    if (cellNumber >= 2 && cellNumber <= 9) {
+      return 'bottom'
+    }
+    if (cellNumber >= 10 && cellNumber <= 21) {
+      return 'left'
+    }
+    if (cellNumber >= 22 && cellNumber <= 29) {
+      return 'top'
+    }
+    if (cellNumber >= 30 && cellNumber <= 40) {
+      return 'right'
+    }
+    if (cellNumber === 1) {
+      return 'right'
+    }
+  }
+
   return (
     <BootstrapTooltip
+      placement={getTooltipPlacement()}
       title={
         <div style={{ backgroundColor: 'black' }}>
-          <div>Клетка {cellNumber}:</div>
+          <div>Владельцы {cellNumber}:</div>
           {owners.map((owner) => (
             <div key={owner.id} style={{ color: owner.color }}>
               {owner.name}: {owner.cellsOwned[cellNumber]}
@@ -48,6 +69,17 @@ const Cell: React.FC<CellProps> = ({ cellNumber, playersOnCell, owners }) => {
               }}
               title={player.name} // Tooltip for player name
             ></div>
+          ))}
+        </div>
+        <div className="bar-container">
+          {owners.map((owner) => (
+            <div
+              key={owner.id}
+              className="bar"
+              style={{
+                backgroundColor: owner.color,
+              }}
+            />
           ))}
         </div>
       </div>
