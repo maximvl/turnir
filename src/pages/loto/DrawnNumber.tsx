@@ -55,6 +55,7 @@ export default function DrawnNumber({
         backgroundColor,
       }}
       textAlign="center"
+      overflow="hidden"
     >
       {children}
     </Box>

@@ -48,6 +48,7 @@ import {
 } from './utils'
 import WinnersList from './WinnersList'
 import ConfigurationButton, { defaultConfig } from './ConfigurationButton'
+import AnimatedNumber from './AnimatedNumber'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
@@ -287,15 +288,26 @@ export default function LotoPage() {
   }
 
   useEffect(() => {
+    const animationTime = lotoConfig.roll_time_seconds * 1000
+    // const animationTime = 1000
     if (nextDigitState === 'roll_start') {
       setNextDigitState('rolling')
-      const interval = setInterval(() => {
-        const nextNumber = sample(DrawingNumbers) as string
-        setNextNumber(nextNumber)
-        nextNumberRef.current = nextNumber
-      }, 100)
+
+      const nextNumber = sample(DrawingNumbers) as string
+      setNextNumber(nextNumber)
+      nextNumberRef.current = nextNumber
+
+      // const interval = setInterval(() => {
+      //   const nextNumber = sample(DrawingNumbers) as string
+      //   setNextNumber(nextNumber)
+      //   nextNumberRef.current = nextNumber
+      // }, animationTime)
+
+      // make total time fit even number of animations
+      const animationTime = 1400
+
       setTimeout(() => {
-        clearInterval(interval)
+        // clearInterval(interval)
         setNextDigitState('idle')
         let nextNumber = nextNumberRef.current
 
@@ -303,7 +315,7 @@ export default function LotoPage() {
         if (state === 'playing') {
           setDrawnNumbers((prev) => [...prev, nextNumber])
         }
-      }, lotoConfig.roll_time_seconds * 1000)
+      }, animationTime)
     }
   }, [nextDigitState, nextNumber, state])
 
@@ -835,7 +847,7 @@ export default function LotoPage() {
                     >
                       {nextNumber.length > 0 && (
                         <DrawnNumber variant="empty" big>
-                          {nextNumber}
+                          <AnimatedNumber value={nextNumber} height={68} />
                         </DrawnNumber>
                       )}
                       {nextNumber.length === 0 && (
@@ -1003,7 +1015,7 @@ export default function LotoPage() {
             // paddingLeft="200px"
           >
             <AnimatePresence>
-              {orderedTickets.map((ticket, i) => {
+              {orderedTickets.map((ticket) => {
                 const isWinner = ticket.id === winner?.id
                 const chatMessages = winnerMessages.filter(
                   (msg) => msg.user.id === ticket.owner_id
