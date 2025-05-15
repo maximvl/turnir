@@ -25,6 +25,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import useLocalStorage from './hooks/useLocalStorage'
 import { debounce } from 'lodash'
+import { ServerIcons } from '@/pages/loto/utils'
 
 type Props = {}
 
@@ -183,9 +184,10 @@ export default function ChatConnectionButton(props: Props) {
             if (state === 'connected') {
               return (
                 <Tooltip title={tooltip} key={idx}>
-                  <RadioButtonChecked
-                    color="success"
-                    sx={{ marginLeft: '10px' }}
+                  <img
+                    src={ServerIcons[conn.server]}
+                    width="20px"
+                    style={{ marginLeft: '10px' }}
                   />
                 </Tooltip>
               )
@@ -194,7 +196,15 @@ export default function ChatConnectionButton(props: Props) {
             if (state === 'disconnected') {
               return (
                 <Tooltip title={tooltip} key={idx}>
-                  <Error color="error" sx={{ marginLeft: '10px' }} />
+                  <img
+                    src={ServerIcons[conn.server]}
+                    width="20px"
+                    style={{
+                      marginLeft: '10px',
+                      // opacity: 0.4,
+                      filter: 'grayscale(1)',
+                    }}
+                  />
                 </Tooltip>
               )
             }
