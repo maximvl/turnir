@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQueries } from '@tanstack/react-query'
 import { fetchMessages, ChatMessage } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
@@ -13,6 +13,7 @@ type Props = {
 const REFETCH_INTERVAL = 2000
 
 export default function useChatMessages({ fetching, debug = true }: Props) {
+  const [errorsAmount, setErrorsAmount] = useState(0)
   const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
     key: 'chat-connections',
     defaultValue: [],
@@ -44,6 +45,14 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     })
   }
 
+  let refectInterval = REFETCH_INTERVAL
+  if (errorsAmount > 50) {
+    refectInterval = REFETCH_INTERVAL * 5
+  }
+  if (errorsAmount > 100) {
+    refectInterval = REFETCH_INTERVAL * 10
+  }
+
   const queries = chatConnections
     .filter((conn) => conn.channel !== '')
     .map((conn) => {
@@ -71,6 +80,14 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
 
   const lastTsList = results.map(
     ({ error, isLoading, data: chatData }, index) => {
+      if (error) {
+        setErrorsAmount((prev) => prev + 1)
+        if (debug) {
+          console.error('Error fetching chat messages:', error)
+        }
+        return 'error'
+      }
+
       if (!error && !isLoading && !isEmpty(chatData?.chat_messages)) {
         // todo remove duplicates votes for same user id
         // use only the latest one
@@ -117,9 +134,16 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     }
   )
 
+  const noErrors = lastTsList.every((ts) => ts !== 'error')
+  useEffect(() => {
+    if (noErrors && errorsAmount > 0) {
+      setErrorsAmount(0)
+    }
+  }, [noErrors, errorsAmount])
+
   const lastTsChanges: { [key: string]: number } = {}
   lastTsList.forEach((ts, index) => {
-    if (ts !== undefined) {
+    if (ts !== undefined && ts !== 'error') {
       const queryKey = queries[index].queryKey as [
         string,
         ChatConnection,
