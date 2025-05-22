@@ -80,11 +80,12 @@ export default function SuperGameBox({
           ? displayItem
           : (index + 1).toString().padStart(2, '0')
 
-        const clickable =
-          selected.includes(index) && !revealedOptionsIds.includes(index)
+        const isSelected = selected.includes(index)
+
+        const clickable = isSelected && !revealedOptionsIds.includes(index)
 
         let frontVariant: Variant = 'inactive'
-        if (selected.includes(index)) {
+        if (isSelected) {
           frontVariant = 'active'
         }
         if (revealed && option !== 'empty') {
@@ -128,12 +129,16 @@ export default function SuperGameBox({
                 <DrawnNumber
                   variant={frontVariant}
                   animationColor={animate ? animationColor : undefined}
+                  selected={isSelected}
                 >
                   {hiddenValue}
                 </DrawnNumber>
               }
               backSide={
-                <DrawnNumber variant={option === 'empty' ? 'empty' : 'match'}>
+                <DrawnNumber
+                  variant={option === 'empty' ? 'empty' : 'match'}
+                  selected={isSelected}
+                >
                   {displayItem}
                 </DrawnNumber>
               }

@@ -965,41 +965,52 @@ export default function LotoPage() {
                   />
                 </Box>
 
-                <Box
-                  marginBottom={'40px'}
-                  marginTop={'50px'}
-                  textAlign={'center'}
-                  fontSize={'32px'}
-                  justifyContent="center"
-                  alignItems="center"
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 100,
+                    damping: 20,
+                    duration: 0.5,
+                  }}
                 >
-                  {superGameGuesses.map((guess, index) => {
-                    return (
-                      <Box
-                        marginBottom="20px"
-                        key={index}
-                        style={{ backgroundColor: randomTicketColor(index) }}
-                        borderRadius="10px"
-                        paddingLeft="20px"
-                        paddingRight="20px"
-                      >
-                        <SuperGamePlayerStats
-                          guess={guess}
-                          result={superGameResultMap[guess.id]}
-                          guessesAmount={
-                            superGameBonusGuesses[guess.id] +
-                            superGameGuessesAmount
-                          }
-                          maxWinScore={
-                            lotoConfig.super_game_1_pointers +
-                            lotoConfig.super_game_2_pointers * 2 +
-                            lotoConfig.super_game_3_pointers * 3
-                          }
-                        />
-                      </Box>
-                    )
-                  })}
-                </Box>
+                  <Box
+                    marginBottom={'40px'}
+                    marginTop={'50px'}
+                    textAlign={'center'}
+                    fontSize={'32px'}
+                    justifyContent="center"
+                    alignItems="center"
+                  >
+                    {superGameGuesses.map((guess, index) => {
+                      return (
+                        <Box
+                          marginBottom="20px"
+                          key={index}
+                          style={{ backgroundColor: randomTicketColor(index) }}
+                          borderRadius="10px"
+                          paddingLeft="20px"
+                          paddingRight="20px"
+                        >
+                          <SuperGamePlayerStats
+                            guess={guess}
+                            result={superGameResultMap[guess.id]}
+                            guessesAmount={
+                              superGameBonusGuesses[guess.id] +
+                              superGameGuessesAmount
+                            }
+                            maxWinScore={
+                              lotoConfig.super_game_1_pointers +
+                              lotoConfig.super_game_2_pointers * 2 +
+                              lotoConfig.super_game_3_pointers * 3
+                            }
+                          />
+                        </Box>
+                      )
+                    })}
+                  </Box>
+                </motion.div>
               </Box>
             </Box>
           )}
