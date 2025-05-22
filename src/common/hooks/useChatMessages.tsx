@@ -45,12 +45,12 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     })
   }
 
-  let refectInterval = REFETCH_INTERVAL
+  let refetchInterval = REFETCH_INTERVAL
   if (errorsAmount > 50) {
-    refectInterval = REFETCH_INTERVAL * 5
+    refetchInterval = REFETCH_INTERVAL * 5
   }
   if (errorsAmount > 100) {
-    refectInterval = REFETCH_INTERVAL * 10
+    refetchInterval = REFETCH_INTERVAL * 10
   }
 
   const queries = chatConnections
@@ -70,7 +70,7 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
             ts: lastTs,
           })
         },
-        refetchInterval: REFETCH_INTERVAL,
+        refetchInterval,
         enabled: fetching,
       }
     })
