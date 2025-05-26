@@ -95,7 +95,15 @@ declare global {
 }
 
 if (MOCK_API) {
-  window.debugSendChat = function (user_id: string, message: string) {
+  window.debugSendChat = function (
+    user_id: string,
+    message: string,
+    server?: string
+  ) {
+    if (!server) {
+      server = 'vkvideo'
+    }
+
     chatResultMock = {
       chat_messages: [
         {
@@ -105,9 +113,9 @@ if (MOCK_API) {
           user: {
             id: user_id,
             username: user_id,
-            source: { server: 'vk' as ChatServerType, channel: 'test' },
+            source: { server: server as ChatServerType, channel: 'lasqa' },
           },
-          source: { server: 'vk' as ChatServerType, channel: 'test' },
+          source: { server: server as ChatServerType, channel: 'lasqa' },
         },
       ],
     }
@@ -172,7 +180,7 @@ export async function fetchMessages({
           channel,
         },
         message: sample(['+лото']),
-        ts: Math.round(new Date().getTime() / 1000),
+        ts: Math.round(new Date().getTime()),
         user: {
           id: `${user_id}`,
           username: user_id.toString(),
