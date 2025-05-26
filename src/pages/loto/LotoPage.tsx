@@ -169,7 +169,7 @@ export default function LotoPage() {
   })
 
   const showHappyBirthday = chatConnections.some(
-    (c) => c.channel.toLowerCase() === 'segall' && false
+    (c) => c.channel.toLowerCase() === 'praden'
   )
 
   const infoQueries = chatConnections.map((connection) => ({
@@ -377,22 +377,37 @@ export default function LotoPage() {
     {} as { [id: string]: number }
   )
 
+  const hostNicknames = new Set(
+    uniq(chatConnections.map((c) => c.channel.toLowerCase()))
+  )
+  const hostTickets = totalTickets.filter((ticket) =>
+    hostNicknames.has(ticket.owner_name.toLowerCase())
+  )
+
+  const nonHostTickets = totalTickets.filter(
+    (ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())
+  )
+
   // order tickets by consequent matches then by total matches
-  const orderedTickets = [...totalTickets].sort((a, b) => {
+  const orderedTickets = [...nonHostTickets].sort((a, b) => {
     const aMatches = consequentMatchesMap[a.id]
     const bMatches = consequentMatchesMap[b.id]
     if (aMatches === bMatches) {
+      const aDrawn = a.value.filter((n) => drawnNumbers.includes(n)).length
+      const bDrawn = b.value.filter((n) => drawnNumbers.includes(n)).length
+      if (aDrawn === bDrawn) {
+        return a.created_at - b.created_at // sort by creation time if matches are equal
+      }
       return (
-        b.value.filter((n) => drawnNumbers.includes(n)).length -
-        a.value.filter((n) => drawnNumbers.includes(n)).length
+        bDrawn - aDrawn // sort by drawn numbers if matches are equal
       )
     }
     return bMatches - aMatches
   })
 
   const highestMatches =
-    orderedTickets.length > 0 ? consequentMatchesMap[orderedTickets[0].id] : 0
-  const ticketsWithHighestMatches = orderedTickets.filter(
+    totalTickets.length > 0 ? consequentMatchesMap[totalTickets[0].id] : 0
+  const ticketsWithHighestMatches = totalTickets.filter(
     (ticket) => consequentMatchesMap[ticket.id] === highestMatches
   )
 
@@ -410,7 +425,7 @@ export default function LotoPage() {
     .filter((w) => w.matches === highestMatchesAmount)
     .map((w) => w.id)
 
-  const winnerCandidate = orderedTickets
+  const winnerCandidate = totalTickets
     .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
     .sort((a, b) => a.created_at - b.created_at)[0]
 
@@ -804,15 +819,12 @@ export default function LotoPage() {
               <Box>
                 <Box display={'flex'} justifyContent={'center'}>
                   <InfoPanel>
-                    <p>
-                      Побеждает тот кто соберет {lotoConfig.win_matches_amount}{' '}
-                      или больше чисел в ряд
-                    </p>
-                    <p>
-                      При равном количестве чисел побеждает тот у кого больше
-                      совпадений
-                    </p>
-                    <p>В случае равенства - тот кто раньше получил билет</p>
+                    Побеждает тот кто соберет {lotoConfig.win_matches_amount}{' '}
+                    или больше чисел в ряд
+                    <br />
+                    При равном количестве чисел побеждает тот у кого больше
+                    совпадений
+                    <br />В случае равенства - тот кто раньше получил билет
                   </InfoPanel>
                 </Box>
                 {/* <span style={{ fontSize: '24px' }}>Номера:</span> */}
@@ -1014,6 +1026,32 @@ export default function LotoPage() {
               </Box>
             </Box>
           )}
+
+          <div style={{ position: 'relative' }}>
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '20px',
+                right: '-50px',
+                gap: '10px',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {hostTickets.map((ticket, idx) => {
+                const isWinner = ticket.id === winner?.id
+                return (
+                  <TicketBox
+                    key={idx}
+                    ticket={ticket}
+                    matches={matchesPerTicket[ticket.id]}
+                    isWinner={isWinner}
+                    owner={allUsersById[ticket.owner_id]}
+                  />
+                )
+              })}
+            </div>
+          </div>
 
           <motion.div
             style={{

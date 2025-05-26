@@ -1,28 +1,28 @@
-import { Paper, useTheme } from "@mui/material";
+import { Paper, useTheme } from '@mui/material'
 
 type Props = {
-  children: React.ReactNode;
-};
+  children: React.ReactNode
+}
 
 export default function InfoPanel(props: Props) {
-  const theme = useTheme();
+  const theme = useTheme()
   return (
     <Paper
       elevation={12}
       sx={{
-        ...theme.typography.body2,
+        ...theme.typography.h6,
         color: theme.palette.text.secondary,
         paddingTop: 0.5,
         paddingBottom: 0.5,
         paddingLeft: 2,
         paddingRight: 2,
         margin: 1,
-        width: "max-content",
+        width: 'max-content',
         border: 1,
         borderColor: theme.palette.info.main,
       }}
     >
       {props.children}
     </Paper>
-  );
+  )
 }
