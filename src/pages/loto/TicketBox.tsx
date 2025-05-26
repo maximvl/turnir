@@ -284,7 +284,11 @@ export default function TicketBox({
             )
           })}
         </Box>
-        {showTime && <div>выдан {formatMsToTime(ticket.created_at)}</div>}
+        {showTime && (
+          <div style={{ marginTop: '5px' }}>
+            выдан {formatMsToTime(ticket.created_at)}
+          </div>
+        )}
       </Box>
     </Box>
   )
