@@ -377,19 +377,8 @@ export default function LotoPage() {
     {} as { [id: string]: number }
   )
 
-  const hostNicknames = new Set(
-    uniq(chatConnections.map((c) => c.channel.toLowerCase()))
-  )
-  const hostTickets = totalTickets.filter((ticket) =>
-    hostNicknames.has(ticket.owner_name.toLowerCase())
-  )
-
-  const nonHostTickets = totalTickets.filter(
-    (ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())
-  )
-
   // order tickets by consequent matches then by total matches
-  const orderedTickets = [...nonHostTickets].sort((a, b) => {
+  const orderedTickets = [...totalTickets].sort((a, b) => {
     const aMatches = consequentMatchesMap[a.id]
     const bMatches = consequentMatchesMap[b.id]
     if (aMatches === bMatches) {
@@ -406,8 +395,8 @@ export default function LotoPage() {
   })
 
   const highestMatches =
-    totalTickets.length > 0 ? consequentMatchesMap[totalTickets[0].id] : 0
-  const ticketsWithHighestMatches = totalTickets.filter(
+    orderedTickets.length > 0 ? consequentMatchesMap[orderedTickets[0].id] : 0
+  const ticketsWithHighestMatches = orderedTickets.filter(
     (ticket) => consequentMatchesMap[ticket.id] === highestMatches
   )
 
@@ -428,6 +417,18 @@ export default function LotoPage() {
   const winnerCandidate = totalTickets
     .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
     .sort((a, b) => a.created_at - b.created_at)[0]
+
+  const hostNicknames = new Set(
+    uniq(chatConnections.map((c) => c.channel.toLowerCase()))
+  )
+  const hostTickets = totalTickets.filter((ticket) =>
+    hostNicknames.has(ticket.owner_name.toLowerCase())
+  )
+  const nonHostOrderedTickets = orderedTickets.filter(
+    (ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())
+  )
+
+  const showWinnerTicketTime = winnersByMatchesIds.length > 1
 
   const winner =
     ['win', 'super_game'].includes(state) && winnerCandidate
@@ -630,7 +631,7 @@ export default function LotoPage() {
     })
   }, [superGameFinished])
 
-  let nextNumberText = NumberToFancyName[nextNumber]
+  const nextNumberText = NumberToFancyName[nextNumber]
 
   const currentNumberMatchesAmount = totalTickets.filter((ticket) =>
     ticket.value.includes(nextNumber)
@@ -1064,8 +1065,11 @@ export default function LotoPage() {
             // paddingLeft="200px"
           >
             <AnimatePresence>
-              {orderedTickets.map((ticket) => {
+              {nonHostOrderedTickets.map((ticket) => {
                 const isWinner = ticket.id === winner?.id
+                const isWinnerCandidate = winnersByMatchesIds.includes(
+                  ticket.id
+                )
                 const chatMessages = winnerMessages.filter(
                   (msg) => msg.user.id === ticket.owner_id
                 )
@@ -1080,6 +1084,11 @@ export default function LotoPage() {
                       matches={matchesPerTicket[ticket.id]}
                       isWinner={isWinner}
                       owner={allUsersById[ticket.owner_id]}
+                      showTime={
+                        isWinnerCandidate &&
+                        showWinnerTicketTime &&
+                        (state === 'win' || state === 'super_game')
+                      }
                     />
                     {isWinner && (
                       <Box position="relative">

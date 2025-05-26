@@ -6,7 +6,12 @@ import TicketImg2 from '@/assets/ticket2.svg'
 import TicketImg3 from '@/assets/ticket3.svg'
 import TicketImg4 from '@/assets/ticket4.svg'
 import AnimeBackground from '@/assets/sakura1.webp'
-import { isBrightColor, ServerIcons, VkColorsMap } from './utils'
+import {
+  formatMsToTime,
+  isBrightColor,
+  ServerIcons,
+  VkColorsMap,
+} from './utils'
 import { ChatUser } from '@/pages/turnir/api'
 import { ChatServerType } from '../turnir/types'
 
@@ -22,6 +27,7 @@ type Props = {
   isWinner?: boolean
   big?: boolean
   superHighlight?: boolean
+  showTime?: boolean
 }
 
 export default function TicketBox({
@@ -31,6 +37,7 @@ export default function TicketBox({
   isWinner,
   big,
   superHighlight,
+  showTime = false,
 }: Props) {
   const theme = useTheme()
 
@@ -277,6 +284,7 @@ export default function TicketBox({
             )
           })}
         </Box>
+        {showTime && <div>выдан {formatMsToTime(ticket.created_at)}</div>}
       </Box>
     </Box>
   )

@@ -316,6 +316,19 @@ export function formatUnixToDate(unix: number) {
   })
 }
 
+export function formatMsToTime(ms: number) {
+  const date = new Date(ms)
+  const millis = String(date.getMilliseconds()).padStart(3, '0')
+
+  // only show localised month, day and time
+  const time = date.toLocaleString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })
+  return `${time}.${millis}`
+}
+
 export const ServerIcons: { [k in ChatServerType]: string } = {
   twitch: 'https://cdn-icons-png.flaticon.com/512/3992/3992643.png',
   vkvideo: 'https://vkvideo.ru/images/icons/favicons/fav_vk_video_2x.ico?8',
