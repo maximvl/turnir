@@ -555,11 +555,11 @@ export default function LotoPage() {
           )
 
           const limitedGuess = previousGuessFiltered.slice(0, remaining)
-          messageFromSameUser.value = uniq([
-            ...messageFromSameUser.value,
-            ...limitedGuess,
-          ])
-          setSuperGameGuesses([...superGameGuesses])
+          const newValue = uniq([...messageFromSameUser.value, ...limitedGuess])
+          if (messageFromSameUser.value.length !== newValue.length) {
+            messageFromSameUser.value = newValue
+            setSuperGameGuesses([...superGameGuesses])
+          }
         } else {
           const limitedGuess = currentGuess.slice(0, superGameGuessesAmount)
 
