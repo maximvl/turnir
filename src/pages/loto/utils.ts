@@ -5,8 +5,8 @@ import { ChatConnection, ChatServerType } from '../turnir/types'
 import { VkRewards } from './ConfigurationButton'
 
 type Props = {
-  owner_id: string
-  owner_name: string
+  ownerId: string
+  ownerName: string
   drawOptions: string[]
   type: 'chat' | 'points'
   text?: string
@@ -15,8 +15,8 @@ type Props = {
 }
 
 export function genTicket({
-  owner_id,
-  owner_name,
+  ownerId,
+  ownerName,
   drawOptions,
   source,
   text,
@@ -26,8 +26,8 @@ export function genTicket({
   const value = genTicketNumber(drawOptions, text)
   return {
     id: Math.random().toString(36).substring(2, 9),
-    owner_id,
-    owner_name,
+    owner_id: ownerId,
+    owner_name: ownerName,
     value,
     color: randomTicketColor(),
     variant: sample([0, 1, 2, 3, 4, 5, 6, 7]),
@@ -75,6 +75,7 @@ function genTicketNumber(drawOptions: string[], text?: string) {
         }
         return n.toString()
       })
+      .filter((n) => drawOptions.includes(n))
   )
 
   if (ticket.length < 8) {

@@ -212,7 +212,8 @@ export default function LotoPage() {
       fetching: true,
     })
 
-  if (state === 'registration' && newChatMessages.length > 0) {
+  const addNewTickets = state === 'registration' || state === 'playing'
+  if (addNewTickets && newChatMessages.length > 0) {
     const messagesUsers = uniqBy(
       newChatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
       (user) => user.id
@@ -1173,8 +1174,8 @@ function getNewTickets(
   if (newOwners.length > 0) {
     const newOwnersTickets = newOwners.map((owner) =>
       genTicket({
-        owner_id: owner.user_id,
-        owner_name: owner.username,
+        ownerId: owner.user_id,
+        ownerName: owner.username,
         drawOptions: DrawingNumbers,
         type,
         text: owner.text,
