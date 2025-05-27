@@ -16,7 +16,7 @@ import {
 } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
 import { ChatConnection, MusicType } from '@/pages/turnir/types'
-import { Cancel, PlayCircleFilled } from '@mui/icons-material'
+import { PlayCircleFilled } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -131,10 +131,8 @@ export default function LotoPage() {
     'idle' | 'roll_start' | 'rolling'
   >('idle')
 
-  const [winnerMessages, setWinnerMessages] = useState<ChatMessage[]>([])
+  const [openChats, setOpenChats] = useState<Set<string>>(new Set())
   const nextNumberRef = useRef(nextNumber)
-
-  const [showWinnerChat, setShowWinnerChat] = useState(false)
 
   const [enableChatTickets, setEnableChatTickets] = useState(true)
   const [enablePointsTickets, setEnablePointsTickets] = useState(true)
@@ -209,13 +207,14 @@ export default function LotoPage() {
     })
     .map((user) => user.id)
 
-  const { newMessages: chatMessages } = useChatMessages({
-    fetching: state !== 'playing',
-  })
+  const { newMessages: newChatMessages, messages: allChatMessages } =
+    useChatMessages({
+      fetching: true,
+    })
 
-  if (state === 'registration' && chatMessages.length > 0) {
+  if (state === 'registration' && newChatMessages.length > 0) {
     const messagesUsers = uniqBy(
-      chatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
+      newChatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
       (user) => user.id
     )
     if (messagesUsers.length > 0) {
@@ -233,7 +232,7 @@ export default function LotoPage() {
       }
     }
 
-    const lotoMessages = chatMessages.filter((msg) =>
+    const lotoMessages = newChatMessages.filter((msg) =>
       msg.message.toLowerCase().includes(LOTO_MATCH)
     )
 
@@ -463,7 +462,15 @@ export default function LotoPage() {
 
   useEffect(() => {
     if (state === 'win') {
-      setShowWinnerChat(true)
+      if (winner) {
+        setOpenChats((prev) => {
+          return new Set([winner.owner_id])
+          // const newChats = new Set(prev)
+          // newChats.add(winner.owner_id)
+          // return newChats
+        })
+      }
+      // setShowWinnerChat(true)
       resetDeletionTimer()
       startDeletionTimer()
 
@@ -479,9 +486,7 @@ export default function LotoPage() {
       setSuperGameGuesses([])
       setSuperGameRevealedIds([])
     }
-  }, [state])
-
-  // console.log('msgs', chatMessages, 'winners', winners)
+  }, [state, winner])
 
   const superGameResultMap: {
     [k: string]: (SuperGameResultItem | null)[]
@@ -505,80 +510,68 @@ export default function LotoPage() {
     })
   }
 
+  const newMessagesFromWinner = winner
+    ? newChatMessages.filter((msg) => msg.user.id === winner.owner_id)
+    : []
+
   if (
     (state === 'win' || state === 'super_game') &&
-    chatMessages.length > 0 &&
+    newMessagesFromWinner.length > 0 &&
     winner
   ) {
-    const messagesFromWinners = chatMessages.filter(
-      (msg) => msg.user.id === winner.owner_id
+    const superGameMessages = newMessagesFromWinner.filter((msg) =>
+      msg.message.toLowerCase().startsWith('+супер')
     )
-    if (messagesFromWinners.length > 0) {
-      const currentMessagesIds = winnerMessages.map((m) => m.id)
-      const newMessages = messagesFromWinners.filter(
-        (m) => !currentMessagesIds.includes(m.id)
-      )
-      if (newMessages.length > 0) {
-        setWinnerMessages([...winnerMessages, ...newMessages])
 
-        const superGameMessages = newMessages.filter((msg) =>
-          msg.message.toLowerCase().startsWith('+супер')
+    if (superGameMessages.length > 0) {
+      for (const msg of superGameMessages) {
+        const trimmed = msg.message.trim()
+        const currentGuess = uniq(
+          trimmed
+            .split(' ')
+            .map((n) => parseInt(n) - 1)
+            .filter((n) => n >= 0 && n < lotoConfig.super_game_options_amount)
+            .filter((n) => !superGameRevealedIds.includes(n))
         )
 
-        if (superGameMessages.length > 0) {
-          for (const msg of superGameMessages) {
-            const trimmed = msg.message.trim()
-            const currentGuess = uniq(
-              trimmed
-                .split(' ')
-                .map((n) => parseInt(n) - 1)
-                .filter(
-                  (n) => n >= 0 && n < lotoConfig.super_game_options_amount
-                )
-                .filter((n) => !superGameRevealedIds.includes(n))
-            )
+        const messageFromSameUser = superGameGuesses.find(
+          (guess) => guess.owner_id === msg.user.id
+        )
 
-            const messageFromSameUser = superGameGuesses.find(
-              (guess) => guess.owner_id === msg.user.id
-            )
+        if (messageFromSameUser) {
+          const bonusGuessesAmount =
+            superGameBonusGuesses[messageFromSameUser.id]
+          const totalGuessesAmount = bonusGuessesAmount + superGameGuessesAmount
+          const remaining =
+            totalGuessesAmount - messageFromSameUser.value.length
 
-            if (messageFromSameUser) {
-              const bonusGuessesAmount =
-                superGameBonusGuesses[messageFromSameUser.id]
-              const totalGuessesAmount =
-                bonusGuessesAmount + superGameGuessesAmount
-              const remaining =
-                totalGuessesAmount - messageFromSameUser.value.length
+          const previousGuessFiltered = currentGuess.filter(
+            (n) => !messageFromSameUser.value.includes(n)
+          )
 
-              const previousGuessFiltered = currentGuess.filter(
-                (n) => !messageFromSameUser.value.includes(n)
-              )
+          const limitedGuess = previousGuessFiltered.slice(0, remaining)
+          messageFromSameUser.value = uniq([
+            ...messageFromSameUser.value,
+            ...limitedGuess,
+          ])
+          setSuperGameGuesses([...superGameGuesses])
+        } else {
+          const limitedGuess = currentGuess.slice(0, superGameGuessesAmount)
 
-              const limitedGuess = previousGuessFiltered.slice(0, remaining)
-              messageFromSameUser.value = uniq([
-                ...messageFromSameUser.value,
-                ...limitedGuess,
-              ])
-              setSuperGameGuesses([...superGameGuesses])
-            } else {
-              const limitedGuess = currentGuess.slice(0, superGameGuessesAmount)
-
-              const guess: SuperGameGuess = {
-                id: msg.id,
-                owner_id: msg.user.id,
-                owner_name: msg.user.username,
-                value: limitedGuess,
-              }
-
-              setSuperGameGuesses((prev) => [...prev, guess])
-            }
+          const guess: SuperGameGuess = {
+            id: msg.id,
+            owner_id: msg.user.id,
+            owner_name: msg.user.username,
+            value: limitedGuess,
           }
 
-          if (state === 'win') {
-            setState('super_game')
-            window.scrollTo(0, 200)
-          }
+          setSuperGameGuesses((prev) => [...prev, guess])
         }
+      }
+
+      if (state === 'win') {
+        setState('super_game')
+        window.scrollTo(0, 200)
       }
     }
   }
@@ -637,7 +630,7 @@ export default function LotoPage() {
     ticket.value.includes(nextNumber)
   ).length
 
-  const deleteWinner = (ticket: Ticket) => {
+  const deleteTicket = (ticket: Ticket) => {
     const newTicketsFromChat = ticketsFromChat.filter((t) => t.id !== ticket.id)
     const newTicketsFromPoints = ticketsFromPoints.filter(
       (t) => t.id !== ticket.id
@@ -652,6 +645,9 @@ export default function LotoPage() {
     setState('playing')
     window.scrollTo(0, 0)
   }
+
+  const animate = state === 'playing' || state === 'registration'
+  const TicketsContainer = animate ? motion.div : 'div'
 
   return (
     <Box onClick={startMusic} className="loto-page">
@@ -1070,11 +1066,13 @@ export default function LotoPage() {
                 const isWinnerCandidate = winnersByMatchesIds.includes(
                   ticket.id
                 )
-                const chatMessages = winnerMessages.filter(
+                const showChatMessages = openChats.has(ticket.owner_id)
+                const chatMessages = allChatMessages.filter(
                   (msg) => msg.user.id === ticket.owner_id
                 )
+
                 return (
-                  <motion.div
+                  <TicketsContainer
                     key={ticket.id}
                     layout
                     transition={{ type: 'spring', stiffness: 100, damping: 20 }}
@@ -1090,15 +1088,25 @@ export default function LotoPage() {
                         (state === 'win' || state === 'super_game')
                       }
                     />
-                    {isWinner && (
+                    {(state === 'win' || state === 'super_game') && (
                       <Box position="relative">
                         <Box display="flex" justifyContent="space-between">
                           <Button
                             size="small"
                             variant="contained"
-                            onClick={() => setShowWinnerChat(!showWinnerChat)}
+                            onClick={() => {
+                              setOpenChats((prev) => {
+                                const newChats = new Set(prev)
+                                if (newChats.has(ticket.owner_id)) {
+                                  newChats.delete(ticket.owner_id)
+                                } else {
+                                  newChats.add(ticket.owner_id)
+                                }
+                                return newChats
+                              })
+                            }}
                           >
-                            {showWinnerChat ? 'Скрыть чат' : 'Показать чат'}
+                            {showChatMessages ? 'Скрыть чат' : 'Показать чат'}
                           </Button>
                           <Tooltip title="Удалить победителя и продолжить лото">
                             <Box>
@@ -1107,7 +1115,7 @@ export default function LotoPage() {
                                 color="error"
                                 variant="text"
                                 disabled={deletionTimerRef.current > 0}
-                                onClick={() => deleteWinner(ticket)}
+                                onClick={() => deleteTicket(ticket)}
                               >
                                 {deletionTimerRef.current > 0 &&
                                   deletionTimerRef.current}{' '}
@@ -1116,10 +1124,12 @@ export default function LotoPage() {
                             </Box>
                           </Tooltip>
                         </Box>
-                        {showWinnerChat && <ChatBox messages={chatMessages} />}
+                        {showChatMessages && (
+                          <ChatBox messages={chatMessages} />
+                        )}
                       </Box>
                     )}
-                  </motion.div>
+                  </TicketsContainer>
                 )
               })}
             </AnimatePresence>

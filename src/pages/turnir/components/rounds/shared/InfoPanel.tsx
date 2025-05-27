@@ -10,7 +10,6 @@ export default function InfoPanel(props: Props) {
     <Paper
       elevation={12}
       sx={{
-        ...theme.typography.h6,
         color: theme.palette.text.secondary,
         paddingTop: 0.5,
         paddingBottom: 0.5,
