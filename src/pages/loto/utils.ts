@@ -12,6 +12,7 @@ type Props = {
   text?: string
   source: ChatConnection
   created_at: number
+  isLatecomer: boolean
 }
 
 export function genTicket({
@@ -22,6 +23,7 @@ export function genTicket({
   text,
   type,
   created_at,
+  isLatecomer,
 }: Props): Ticket {
   const value = genTicketNumber(drawOptions, text)
   return {
@@ -34,7 +36,8 @@ export function genTicket({
     source,
     type,
     created_at,
-  } as Ticket
+    isLatecomer,
+  }
 }
 
 export function randomTicketColor(target?: number) {
@@ -49,7 +52,7 @@ export function randomTicketColor(target?: number) {
     return colors[target % colors.length]
   }
 
-  return sample(colors)
+  return sample(colors) as string
 }
 
 function genTicketNumber(drawOptions: string[], text?: string) {

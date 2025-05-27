@@ -250,11 +250,14 @@ export default function LotoPage() {
           } as UserInfo
         })
 
-      const newTicketsFromChat = getNewTickets(
-        ticketsFromChat,
-        lotoMessagesFromUsers,
-        'chat'
-      )
+      const isLatecomer = state === 'playing'
+
+      const newTicketsFromChat = getNewTickets({
+        currentTickets: ticketsFromChat,
+        newMessages: lotoMessagesFromUsers,
+        type: 'chat',
+        isLatecomer,
+      })
       if (newTicketsFromChat.length > 0) {
         setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
       }
@@ -276,11 +279,12 @@ export default function LotoPage() {
         } as UserInfo
       })
 
-      const newTicketsFromPoints = getNewTickets(
-        ticketsFromPoints,
-        lotoMessagesFromBot,
-        'points'
-      )
+      const newTicketsFromPoints = getNewTickets({
+        currentTickets: ticketsFromPoints,
+        newMessages: lotoMessagesFromBot,
+        type: 'points',
+        isLatecomer,
+      })
       if (newTicketsFromPoints.length > 0) {
         setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
@@ -1159,11 +1163,19 @@ type UserInfo = {
   created_at: number
 }
 
-function getNewTickets(
-  currentTickets: Ticket[],
-  newMessages: UserInfo[],
+type getTicketsParams = {
+  currentTickets: Ticket[]
+  newMessages: UserInfo[]
   type: 'chat' | 'points'
-) {
+  isLatecomer: boolean
+}
+
+function getNewTickets({
+  currentTickets,
+  newMessages,
+  type,
+  isLatecomer,
+}: getTicketsParams) {
   const currentOwners = currentTickets.map((ticket) => `${ticket.owner_id}`)
 
   let newOwners: UserInfo[] = newMessages.filter(
@@ -1181,6 +1193,7 @@ function getNewTickets(
         text: owner.text,
         source: owner.source,
         created_at: owner.created_at,
+        isLatecomer,
       })
     )
 

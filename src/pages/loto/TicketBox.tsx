@@ -13,7 +13,6 @@ import {
   VkColorsMap,
 } from './utils'
 import { ChatUser } from '@/pages/turnir/api'
-import { ChatServerType } from '../turnir/types'
 
 type MatchRange = {
   start: number
@@ -99,22 +98,26 @@ export default function TicketBox({
   const nickBackgroundColor = isUserColorBright ? '#191970' : '#B2AC88'
 
   const gradients = [
-    'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%)',
+    'radial-gradient(circle, rgba(0,128,128,1) 0%, rgba(0,64,128,1) 100%)',
     'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(255,165,0,1) 100%)',
     'radial-gradient(circle, rgba(56,173,169,1) 0%, rgba(54,54,206,1) 100%)',
-    'radial-gradient(circle, rgba(74,85,227,1) 0%, rgba(234,88,12,1) 100%)',
+    'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(70,130,180,1) 100%)',
     'radial-gradient(circle, rgba(32,74,112,1) 0%, rgba(20,34,74,1) 100%)',
     'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(128,0,128,1) 100%)',
     'radial-gradient(circle, rgba(102,126,234,1) 0%, rgba(118,75,162,1) 100%)',
-    'radial-gradient(circle, rgba(131,58,180,1) 0%, rgba(253,114,114,1) 100%)',
+    'radial-gradient(circle, rgba(75,0,130,1) 0%, rgba(0,139,139,1) 100%)',
   ]
 
   let ticketBackground = ticket.color
-  if (ticket.type === 'points' || twitchBadges.length > 0) {
+  if (ticket.type === 'points' || twitchBadges.length > 0 || true) {
     ticketBackground = gradients[ticket.variant]
   }
   if (isAnime) {
     ticketBackground = `url(${AnimeBackground})`
+  }
+  if (ticket.isLatecomer) {
+    ticketBackground =
+      'radial-gradient(circle, rgba(50,0,0,1) 0%, rgba(0,0,0,1) 100%)'
   }
 
   const itemSize = big ? '36px' : '24px'
