@@ -25,6 +25,7 @@ type Props = {
 export type VkRewards = { [stream: string]: { [roleId: string]: number } }
 type ConfigType = {
   win_matches_amount: number
+  manual_draw_enabled: boolean
   super_game_options_amount: number
   super_game_guesses_amount: number
   super_game_1_pointers: number
@@ -36,6 +37,7 @@ type ConfigType = {
 
 export const defaultConfig: ConfigType = {
   win_matches_amount: 3,
+  manual_draw_enabled: false,
   super_game_options_amount: 30,
   super_game_guesses_amount: 5,
   super_game_1_pointers: 3,
@@ -120,6 +122,17 @@ export default function ConfigurationButton({ streamsRewards }: Props) {
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Box marginRight="10px">Ручной ввод бочонков</Box>
+            <FormControl size="small">
+              <Checkbox
+                checked={config.manual_draw_enabled}
+                onChange={(e) =>
+                  setField('manual_draw_enabled', e.target.checked)
+                }
+              />
             </FormControl>
           </Box>
           <Divider sx={{ marginTop: '10px', marginBottom: '10px' }} />

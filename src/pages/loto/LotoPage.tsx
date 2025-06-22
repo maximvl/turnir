@@ -23,6 +23,7 @@ import {
   FormControlLabel,
   FormGroup,
   Slider,
+  TextField,
   Tooltip,
 } from '@mui/material'
 import { useMutation, useQueries } from '@tanstack/react-query'
@@ -286,6 +287,22 @@ export default function LotoPage() {
       if (newTicketsFromPoints.length > 0) {
         setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
       }
+    }
+  }
+
+  const onDrawClick = () => {
+    if (lotoConfig.manual_draw_enabled) {
+      if (nextNumber.length !== 2) {
+        document.getElementById('manual-draw-input')?.focus()
+        return
+      }
+
+      drawNumber(nextNumber)
+      setDrawnNumbers((prev) => [...prev, nextNumber])
+      setNextNumber('')
+      document.getElementById('manual-draw-input')?.focus()
+    } else {
+      setNextDigitState('roll_start')
     }
   }
 
@@ -765,7 +782,10 @@ export default function LotoPage() {
                   <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => setState('playing')}
+                    onClick={() => {
+                      setState('playing')
+                      document.getElementById('manual-draw-input')?.focus()
+                    }}
                     disabled={totalTickets.length === 0}
                   >
                     Начать розыгрыш
@@ -831,13 +851,47 @@ export default function LotoPage() {
                       justifyContent={'center'}
                       textAlign={'center'}
                     >
-                      {nextNumber.length > 0 && (
-                        <DrawnNumber variant="empty" big>
-                          <AnimatedNumber value={nextNumber} height={68} />
-                        </DrawnNumber>
-                      )}
-                      {nextNumber.length === 0 && (
-                        <Box marginTop={'40px'}></Box>
+                      {lotoConfig.manual_draw_enabled ? (
+                        !winner && (
+                          <Box display="flex" justifyContent="center">
+                            <DrawnNumber variant="empty" big>
+                              <TextField
+                                id="manual-draw-input"
+                                type="text"
+                                value={nextNumber}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                    .replace(/[^0-9]/g, '')
+                                    .slice(0, 2)
+                                  setNextNumber(value)
+                                }}
+                                sx={{
+                                  '& .MuiInputBase-input': {
+                                    textAlign: 'center',
+                                    padding: 0,
+                                    margin: 0,
+                                    fontSize: '36px',
+                                    color: 'red', // Change this to any color you want
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none',
+                                  },
+                                }}
+                              />
+                            </DrawnNumber>
+                          </Box>
+                        )
+                      ) : (
+                        <>
+                          {nextNumber.length > 0 && (
+                            <DrawnNumber variant="empty" big>
+                              <AnimatedNumber value={nextNumber} height={68} />
+                            </DrawnNumber>
+                          )}
+                          {nextNumber.length === 0 && (
+                            <Box marginTop={'40px'}></Box>
+                          )}
+                        </>
                       )}
                     </Box>
                     {nextNumberText && nextDigitState === 'idle' ? (
@@ -855,17 +909,15 @@ export default function LotoPage() {
                   </Box>
                 )}
                 {state === 'playing' && !winner && (
-                  <>
-                    <Box marginBottom={'40px'} marginTop={'20px'}>
-                      <Button
-                        variant="contained"
-                        onClick={() => setNextDigitState('roll_start')}
-                        disabled={nextDigitState !== 'idle'}
-                      >
-                        Достать бочонок
-                      </Button>
-                    </Box>
-                  </>
+                  <Box marginBottom={'40px'} marginTop={'20px'}>
+                    <Button
+                      variant="contained"
+                      onClick={onDrawClick}
+                      disabled={nextDigitState !== 'idle'}
+                    >
+                      Достать бочонок
+                    </Button>
+                  </Box>
                 )}
                 {winner && !isInSuperGame && (
                   <Box marginTop={'10px'}>
