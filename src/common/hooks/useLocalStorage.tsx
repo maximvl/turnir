@@ -1,4 +1,4 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 
 type Props<T> = {
   key: string
@@ -23,6 +23,9 @@ export default function useLocalStorage<T>({
 }: Props<T>) {
   const eventKey = `local-storage-${key}`
 
+  const [currentValue, setCurrentValue] = useState(defaultValue)
+  const [currentValueRaw, setCurrentValueRaw] = useState<string | null>(null)
+
   const getSnapshot = useCallback(() => {
     return localStorage.getItem(key)
   }, [key])
@@ -38,17 +41,34 @@ export default function useLocalStorage<T>({
   const valueRaw = useSyncExternalStore(subscribe, getSnapshot)
 
   const save = (value: T) => {
-    localStorage.setItem(key, JSON.stringify(value))
+    const rawValue = JSON.stringify(value)
+    localStorage.setItem(key, rawValue)
+    setCurrentValue(value)
+    setCurrentValueRaw(rawValue)
     window.dispatchEvent(new Event(eventKey))
   }
 
-  let currentValue = null
-  if (valueRaw !== null) {
-    currentValue = JSON.parse(valueRaw) as T
-  }
+  useEffect(() => {
+    if (valueRaw === currentValueRaw) {
+      return
+    }
+    if (valueRaw === null) {
+      setCurrentValue(defaultValue)
+      setCurrentValueRaw(null)
+      return
+    }
+
+    try {
+      const parsedValue = JSON.parse(valueRaw) as T
+      setCurrentValue(parsedValue)
+      setCurrentValueRaw(valueRaw)
+    } catch (error) {
+      console.error(`Error parsing localStorage value for key "${key}":`, error)
+    }
+  }, [valueRaw])
 
   return {
     save,
-    value: currentValue ?? defaultValue,
+    value: currentValue,
   }
 }

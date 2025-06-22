@@ -1,11 +1,6 @@
 import { chatConnect, ConnectionStatus } from '@/pages/turnir/api'
 import { ChatConnection, ChatServerType } from '@/pages/turnir/types'
-import {
-  DeleteForever,
-  Error,
-  RadioButtonChecked,
-  Settings,
-} from '@mui/icons-material'
+import { DeleteForever, Settings } from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -34,12 +29,7 @@ export default function ChatConnectionButton(props: Props) {
     ChatConnection[]
   >({
     key: 'chat-connections',
-    defaultValue: [
-      {
-        channel: '',
-        server: 'twitch',
-      },
-    ],
+    defaultValue: [],
   })
 
   const [connectionStates, setConnectionStates] = useState<ConnectionStatus[]>(
@@ -47,6 +37,8 @@ export default function ChatConnectionButton(props: Props) {
       return chatConnections.map(() => 'disconnected')
     }
   )
+
+  // console.log('connection states', connectionStates)
 
   const [open, setOpen] = useState(false)
   const { mutate: connectToChat } = useMutation({
@@ -81,20 +73,18 @@ export default function ChatConnectionButton(props: Props) {
   }
 
   const handleConnect = (c: ChatConnection) => {
+    // console.log('connecting to chat', c)
     setConnectionStates((prev) => {
       const newState = [...prev]
       const index = chatConnections.findIndex(
         (conn) => conn.server === c.server && conn.channel === c.channel
       )
-      // console.log('updating index', index)
       if (index === -1) {
         return prev
       }
       newState[index] = 'connecting'
-      // console.log('new state', newState)
       return newState
     })
-    // console.log('connecting to', c, connectionStates)
     connectToChat({ channel: c.channel, server: c.server })
   }
 
@@ -114,18 +104,22 @@ export default function ChatConnectionButton(props: Props) {
         saveChatConnections(nonEmptyConnections)
         return
       }
-      // console.log('reconnection debounced hook', connectionStates)
+      // console.log(
+      //   'reconnection debounced hook',
+      //   connectionStates,
+      //   nonEmptyConnections
+      // )
 
       nonEmptyConnections.forEach((conn, idx) => {
-        const state = connectionStates[idx] || 'disconnected'
+        const state = connectionStates[idx] ?? 'disconnected'
         // console.log('effect', conn, connectionStates, state)
-        if (state === 'disconnected') {
+        if (state === 'disconnected' || state === undefined) {
           // console.log('reconnecting to', conn)
           handleConnectDebourced(conn)
         }
       })
     }
-  }, [open, connectionStates])
+  }, [open, connectionStates, chatConnections])
 
   const handleSaveServer = (conn: ChatConnection, server: ChatServerType) => {
     const index = chatConnections.indexOf(conn)
@@ -209,14 +203,11 @@ export default function ChatConnectionButton(props: Props) {
               )
             }
 
-            if (state === 'connecting') {
-              return (
-                <Tooltip title={tooltip} key={idx}>
-                  <CircularProgress size="20px" sx={{ marginLeft: '10px' }} />
-                </Tooltip>
-              )
-            }
-            return null
+            return (
+              <Tooltip title={tooltip} key={idx}>
+                <CircularProgress size="20px" sx={{ marginLeft: '10px' }} />
+              </Tooltip>
+            )
           })}
         </Button>
       </Box>
