@@ -4,7 +4,6 @@ import useLocalStorage from '@/common/hooks/useLocalStorage'
 import useTimer from '@/common/hooks/useTimer'
 import MainMenu from '@/common/MainMenu'
 import {
-  ChatMessage,
   ChatUser,
   createLotoWinners,
   fetchStreamInfo,
@@ -166,9 +165,8 @@ export default function LotoPage() {
     mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
   })
 
-  const showHappyBirthday = chatConnections.some(
-    (c) => c.channel.toLowerCase() === 'praden'
-  )
+  const showHappyBirthday =
+    chatConnections.some((c) => c.channel.toLowerCase() === 'praden') && false
 
   const infoQueries = chatConnections.map((connection) => ({
     queryKey: ['streamInfo', connection.server, connection.channel],
@@ -292,8 +290,6 @@ export default function LotoPage() {
   }
 
   useEffect(() => {
-    const animationTime = lotoConfig.roll_time_seconds * 1000
-    // const animationTime = 1000
     if (nextDigitState === 'roll_start') {
       setNextDigitState('rolling')
 
@@ -301,17 +297,10 @@ export default function LotoPage() {
       setNextNumber(nextNumber)
       nextNumberRef.current = nextNumber
 
-      // const interval = setInterval(() => {
-      //   const nextNumber = sample(DrawingNumbers) as string
-      //   setNextNumber(nextNumber)
-      //   nextNumberRef.current = nextNumber
-      // }, animationTime)
-
       // make total time fit even number of animations
       const animationTime = 1400
 
       setTimeout(() => {
-        // clearInterval(interval)
         setNextDigitState('idle')
         let nextNumber = nextNumberRef.current
 
@@ -660,21 +649,6 @@ export default function LotoPage() {
   return (
     <Box onClick={startMusic} className="loto-page">
       <MainMenu title={'Лото 2.0 с чатом'} />
-
-      {state !== 'registration' && (
-        <Box position="absolute" left="20px">
-          {showHappyBirthday && (
-            <Box marginTop="20px" display="flex" justifyContent="center">
-              <img
-                src="https://i.pinimg.com/originals/f9/f9/de/f9f9de0a26e2c59435e60577624dc8c6.gif"
-                style={{ height: '200px' }}
-              />
-            </Box>
-          )}
-          <WinnersList />
-        </Box>
-      )}
-
       <Box
         display="flex"
         justifyContent={'center'}
@@ -682,10 +656,10 @@ export default function LotoPage() {
         paddingRight={'100px'}
       >
         <Box marginBottom={'200px'} width={'100%'}>
-          {state === 'registration' && (
-            <>
-              <Box position="absolute" left="20px">
-                <ConfigurationButton streamsRewards={streamsInfo} />
+          <Box position="absolute" left="20px">
+            <ConfigurationButton streamsRewards={streamsInfo} />
+            {state === 'registration' && (
+              <>
                 <FormGroup>
                   <FormControlLabel
                     label="Билеты с чата"
@@ -751,18 +725,22 @@ export default function LotoPage() {
                     </Box>
                   </Tooltip>
                 </Box>
+              </>
+            )}
 
-                {showHappyBirthday && (
-                  <Box marginTop="20px" display="flex" justifyContent="center">
-                    <img
-                      src="https://i.pinimg.com/originals/f9/f9/de/f9f9de0a26e2c59435e60577624dc8c6.gif"
-                      style={{ height: '200px' }}
-                    />
-                  </Box>
-                )}
-
-                <WinnersList />
+            {showHappyBirthday && (
+              <Box marginTop="20px" display="flex" justifyContent="center">
+                <img
+                  src="https://i.pinimg.com/originals/f9/f9/de/f9f9de0a26e2c59435e60577624dc8c6.gif"
+                  style={{ height: '200px' }}
+                />
               </Box>
+            )}
+
+            <WinnersList />
+          </Box>
+          {state === 'registration' && (
+            <>
               <Box
                 display={'flex'}
                 justifyContent={'center'}
@@ -810,7 +788,12 @@ export default function LotoPage() {
                 {(timerMode === 'coundown' || timerValue === 0) && (
                   <Box marginTop="10px">
                     Начало через{' '}
-                    <span style={{ color: timerValue < 60 ? 'red' : 'white' }}>
+                    <span
+                      style={{
+                        color: timerValue < 60 ? 'red' : 'white',
+                        fontFamily: 'monospace',
+                      }}
+                    >
                       {formatSecondsZero(timerValue)}
                     </span>
                   </Box>

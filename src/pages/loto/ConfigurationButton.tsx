@@ -24,7 +24,6 @@ type Props = {
 
 export type VkRewards = { [stream: string]: { [roleId: string]: number } }
 type ConfigType = {
-  roll_time_seconds: number
   win_matches_amount: number
   super_game_options_amount: number
   super_game_guesses_amount: number
@@ -36,7 +35,6 @@ type ConfigType = {
 }
 
 export const defaultConfig: ConfigType = {
-  roll_time_seconds: 3,
   win_matches_amount: 3,
   super_game_options_amount: 30,
   super_game_guesses_amount: 5,
@@ -105,24 +103,6 @@ export default function ConfigurationButton({ streamsRewards }: Props) {
         <DialogTitle>Параметры лото и супер игры</DialogTitle>
         <DialogContent>
           <Box sx={{ fontWeight: 700 }}>Лото</Box>
-          <Box display="flex" alignItems="center">
-            <Box marginRight="10px">Время доставания боченка (секунды)</Box>
-            <FormControl size="small">
-              <Select
-                value={config.roll_time_seconds}
-                onChange={(e) =>
-                  setField('roll_time_seconds', Number(e.target.value))
-                }
-              >
-                <MenuItem value={0.5}>0.5</MenuItem>
-                {range(1, 6).map((value) => (
-                  <MenuItem key={value} value={value}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
           <Box display="flex" alignItems="center">
             <Box marginRight="10px">
               Количество совпадений подряд для победы
