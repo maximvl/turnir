@@ -28,7 +28,7 @@ import {
 import { useMutation, useQueries } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { flatten, sample, uniq, uniqBy } from 'lodash'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import ChatBox from './ChatBox'
 import DrawnNumber from './DrawnNumber'
 import './styles.css'
@@ -69,9 +69,7 @@ const BingoImage = sample([
 ])
 
 export default function LotoPage() {
-  const [state, setState] = useState<
-    'registration' | 'playing' | 'win' | 'super_game'
-  >('registration')
+  const [state, setState] = useState<'registration' | 'playing'>('registration')
 
   const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
     key: 'chat-connections',
@@ -96,10 +94,12 @@ export default function LotoPage() {
     }
   }
 
-  const lotoConfig = {
-    ...defaultConfig,
-    ...(lotoConfigLoaded as typeof defaultConfig),
-  }
+  const lotoConfig = useMemo(() => {
+    return {
+      ...defaultConfig,
+      ...(lotoConfigLoaded as typeof defaultConfig),
+    }
+  }, [lotoConfigLoaded])
 
   const superGameGuessesAmount = lotoConfig.super_game_guesses_amount
 
@@ -426,18 +426,15 @@ export default function LotoPage() {
 
   const showWinnerTicketTime = winnersByMatchesIds.length > 1
 
-  const winner =
-    ['win', 'super_game'].includes(state) && winnerCandidate
-      ? winnerCandidate
-      : undefined
+  const winnerFound =
+    state === 'playing' &&
+    winnerCandidate &&
+    highestMatches >= lotoConfig.win_matches_amount
+
+  const winner = winnerFound ? winnerCandidate : undefined
 
   useEffect(() => {
-    if (
-      highestMatches >= lotoConfig.win_matches_amount &&
-      winnerCandidate &&
-      state === 'playing'
-    ) {
-      setState('win')
+    if (winner) {
       const winnerData = {
         username: allUsersById[winnerCandidate.owner_id].username,
         super_game_status: 'skip' as const,
@@ -455,43 +452,41 @@ export default function LotoPage() {
         }
       )
     }
-  }, [highestMatches, state, winnerCandidate])
+  }, [winner])
 
   useEffect(() => {
-    if (state === 'win') {
-      if (winner) {
-        setOpenChats((prev) => {
-          return new Set([winner.owner_id])
-          // const newChats = new Set(prev)
-          // newChats.add(winner.owner_id)
-          // return newChats
-        })
-      }
-      // setShowWinnerChat(true)
-      resetDeletionTimer()
-      startDeletionTimer()
-
-      setSuperGameValues(
-        generateSuperGameValues({
-          amount: lotoConfig.super_game_options_amount,
-          smallPrizes: lotoConfig.super_game_1_pointers,
-          mediumPrizes: lotoConfig.super_game_2_pointers,
-          bigPrizes: lotoConfig.super_game_3_pointers,
-          customPrizes: customVkRewardsEnabled,
-        })
-      )
-      setSuperGameGuesses([])
-      setSuperGameRevealedIds([])
+    if (winner) {
+      setOpenChats((prev) => {
+        return new Set([winner.owner_id])
+      })
     }
-  }, [state, winner])
+    resetDeletionTimer()
+    startDeletionTimer()
+
+    setSuperGameValues(
+      generateSuperGameValues({
+        amount: lotoConfig.super_game_options_amount,
+        smallPrizes: lotoConfig.super_game_1_pointers,
+        mediumPrizes: lotoConfig.super_game_2_pointers,
+        bigPrizes: lotoConfig.super_game_3_pointers,
+        customPrizes: customVkRewardsEnabled,
+      })
+    )
+    setSuperGameGuesses([])
+    setSuperGameRevealedIds([])
+  }, [winner, lotoConfig])
 
   const superGameResultMap: {
     [k: string]: (SuperGameResultItem | null)[]
   } = {}
 
+  const isInSuperGame =
+    winner !== undefined &&
+    superGameGuesses.some((guess) => guess.owner_id === winner.owner_id)
+
   const superGameBonusGuesses: { [k: string]: number } = {}
 
-  if (state === 'super_game') {
+  if (isInSuperGame) {
     superGameGuesses.forEach((guess) => {
       const result = guess.value.map((n) =>
         superGameRevealedIds.includes(n) ? superGameValues[n] : null
@@ -511,15 +506,10 @@ export default function LotoPage() {
     ? newChatMessages.filter((msg) => msg.user.id === winner.owner_id)
     : []
 
-  if (
-    (state === 'win' || state === 'super_game') &&
-    newMessagesFromWinner.length > 0 &&
-    winner
-  ) {
+  useEffect(() => {
     const superGameMessages = newMessagesFromWinner.filter((msg) =>
       msg.message.toLowerCase().startsWith('+супер')
     )
-
     if (superGameMessages.length > 0) {
       for (const msg of superGameMessages) {
         const trimmed = msg.message.trim()
@@ -563,15 +553,11 @@ export default function LotoPage() {
           }
 
           setSuperGameGuesses((prev) => [...prev, guess])
+          window.scrollTo(0, 200)
         }
       }
-
-      if (state === 'win') {
-        setState('super_game')
-        window.scrollTo(0, 200)
-      }
     }
-  }
+  }, [newMessagesFromWinner])
 
   const superGameSelectedIds = uniq(
     flatten(superGameGuesses.map((guess) => guess.value))
@@ -583,7 +569,7 @@ export default function LotoPage() {
       superGameGuessesAmount + superGameBonusGuesses[key]
   )
 
-  const superGameFinished = state === 'super_game' && allSuperGuessesRevealed
+  const superGameFinished = isInSuperGame && allSuperGuessesRevealed
 
   useEffect(() => {
     const superGameWinnersIds = superGameGuesses
@@ -802,7 +788,7 @@ export default function LotoPage() {
             </>
           )}
 
-          {['playing', 'win'].includes(state) && (
+          {state === 'playing' && !isInSuperGame && (
             <Box>
               <Box>
                 <Box display={'flex'} justifyContent={'center'}>
@@ -835,7 +821,7 @@ export default function LotoPage() {
                 </Box>
               </Box>
               <Box textAlign={'center'}>
-                {(state === 'playing' || state === 'win') && (
+                {(state === 'playing' || (winner && !isInSuperGame)) && (
                   <Box>
                     <Box
                       marginTop={'10px'}
@@ -868,7 +854,7 @@ export default function LotoPage() {
                     )}
                   </Box>
                 )}
-                {state === 'playing' && (
+                {state === 'playing' && !winner && (
                   <>
                     <Box marginBottom={'40px'} marginTop={'20px'}>
                       <Button
@@ -881,7 +867,7 @@ export default function LotoPage() {
                     </Box>
                   </>
                 )}
-                {state === 'win' && winner && (
+                {winner && !isInSuperGame && (
                   <Box marginTop={'10px'}>
                     <Box fontSize={'48px'}>Победитель: {winner.owner_name}</Box>
                     {showHappyBirthday ? (
@@ -931,7 +917,7 @@ export default function LotoPage() {
             </Box>
           )}
 
-          {state === 'super_game' && superGameGuesses.length > 0 && (
+          {isInSuperGame && (
             <Box display="flex" justifyContent="center">
               <Box>
                 <Box textAlign="center" display="flex" justifyContent="center">
@@ -1076,10 +1062,10 @@ export default function LotoPage() {
                       showTime={
                         isWinnerCandidate &&
                         showWinnerTicketTime &&
-                        (state === 'win' || state === 'super_game')
+                        Boolean(winner)
                       }
                     />
-                    {(state === 'win' || state === 'super_game') && (
+                    {winner && (
                       <Box position="relative">
                         <Box display="flex" justifyContent="space-between">
                           <Button
