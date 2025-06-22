@@ -109,7 +109,7 @@ if (MOCK_API) {
         {
           id: Math.random().toString() + Math.random().toString(),
           message,
-          ts: Math.round(new Date().getTime() / 1000),
+          ts: Math.round(new Date().getTime()),
           user: {
             id: user_id,
             username: user_id,
@@ -221,7 +221,7 @@ export async function fetchMessages({
       return {
         id: '93152579',
         message: '+игра',
-        ts: Math.round(new Date().getTime() / 1000),
+        ts: Math.round(new Date().getTime()),
         user: {
           id: user_id,
           username: `Player-${user_id}`,
@@ -248,7 +248,7 @@ export async function fetchMessages({
       return result
     }
 
-    const messages: ChatMessage[] = Array.from({ length: 500 }, makeMessage)
+    const messages: ChatMessage[] = Array.from({ length: 100 }, makeMessage)
     const gameMessages = [makeGameMessage(), makeGameMessage()]
     // return { chat_messages: [makeSuperGameMessage()] }
     return { chat_messages: messages }

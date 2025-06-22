@@ -389,6 +389,9 @@ export default function LotoPage() {
       const aDrawn = a.value.filter((n) => drawnNumbers.includes(n)).length
       const bDrawn = b.value.filter((n) => drawnNumbers.includes(n)).length
       if (aDrawn === bDrawn) {
+        if (state === 'registration' || drawnNumbers.length === 0) {
+          return b.created_at - a.created_at
+        }
         return a.created_at - b.created_at // sort by creation time if matches are equal
       }
       return (
