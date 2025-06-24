@@ -1,6 +1,6 @@
 import { ChatConnection } from '../turnir/types'
 
-export type TicketId = string
+export type TicketId = string & { readonly brand: unique symbol }
 
 export type Ticket = {
   id: TicketId

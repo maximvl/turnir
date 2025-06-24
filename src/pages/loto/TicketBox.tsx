@@ -27,6 +27,7 @@ type Props = {
   big?: boolean
   superHighlight?: boolean
   showTime?: boolean
+  lastDrawnNumber?: string
 }
 
 export default function TicketBox({
@@ -37,6 +38,7 @@ export default function TicketBox({
   big,
   superHighlight,
   showTime = false,
+  lastDrawnNumber,
 }: Props) {
   const theme = useTheme()
 
@@ -268,6 +270,11 @@ export default function TicketBox({
 
             if (doSuperHighlight) {
               delete style.color
+            }
+
+            if (lastDrawnNumber === value) {
+              style.border = `1px solid white`
+              style.borderRadius = '5px'
             }
 
             return (

@@ -156,7 +156,7 @@ export default function LotoPage() {
     value: deletionTimerRef,
     startCountdown: startDeletionTimer,
     reset: resetDeletionTimer,
-  } = useTimer(30)
+  } = useTimer(20)
 
   const { mutate: saveWinners } = useMutation({
     mutationFn: (params: LotoWinnersCreate) => createLotoWinners(params),
@@ -347,77 +347,92 @@ export default function LotoPage() {
     document.title = `Лото - ${totalTickets.length} билетов`
   }, [totalTickets.length])
 
-  let matchesPerTicket: { [id: TicketId]: number[] } = {}
-  for (const ticket of totalTickets) {
-    matchesPerTicket[ticket.id] = []
-  }
+  const ticketStatsMap = useMemo(() => {
+    const result: {
+      [id: TicketId]: {
+        matches: number[]
+        minNeeded: number
+        totalMatches: number
+        created_at: number
+      }
+    } = {}
 
-  if (drawnNumbers.length > 0) {
-    // for each ticket find matches with drawn numbers
-    for (const ticket of totalTickets) {
-      const matches = ticket.value.map((number) =>
-        drawnNumbers.includes(number) ? 1 : 0
-      )
-      matchesPerTicket[ticket.id] = matches
-    }
-  }
+    if (drawnNumbers.length > 0) {
+      // for each ticket find matches with drawn numbers
+      for (const ticket of totalTickets) {
+        const matches = ticket.value.map((number) =>
+          drawnNumbers.includes(number) ? 1 : 0
+        )
 
-  const consequentMatchesPerTicket = totalTickets.map((ticket) => {
-    const matches = matchesPerTicket[ticket.id]
-    let maxConsequentMatches = 0
-    let currentConsequentMatches = 0
-    for (const match of matches) {
-      if (match === 1) {
-        currentConsequentMatches++
-        if (currentConsequentMatches > maxConsequentMatches) {
-          maxConsequentMatches = currentConsequentMatches
+        let minNeeded = lotoConfig.win_matches_amount
+        let windowSum = 0
+
+        // Initialize first window
+        for (let i = 0; i < lotoConfig.win_matches_amount; i++) {
+          windowSum += matches[i] || 0
         }
-      } else {
-        currentConsequentMatches = 0
+        minNeeded = lotoConfig.win_matches_amount - windowSum
+
+        // Slide window
+        for (let i = lotoConfig.win_matches_amount; i < matches.length; i++) {
+          windowSum += matches[i] - matches[i - lotoConfig.win_matches_amount]
+          const needed = lotoConfig.win_matches_amount - windowSum
+          if (needed < minNeeded) {
+            minNeeded = needed
+          }
+        }
+        result[ticket.id] = {
+          matches: matches,
+          minNeeded: minNeeded,
+          totalMatches: matches.reduce((sum: number, val) => sum + val, 0),
+          created_at: ticket.created_at,
+        }
+      }
+    } else {
+      for (const ticket of totalTickets) {
+        result[ticket.id] = {
+          matches: Array(ticket.value.length).fill(0),
+          minNeeded: lotoConfig.win_matches_amount,
+          totalMatches: 0,
+          created_at: ticket.created_at,
+        }
       }
     }
-    return { id: ticket.id, matches: maxConsequentMatches }
-  })
-
-  const consequentMatchesMap = consequentMatchesPerTicket.reduce(
-    (acc, val) => {
-      acc[val.id] = val.matches
-      return acc
-    },
-    {} as { [id: string]: number }
-  )
+    return result
+  }, [totalTickets.length, drawnNumbers])
 
   // order tickets by consequent matches then by total matches
-  const orderedTickets = [...totalTickets].sort((a, b) => {
-    const aMatches = consequentMatchesMap[a.id]
-    const bMatches = consequentMatchesMap[b.id]
-    if (aMatches === bMatches) {
-      const aDrawn = a.value.filter((n) => drawnNumbers.includes(n)).length
-      const bDrawn = b.value.filter((n) => drawnNumbers.includes(n)).length
-      if (aDrawn === bDrawn) {
-        if (state === 'registration' || drawnNumbers.length === 0) {
-          return b.created_at - a.created_at
-        }
-        return a.created_at - b.created_at // sort by creation time if matches are equal
-      }
-      return (
-        bDrawn - aDrawn // sort by drawn numbers if matches are equal
-      )
-    }
-    return bMatches - aMatches
-  })
+  const orderedTickets = useMemo(() => {
+    return [...totalTickets].sort((a, b) => {
+      const aStats = ticketStatsMap[a.id]
+      const bStats = ticketStatsMap[b.id]
 
-  const highestMatches =
-    orderedTickets.length > 0 ? consequentMatchesMap[orderedTickets[0].id] : 0
-  const ticketsWithHighestMatches = orderedTickets.filter(
-    (ticket) => consequentMatchesMap[ticket.id] === highestMatches
+      if (aStats.minNeeded !== bStats.minNeeded) {
+        return aStats.minNeeded - bStats.minNeeded
+      }
+
+      if (aStats.totalMatches !== bStats.totalMatches) {
+        return bStats.totalMatches - aStats.totalMatches
+      }
+
+      return aStats.created_at - bStats.created_at
+    })
+  }, [drawnNumbers, totalTickets.length])
+
+  const lowestMatchesToWin =
+    orderedTickets.length > 0
+      ? ticketStatsMap[orderedTickets[0].id].minNeeded
+      : 0
+
+  const ticketsWithLowestToWin = orderedTickets.filter(
+    (ticket) => ticketStatsMap[ticket.id].minNeeded === lowestMatchesToWin
   )
 
-  const winnersCandidatesByMatches = ticketsWithHighestMatches
+  const winnersCandidatesByMatches = ticketsWithLowestToWin
     .map((ticket) => {
       return {
         id: ticket.id,
-        matches: matchesPerTicket[ticket.id].filter((n) => n === 1).length,
+        matches: ticketStatsMap[ticket.id].totalMatches,
       }
     })
     .sort((a, b) => b.matches - a.matches)
@@ -430,6 +445,14 @@ export default function LotoPage() {
   const winnerCandidate = totalTickets
     .filter((ticket) => winnersByMatchesIds.includes(ticket.id))
     .sort((a, b) => a.created_at - b.created_at)[0]
+
+  // console.log({
+  //   lowestMatchesToWin,
+  //   ticketsWithLowestToWin,
+  //   winnerCandidate,
+  //   winnersByMatchesIds,
+  //   highestMatchesAmount,
+  // })
 
   const hostNicknames = new Set(
     uniq(chatConnections.map((c) => c.channel.toLowerCase()))
@@ -444,9 +467,7 @@ export default function LotoPage() {
   const showWinnerTicketTime = winnersByMatchesIds.length > 1
 
   const winnerFound =
-    state === 'playing' &&
-    winnerCandidate &&
-    highestMatches >= lotoConfig.win_matches_amount
+    state === 'playing' && winnerCandidate && lowestMatchesToWin <= 0
 
   const winner = winnerFound ? winnerCandidate : undefined
 
@@ -1070,9 +1091,10 @@ export default function LotoPage() {
                   <TicketBox
                     key={idx}
                     ticket={ticket}
-                    matches={matchesPerTicket[ticket.id]}
+                    matches={ticketStatsMap[ticket.id].matches}
                     isWinner={isWinner}
                     owner={allUsersById[ticket.owner_id]}
+                    lastDrawnNumber={drawnNumbers[drawnNumbers.length - 1]}
                   />
                 )
               })}
@@ -1108,7 +1130,7 @@ export default function LotoPage() {
                   >
                     <TicketBox
                       ticket={ticket}
-                      matches={matchesPerTicket[ticket.id]}
+                      matches={ticketStatsMap[ticket.id].matches}
                       isWinner={isWinner}
                       owner={allUsersById[ticket.owner_id]}
                       showTime={
@@ -1116,6 +1138,7 @@ export default function LotoPage() {
                         showWinnerTicketTime &&
                         Boolean(winner)
                       }
+                      lastDrawnNumber={drawnNumbers[drawnNumbers.length - 1]}
                     />
                     {winner && (
                       <Box position="relative">
@@ -1137,7 +1160,7 @@ export default function LotoPage() {
                           >
                             {showChatMessages ? 'Скрыть чат' : 'Показать чат'}
                           </Button>
-                          <Tooltip title="Удалить победителя и продолжить лото">
+                          <Tooltip title="Удалить участника и продолжить лото">
                             <Box>
                               <Button
                                 size="small"
