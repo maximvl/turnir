@@ -53,15 +53,6 @@ import AnimatedNumber from './AnimatedNumber'
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
 
-// numbers from 01 to 99
-let DrawingNumbers: string[] = []
-function resetDrawingNumbers() {
-  DrawingNumbers = Array.from({ length: 99 }, (_, i) =>
-    (i + 1).toString().padStart(2, '0')
-  )
-}
-resetDrawingNumbers()
-
 const BingoImage = sample([
   'https://s3.gifyu.com/images/b2PmQ.gif',
   'https://s3.gifyu.com/images/b2Pmn.gif',
@@ -101,6 +92,20 @@ export default function LotoPage() {
       ...(lotoConfigLoaded as typeof defaultConfig),
     }
   }, [lotoConfigLoaded])
+
+  const drawNumberLimit = lotoConfig.limit_to_90 ? 90 : 99
+
+  const [drawNumbersPool, setDrawNumbersPool] = useState<string[]>(() =>
+    Array.from({ length: drawNumberLimit }, (_, i) =>
+      (i + 1).toString().padStart(2, '0')
+    )
+  )
+
+  const drawNumber = (next: string) => {
+    drawNumbersPool.splice(drawNumbersPool.indexOf(next), 1)
+    setDrawNumbersPool([...drawNumbersPool])
+    return next
+  }
 
   const superGameGuessesAmount = lotoConfig.super_game_guesses_amount
 
@@ -256,6 +261,7 @@ export default function LotoPage() {
         newMessages: lotoMessagesFromUsers,
         type: 'chat',
         isLatecomer,
+        drawOptions: drawNumbersPool,
       })
       if (newTicketsFromChat.length > 0) {
         setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
@@ -283,6 +289,7 @@ export default function LotoPage() {
         newMessages: lotoMessagesFromBot,
         type: 'points',
         isLatecomer,
+        drawOptions: drawNumbersPool,
       })
       if (newTicketsFromPoints.length > 0) {
         setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
@@ -310,7 +317,7 @@ export default function LotoPage() {
     if (nextDigitState === 'roll_start') {
       setNextDigitState('rolling')
 
-      const nextNumber = sample(DrawingNumbers) as string
+      const nextNumber = sample(drawNumbersPool) as string
       setNextNumber(nextNumber)
       nextNumberRef.current = nextNumber
 
@@ -404,6 +411,10 @@ export default function LotoPage() {
   // order tickets by consequent matches then by total matches
   const orderedTickets = useMemo(() => {
     return [...totalTickets].sort((a, b) => {
+      if (state === 'registration') {
+        return b.created_at - a.created_at
+      }
+
       const aStats = ticketStatsMap[a.id]
       const bStats = ticketStatsMap[b.id]
 
@@ -417,7 +428,7 @@ export default function LotoPage() {
 
       return aStats.created_at - bStats.created_at
     })
-  }, [drawnNumbers, totalTickets.length])
+  }, [drawnNumbers, totalTickets.length, state])
 
   const lowestMatchesToWin =
     orderedTickets.length > 0
@@ -681,7 +692,7 @@ export default function LotoPage() {
       >
         <Box marginBottom={'200px'} width={'100%'}>
           <Box position="absolute" left="20px">
-            <ConfigurationButton streamsRewards={streamsInfo} />
+            <ConfigurationButton streamsRewards={streamsInfo} state={state} />
             {state === 'registration' && (
               <>
                 <FormGroup>
@@ -1192,11 +1203,6 @@ export default function LotoPage() {
   )
 }
 
-function drawNumber(next: string) {
-  DrawingNumbers.splice(DrawingNumbers.indexOf(next), 1)
-  return next
-}
-
 // Как сделать отображение новых наград публичными/приватными?
 // Нужно ввести в чате своего канала соответствующую команду:
 // Сделать отображения публичными: /rewardalert public
@@ -1215,6 +1221,7 @@ type getTicketsParams = {
   newMessages: UserInfo[]
   type: 'chat' | 'points'
   isLatecomer: boolean
+  drawOptions: string[]
 }
 
 function getNewTickets({
@@ -1222,6 +1229,7 @@ function getNewTickets({
   newMessages,
   type,
   isLatecomer,
+  drawOptions,
 }: getTicketsParams) {
   const currentOwners = currentTickets.map((ticket) => `${ticket.owner_id}`)
 
@@ -1235,7 +1243,7 @@ function getNewTickets({
       genTicket({
         ownerId: owner.user_id,
         ownerName: owner.username,
-        drawOptions: DrawingNumbers,
+        drawOptions,
         type,
         text: owner.text,
         source: owner.source,

@@ -19,6 +19,7 @@ import { useState } from 'react'
 import { VkRole } from '../turnir/api'
 
 type Props = {
+  state: 'registration' | 'playing'
   streamsRewards: { [k: string]: { roles: VkRole[] } }
 }
 
@@ -26,6 +27,7 @@ export type VkRewards = { [stream: string]: { [roleId: string]: number } }
 type ConfigType = {
   win_matches_amount: number
   manual_draw_enabled: boolean
+  limit_to_90: boolean
   super_game_options_amount: number
   super_game_guesses_amount: number
   super_game_1_pointers: number
@@ -37,6 +39,7 @@ type ConfigType = {
 
 export const defaultConfig: ConfigType = {
   win_matches_amount: 3,
+  limit_to_90: false,
   manual_draw_enabled: false,
   super_game_options_amount: 30,
   super_game_guesses_amount: 5,
@@ -47,7 +50,7 @@ export const defaultConfig: ConfigType = {
   super_game_vk_rewards: {},
 }
 
-export default function ConfigurationButton({ streamsRewards }: Props) {
+export default function ConfigurationButton({ streamsRewards, state }: Props) {
   const { value: savedConfig, save: updateConfig } = useLocalStorage({
     key: 'loto-config',
     defaultValue: defaultConfig,
@@ -132,6 +135,18 @@ export default function ConfigurationButton({ streamsRewards }: Props) {
                 onChange={(e) =>
                   setField('manual_draw_enabled', e.target.checked)
                 }
+              />
+            </FormControl>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Box marginRight="10px">
+              Ограничить до 90 (как в классическом лото)
+            </Box>
+            <FormControl size="small">
+              <Checkbox
+                checked={config.limit_to_90}
+                onChange={(e) => setField('limit_to_90', e.target.checked)}
+                disabled={state !== 'registration'}
               />
             </FormControl>
           </Box>
