@@ -1,7 +1,6 @@
 import { sample, sampleSize, shuffle, uniq } from 'lodash'
-import { ChatUser } from '@/pages/turnir/api'
 import { SuperGameResultItem, Ticket, TicketId } from './types'
-import { ChatConnection, ChatServerType } from '../turnir/types'
+import { ChatConnection, ChatServerType, ChatUser } from '../turnir/types'
 import { VkRewards } from './ConfigurationButton'
 
 type Props = {
@@ -27,7 +26,7 @@ export function genTicket({
 }: Props): Ticket {
   const value = genTicketNumber(drawOptions, text)
   return {
-    id: Math.random().toString(36).substring(2, 9) as TicketId,
+    id: `${ownerId}-${created_at}` as TicketId,
     owner_id: ownerId,
     owner_name: ownerName,
     value,

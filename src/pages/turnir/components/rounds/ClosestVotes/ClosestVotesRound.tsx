@@ -2,12 +2,11 @@ import { Box, Button, Slider } from '@mui/material'
 import useChatVoting from '../../../hooks/useChatVoting'
 import { isEmpty } from 'lodash'
 import { useContext, useEffect, useState } from 'react'
-import { Item, MusicType } from '@/pages/turnir/types'
+import { ChatMessage, Item, MusicType } from '@/pages/turnir/types'
 import PollResults from '../ViewerChoice/PollResults'
 import VotesLog from '../ViewerChoice/VotesLog'
 import InfoPanel from '../shared/InfoPanel'
 import { MusicContext } from '@/common/hooks/MusicContext'
-import { ChatMessage } from '@/pages/turnir/api'
 
 type Props = {
   items: Item[]

@@ -1,7 +1,6 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
-import { Item } from '@/pages/turnir/types'
-import { ChatMessage } from '@/pages/turnir/api'
+import { Item, ChatMessage } from '@/pages/turnir/types'
 import useChatMessages from '@/common/hooks/useChatMessages'
 
 type Props = {

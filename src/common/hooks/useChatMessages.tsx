@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash'
 import { useEffect, useState } from 'react'
 import { useQueries } from '@tanstack/react-query'
-import { fetchMessages, ChatMessage } from '@/pages/turnir/api'
+import { fetchMessages } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
-import { ChatConnection } from '@/pages/turnir/types'
+import { ChatConnection, ChatMessage } from '@/pages/turnir/types'
 
 type Props = {
   fetching?: boolean

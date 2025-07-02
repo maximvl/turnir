@@ -1,4 +1,4 @@
-import { ChatUser } from '@/pages/turnir/api'
+import { ChatUser } from '@/pages/turnir/types'
 
 export type Option = {
   id: string

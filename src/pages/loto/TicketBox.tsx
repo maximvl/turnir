@@ -12,7 +12,7 @@ import {
   ServerIcons,
   VkColorsMap,
 } from './utils'
-import { ChatUser } from '@/pages/turnir/api'
+import { ChatUser } from '@/pages/turnir/types'
 
 type MatchRange = {
   start: number

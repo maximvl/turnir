@@ -4,17 +4,20 @@ import useLocalStorage from '@/common/hooks/useLocalStorage'
 import useTimer from '@/common/hooks/useTimer'
 import MainMenu from '@/common/MainMenu'
 import {
-  ChatUser,
   createLotoWinners,
   fetchStreamInfo,
   LotoWinnersCreate,
   LotoWinnerUpdate,
   updateLotoWinner,
-  VkMention,
   VkRole,
 } from '@/pages/turnir/api'
 import InfoPanel from '@/pages/turnir/components/rounds/shared/InfoPanel'
-import { ChatConnection, MusicType } from '@/pages/turnir/types'
+import {
+  ChatConnection,
+  MusicType,
+  VkMention,
+  ChatUser,
+} from '@/pages/turnir/types'
 import { PlayCircleFilled } from '@mui/icons-material'
 import {
   Box,
@@ -216,8 +219,9 @@ export default function LotoPage() {
       fetching: true,
     })
 
-  const addNewTickets = state === 'registration' || state === 'playing'
-  if (addNewTickets && newChatMessages.length > 0) {
+  let hasUpdatedTickets = false
+
+  if (newChatMessages.length > 0) {
     const messagesUsers = uniqBy(
       newChatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
       (user) => user.id
@@ -263,8 +267,69 @@ export default function LotoPage() {
         isLatecomer,
         drawOptions: drawNumbersPool,
       })
-      if (newTicketsFromChat.length > 0) {
-        setTicketsFromChat([...newTicketsFromChat, ...ticketsFromChat])
+      // if (newTicketsFromChat.length > 0) {
+      //   setTicketsFromChat((current) => [...newTicketsFromChat, ...current])
+      // }
+
+      if (state === 'registration') {
+        hasUpdatedTickets = ticketsFromChat.some((ticket) => {
+          const messageFromUser = lotoMessagesFromUsers.find(
+            (msg) => msg.user_id === ticket.owner_id
+          )
+          return (
+            messageFromUser && messageFromUser.created_at !== ticket.created_at
+          )
+        })
+      }
+
+      const hasUpdate = newTicketsFromChat.length > 0 || hasUpdatedTickets
+
+      if (hasUpdate) {
+        console.log(
+          'updating tickets from chat',
+          hasUpdate,
+          newTicketsFromChat,
+          hasUpdatedTickets
+        )
+        setTicketsFromChat((current) => {
+          // console.log(
+          //   'current updated',
+          //   current.filter(
+          //     (ticket) =>
+          //       !updatedTicketsFromChat.some((t) => t.id === ticket.id)
+          //   )
+          // )
+          const update = [
+            ...newTicketsFromChat,
+            ...current.map((ticket) => {
+              if (!hasUpdatedTickets) {
+                return ticket
+              }
+              const messageFromUser = lotoMessagesFromUsers.find(
+                (msg) => msg.user_id === ticket.owner_id
+              )
+              if (
+                messageFromUser &&
+                messageFromUser.created_at !== ticket.created_at
+              ) {
+                console.log('changing ticket for', messageFromUser, ticket)
+                return genTicket({
+                  ownerId: ticket.owner_id,
+                  ownerName: ticket.owner_name,
+                  drawOptions: drawNumbersPool,
+                  source: ticket.source,
+                  text: messageFromUser.text,
+                  type: ticket.type,
+                  created_at: messageFromUser.created_at,
+                  isLatecomer: false,
+                })
+              }
+              return ticket
+            }),
+          ]
+          console.log('new tickets state', update)
+          return update
+        })
       }
 
       const lotoMessagesFromBotRaw = lotoMessages.filter(
@@ -292,7 +357,7 @@ export default function LotoPage() {
         drawOptions: drawNumbersPool,
       })
       if (newTicketsFromPoints.length > 0) {
-        setTicketsFromPoints([...newTicketsFromPoints, ...ticketsFromPoints])
+        setTicketsFromPoints((current) => [...newTicketsFromPoints, ...current])
       }
     }
   }
@@ -344,6 +409,7 @@ export default function LotoPage() {
     totalTickets = [...totalTickets, ...ticketsFromPoints]
   }
 
+  // TODO check if participanting user ids also populated via points messages
   totalTickets = totalTickets.filter((ticket) =>
     participatingUserIds.includes(ticket.owner_id)
   )
@@ -406,7 +472,7 @@ export default function LotoPage() {
       }
     }
     return result
-  }, [totalTickets.length, drawnNumbers])
+  }, [totalTickets.length, drawnNumbers, hasUpdatedTickets])
 
   // order tickets by consequent matches then by total matches
   const orderedTickets = useMemo(() => {
@@ -418,6 +484,11 @@ export default function LotoPage() {
       const aStats = ticketStatsMap[a.id]
       const bStats = ticketStatsMap[b.id]
 
+      // console.log('sorting', {
+      //   aStats,
+      //   bStats,
+      // })
+
       if (aStats.minNeeded !== bStats.minNeeded) {
         return aStats.minNeeded - bStats.minNeeded
       }
@@ -428,7 +499,7 @@ export default function LotoPage() {
 
       return aStats.created_at - bStats.created_at
     })
-  }, [drawnNumbers, totalTickets.length, state])
+  }, [drawnNumbers, totalTickets.length, state, hasUpdatedTickets])
 
   const lowestMatchesToWin =
     orderedTickets.length > 0
