@@ -226,19 +226,27 @@ export default function LotoPage() {
       newChatMessages.map((msg) => ({ ...msg.user, source: msg.source })),
       (user) => user.id
     )
+
+    const newUsersById: { [key: string]: ChatUser } = {}
+
     if (messagesUsers.length > 0) {
-      const newUsersById = messagesUsers.reduce(
-        (acc, user) => {
-          if (!allUsersById[user.id]) {
+      messagesUsers.reduce((acc, user) => {
+        const existingUser = allUsersById[user.id]
+        if (!allUsersById[user.id]) {
+          acc[user.id] = user
+        } else {
+          if (existingUser.twitch_fields != user.twitch_fields) {
             acc[user.id] = user
           }
-          return acc
-        },
-        {} as { [key: string]: ChatUser }
-      )
-      if (Object.keys(newUsersById).length > 0) {
-        setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
-      }
+          if (existingUser.vk_fields != user.vk_fields) {
+            acc[user.id] = user
+          }
+        }
+        return acc
+      }, newUsersById)
+      // if (Object.keys(newUsersById).length > 0) {
+      //   setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
+      // }
     }
 
     const lotoMessages = newChatMessages.filter((msg) =>
@@ -338,6 +346,23 @@ export default function LotoPage() {
           msg.vk_fields &&
           msg.vk_fields.mentions.length > 0
       )
+
+      lotoMessagesFromBotRaw.reduce((acc, msg) => {
+        const mention = msg.vk_fields?.mentions[0] as VkMention
+        if (!acc[mention.id] && !allUsersById[mention.id]) {
+          acc[mention.id] = {
+            id: `${mention.id}`,
+            username: mention.displayName,
+            source: msg.source,
+            created_at: msg.ts,
+          } as ChatUser
+        }
+        return acc
+      }, newUsersById)
+
+      if (Object.keys(newUsersById).length > 0) {
+        setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
+      }
 
       const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
