@@ -293,20 +293,7 @@ export default function LotoPage() {
       const hasUpdate = newTicketsFromChat.length > 0 || hasUpdatedTickets
 
       if (hasUpdate) {
-        console.log(
-          'updating tickets from chat',
-          hasUpdate,
-          newTicketsFromChat,
-          hasUpdatedTickets
-        )
         setTicketsFromChat((current) => {
-          // console.log(
-          //   'current updated',
-          //   current.filter(
-          //     (ticket) =>
-          //       !updatedTicketsFromChat.some((t) => t.id === ticket.id)
-          //   )
-          // )
           const update = [
             ...newTicketsFromChat,
             ...current.map((ticket) => {
@@ -335,7 +322,6 @@ export default function LotoPage() {
               return ticket
             }),
           ]
-          console.log('new tickets state', update)
           return update
         })
       }
@@ -776,9 +762,13 @@ export default function LotoPage() {
   const animate = state === 'playing' || state === 'registration'
   const TicketsContainer = animate ? motion.div : 'div'
 
+  const mainMenuMemo = useMemo(() => {
+    return <MainMenu title={'Лото 2.0 с чатом'} />
+  }, [])
+
   return (
     <Box onClick={startMusic} className="loto-page">
-      <MainMenu title={'Лото 2.0 с чатом'} />
+      {mainMenuMemo}
       <Box
         display="flex"
         justifyContent={'center'}

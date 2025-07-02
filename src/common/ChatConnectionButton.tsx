@@ -32,6 +32,11 @@ export default function ChatConnectionButton(props: Props) {
     defaultValue: [],
   })
 
+  const { value: chatToReconnect, save: saveChatToReconnect } =
+    useLocalStorage<ChatConnection | null>({
+      key: 'reconnect-chat',
+    })
+
   const [connectionStates, setConnectionStates] = useState<ConnectionStatus[]>(
     () => {
       return chatConnections.map(() => 'disconnected')
@@ -62,6 +67,26 @@ export default function ChatConnectionButton(props: Props) {
       })
     },
   })
+
+  useEffect(() => {
+    if (!chatToReconnect) {
+      return
+    }
+    const index = chatConnections.findIndex(
+      (conn) =>
+        conn.server === chatToReconnect.server &&
+        conn.channel === chatToReconnect.channel
+    )
+    if (index !== -1 && connectionStates[index] !== 'connecting') {
+      setConnectionStates((prev) => {
+        const newState = [...prev]
+        newState[index] = 'connecting'
+        return newState
+      })
+      connectToChat(chatToReconnect)
+    }
+    saveChatToReconnect(null) // Clear the reconnect state after attempting to connect
+  }, [chatToReconnect])
 
   const serverNames = {
     twitch: 'twitch.tv',
