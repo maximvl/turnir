@@ -434,7 +434,6 @@ export default function LotoPage() {
     totalTickets = [...totalTickets, ...ticketsFromPoints]
   }
 
-  // TODO check if participanting user ids also populated via points messages
   totalTickets = totalTickets.filter((ticket) =>
     participatingUserIds.includes(ticket.owner_id)
   )
