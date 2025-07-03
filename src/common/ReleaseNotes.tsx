@@ -19,6 +19,14 @@ type ReleaseNote = {
 
 const releaseNotesData: ReleaseNote[] = [
   {
+    version: '1.34',
+    date: '2025-07-03',
+    changes: [
+      'Добавлена возможность делегировать ручной ввод бочонков модераторам',
+      'Добавлено отображение участников с каждого сервера',
+    ],
+  },
+  {
     version: '1.33',
     date: '2025-07-03',
     changes: [
@@ -83,9 +91,7 @@ const releaseNotesData: ReleaseNote[] = [
   {
     version: '1.24',
     date: '2025-04-21',
-    changes: [
-      'Пофикшен баг с возможностью получать в билете больше чисел чем положено',
-    ],
+    changes: ['Пофикшен баг с возможностью получать в билете больше чисел чем положено'],
   },
   {
     version: '1.23',
@@ -141,19 +147,12 @@ const releaseNotesData: ReleaseNote[] = [
   {
     version: '1.14',
     date: '2025-01-12',
-    changes: [
-      'Улучшено отображение билетов',
-      'Улучшено отображение супер игры',
-      'Добавлен таймер',
-    ],
+    changes: ['Улучшено отображение билетов', 'Улучшено отображение супер игры', 'Добавлен таймер'],
   },
   {
     version: '1.13',
     date: '2025-01-10',
-    changes: [
-      'Улучшена интеграция с чатом твича',
-      'Добавлена интеграция с nuum и goodgame',
-    ],
+    changes: ['Улучшена интеграция с чатом твича', 'Добавлена интеграция с nuum и goodgame'],
   },
   {
     version: '1.12',
@@ -256,12 +255,7 @@ export default function ReleaseNotes() {
   return (
     <>
       <Button onClick={() => setShow(true)}>Что нового</Button>
-      <Dialog
-        open={show}
-        onClose={() => setShow(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={show} onClose={() => setShow(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Что нового</DialogTitle>
         <DialogContent dividers>
           {releaseNotesData.map((releaseNote) => {
@@ -269,8 +263,7 @@ export default function ReleaseNotes() {
             if (isNil(lastSeenVersion)) {
               highlight = false
             } else {
-              highlight =
-                parseFloat(lastSeenVersion) < parseFloat(releaseNote.version)
+              highlight = parseFloat(lastSeenVersion) < parseFloat(releaseNote.version)
             }
             return (
               <div key={releaseNote.version} style={{ alignItems: 'center' }}>
@@ -283,9 +276,7 @@ export default function ReleaseNotes() {
                       day: 'numeric',
                     })}
                   </Typography>
-                  {highlight && (
-                    <NewReleases color="primary" style={{ marginLeft: 2 }} />
-                  )}
+                  {highlight && <NewReleases color="primary" style={{ marginLeft: 2 }} />}
                 </Box>
 
                 <ul>
