@@ -338,7 +338,7 @@ export function isModerator(user: ChatUser): boolean {
   if (user.twitch_fields?.badges && user.twitch_fields?.badges.length > 0) {
     return user.twitch_fields.badges.some((badge) => badge.title.toLowerCase() === 'moderator')
   }
-  if (user.vk_fields?.isChannelModerator) {
+  if (user.vk_fields?.isChannelModerator || user.vk_fields?.isChatModerator) {
     return true
   }
   return false
