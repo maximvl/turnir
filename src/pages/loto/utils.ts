@@ -206,9 +206,7 @@ export const VkColorsMap: { [key: number]: string } = {
 
 export function isUserSubscriber(user: ChatUser) {
   const badges = user.vk_fields?.badges || []
-  const subBadges = badges.filter(
-    (badge) => badge.achievement.type === 'subscription'
-  )
+  const subBadges = badges.filter((badge) => badge.achievement.type === 'subscription')
   return subBadges.length > 0
 }
 
@@ -234,12 +232,9 @@ export function isBrightColor(hexColor: string): boolean {
   let bNorm = b / 255
 
   // Apply gamma correction
-  rNorm =
-    rNorm <= 0.03928 ? rNorm / 12.92 : Math.pow((rNorm + 0.055) / 1.055, 2.4)
-  gNorm =
-    gNorm <= 0.03928 ? gNorm / 12.92 : Math.pow((gNorm + 0.055) / 1.055, 2.4)
-  bNorm =
-    bNorm <= 0.03928 ? bNorm / 12.92 : Math.pow((bNorm + 0.055) / 1.055, 2.4)
+  rNorm = rNorm <= 0.03928 ? rNorm / 12.92 : Math.pow((rNorm + 0.055) / 1.055, 2.4)
+  gNorm = gNorm <= 0.03928 ? gNorm / 12.92 : Math.pow((gNorm + 0.055) / 1.055, 2.4)
+  bNorm = bNorm <= 0.03928 ? bNorm / 12.92 : Math.pow((bNorm + 0.055) / 1.055, 2.4)
 
   // Calculate luminance
   const luminance = 0.2126 * rNorm + 0.7152 * gNorm + 0.0722 * bNorm
@@ -258,9 +253,7 @@ export function formatSeconds(seconds: number) {
 export function formatSecondsZero(seconds: number) {
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
-  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds
-    .toString()
-    .padStart(2, '0')}`
+  return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
 type GenerateParams = {
@@ -338,6 +331,15 @@ export const ServerIcons: { [k in ChatServerType]: string } = {
   kick: 'https://kick.com/favicon.ico',
   goodgame: 'https://static.goodgame.ru/images/favicon/favicon-32x32.png',
   nuum: 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png',
-  youtube:
-    'https://www.youtube.com/s/desktop/e1590144/img/logos/favicon_32x32.png',
+  youtube: 'https://www.youtube.com/s/desktop/e1590144/img/logos/favicon_32x32.png',
+}
+
+export function isModerator(user: ChatUser): boolean {
+  if (user.twitch_fields?.badges && user.twitch_fields?.badges.length > 0) {
+    return user.twitch_fields.badges.some((badge) => badge.title.toLowerCase() === 'moderator')
+  }
+  if (user.vk_fields?.isChannelModerator) {
+    return true
+  }
+  return false
 }

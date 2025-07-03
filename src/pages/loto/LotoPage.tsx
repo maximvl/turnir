@@ -242,7 +242,11 @@ export default function LotoPage() {
       // }
     }
 
-    if (lotoConfig.allow_mods_to_input_numbers && lotoConfig.manual_draw_enabled) {
+    if (
+      state === 'playing' &&
+      lotoConfig.allow_mods_to_input_numbers &&
+      lotoConfig.manual_draw_enabled
+    ) {
       const regex = /^\+\d{1,2}$/
       const moderMessages = newChatMessages.filter((msg) => isModerator(msg.user))
       let moderNumber = null
