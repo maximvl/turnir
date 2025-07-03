@@ -24,10 +24,12 @@ export type FetchMessagesParams = {
 }
 
 let chatResultMock: ChatMessagesResponse | null = null
+let throwApiError: boolean = false
 
 declare global {
   interface Window {
     debugSendChat: (user_id: string, message: string) => void
+    debugApiError: () => void
   }
 }
 
@@ -57,6 +59,28 @@ if (MOCK_API) {
       ],
     }
   }
+
+  window.debugApiError = function () {
+    throwApiError = !throwApiError
+  }
+}
+
+export class ApiError extends Error {
+  status: number
+  body: {
+    error: string
+  }
+
+  constructor(
+    status: number,
+    body: {
+      error: string
+    }
+  ) {
+    super(`API Error: ${status}`)
+    this.status = status
+    this.body = body
+  }
 }
 
 let mockedMessagesAmount = 200
@@ -78,6 +102,15 @@ export async function fetchMessages({
 
   if (MOCK_API) {
     console.log(`GET ${url}`)
+
+    if (throwApiError) {
+      // Simulate an API error
+      console.log('throwing api error')
+      throw new ApiError(400, {
+        error: 'channel not found',
+      })
+    }
+
     // console.log('fetching messages', channel, ts, textFilter, platform)
 
     if (chatResultMock) {
@@ -88,8 +121,11 @@ export async function fetchMessages({
 
     // const gameMessages = [makeGameMessage(), makeGameMessage()]
     // return { chat_messages: [makeSuperGameMessage()] }
-    const mocksPerRequest = 50
+    const mocksPerRequest = 10
     const mocksLeft = mockedMessagesAmount - mocksPerRequest
+
+    // console.log({ mocksLeft, mockedMessagesAmount, mocksPerRequest })
+
     if (mocksLeft < 0) {
       return { chat_messages: [] }
     }
@@ -98,10 +134,18 @@ export async function fetchMessages({
       return makeMessage(platform, channel)
     })
 
+    // console.log({ messages })
+
     return { chat_messages: messages }
   }
 
-  return fetch(url).then((res) => res.json())
+  return fetch(url).then(async (res) => {
+    const data = await res.json()
+    if (!res.ok) {
+      throw new ApiError(res.status, data)
+    }
+    return data
+  })
 }
 
 export async function resetVotes(options: string[]): Promise<number> {
