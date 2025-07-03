@@ -133,7 +133,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             </FormControl>
           </Box>
           <Box display="flex" alignItems="center">
-            <Box marginRight="10px">Разрешить модераторам вводить номера</Box>
+            <Box marginRight="10px">Разрешить модераторам вводить бочонки: +номер</Box>
             <FormControl size="small">
               <Checkbox
                 checked={config.allow_mods_to_input_numbers}
