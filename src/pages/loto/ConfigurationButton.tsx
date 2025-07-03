@@ -28,6 +28,7 @@ type ConfigType = {
   win_matches_amount: number
   manual_draw_enabled: boolean
   limit_to_90: boolean
+  allow_mods_to_input_numbers: boolean
   super_game_options_amount: number
   super_game_guesses_amount: number
   super_game_1_pointers: number
@@ -40,6 +41,7 @@ type ConfigType = {
 export const defaultConfig: ConfigType = {
   win_matches_amount: 3,
   limit_to_90: false,
+  allow_mods_to_input_numbers: false,
   manual_draw_enabled: false,
   super_game_options_amount: 30,
   super_game_guesses_amount: 5,
@@ -93,9 +95,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
   const superGameWinChange =
     winningProbability(
       config.super_game_options_amount,
-      config.super_game_1_pointers +
-        config.super_game_2_pointers +
-        config.super_game_3_pointers,
+      config.super_game_1_pointers + config.super_game_2_pointers + config.super_game_3_pointers,
       config.super_game_guesses_amount
     ) * 100
 
@@ -109,15 +109,11 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
         <DialogContent>
           <Box sx={{ fontWeight: 700 }}>Лото</Box>
           <Box display="flex" alignItems="center">
-            <Box marginRight="10px">
-              Количество совпадений подряд для победы
-            </Box>
+            <Box marginRight="10px">Количество совпадений подряд для победы</Box>
             <FormControl size="small">
               <Select
                 value={config.win_matches_amount}
-                onChange={(e) =>
-                  setField('win_matches_amount', Number(e.target.value))
-                }
+                onChange={(e) => setField('win_matches_amount', Number(e.target.value))}
               >
                 {range(1, 9).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -132,16 +128,21 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Checkbox
                 checked={config.manual_draw_enabled}
-                onChange={(e) =>
-                  setField('manual_draw_enabled', e.target.checked)
-                }
+                onChange={(e) => setField('manual_draw_enabled', e.target.checked)}
               />
             </FormControl>
           </Box>
           <Box display="flex" alignItems="center">
-            <Box marginRight="10px">
-              Ограничить до 90 (как в классическом лото)
-            </Box>
+            <Box marginRight="10px">Разрешить модераторам вводить номера</Box>
+            <FormControl size="small">
+              <Checkbox
+                checked={config.allow_mods_to_input_numbers}
+                onChange={(e) => setField('allow_mods_to_input_numbers', e.target.checked)}
+              />
+            </FormControl>
+          </Box>
+          <Box display="flex" alignItems="center">
+            <Box marginRight="10px">Ограничить до 90 (как в классическом лото)</Box>
             <FormControl size="small">
               <Checkbox
                 checked={config.limit_to_90}
@@ -157,9 +158,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Select
                 value={config.super_game_options_amount}
-                onChange={(e) =>
-                  setField('super_game_options_amount', Number(e.target.value))
-                }
+                onChange={(e) => setField('super_game_options_amount', Number(e.target.value))}
               >
                 {range(1, 100).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -174,9 +173,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Select
                 value={config.super_game_guesses_amount}
-                onChange={(e) =>
-                  setField('super_game_guesses_amount', Number(e.target.value))
-                }
+                onChange={(e) => setField('super_game_guesses_amount', Number(e.target.value))}
               >
                 {range(1, 21).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -191,9 +188,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Select
                 value={config.super_game_1_pointers}
-                onChange={(e) =>
-                  setField('super_game_1_pointers', Number(e.target.value))
-                }
+                onChange={(e) => setField('super_game_1_pointers', Number(e.target.value))}
               >
                 {range(0, 21).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -208,9 +203,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Select
                 value={config.super_game_2_pointers}
-                onChange={(e) =>
-                  setField('super_game_2_pointers', Number(e.target.value))
-                }
+                onChange={(e) => setField('super_game_2_pointers', Number(e.target.value))}
               >
                 {range(0, 21).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -225,9 +218,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             <FormControl size="small">
               <Select
                 value={config.super_game_3_pointers}
-                onChange={(e) =>
-                  setField('super_game_3_pointers', Number(e.target.value))
-                }
+                onChange={(e) => setField('super_game_3_pointers', Number(e.target.value))}
               >
                 {range(0, 21).map((value) => (
                   <MenuItem key={value} value={value}>
@@ -238,14 +229,10 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
             </FormControl>
           </Box>
           <Box display="flex" alignItems="center">
-            <Box marginRight="10px">
-              Давать бонусные открытия за угаданные ячейки
-            </Box>
+            <Box marginRight="10px">Давать бонусные открытия за угаданные ячейки</Box>
             <Checkbox
               checked={config.super_game_bonus_guesses_enabled}
-              onChange={(e) =>
-                setField('super_game_bonus_guesses_enabled', e.target.checked)
-              }
+              onChange={(e) => setField('super_game_bonus_guesses_enabled', e.target.checked)}
             />
           </Box>
           <Box
@@ -272,12 +259,8 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
                     </Tooltip>
                     <FormControl size="small">
                       <Select
-                        value={
-                          config.super_game_vk_rewards?.[key]?.[role.id] || 0
-                        }
-                        onChange={(e) =>
-                          handleRewardChange(key, role, Number(e.target.value))
-                        }
+                        value={config.super_game_vk_rewards?.[key]?.[role.id] || 0}
+                        onChange={(e) => handleRewardChange(key, role, Number(e.target.value))}
                       >
                         {range(0, 10).map((value) => (
                           <MenuItem key={value} value={value}>
@@ -331,10 +314,7 @@ function winningProbability(
   }
 
   const totalWaysToDraw = combination(totalNumbers, playerDraws)
-  const waysToDrawNoWinningNumbers = combination(
-    totalNumbers - winningNumbers,
-    playerDraws
-  )
+  const waysToDrawNoWinningNumbers = combination(totalNumbers - winningNumbers, playerDraws)
 
   return 1 - waysToDrawNoWinningNumbers / totalWaysToDraw
 }

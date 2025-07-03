@@ -3,11 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQueries } from '@tanstack/react-query'
 import { ApiError, fetchMessages } from '@/pages/turnir/api'
 import useLocalStorage from './useLocalStorage'
-import {
-  ChatConnection,
-  ChatMessage,
-  ChatServerType,
-} from '@/pages/turnir/types'
+import { ChatConnection, ChatMessage, ChatServerType } from '@/pages/turnir/types'
 
 type Props = {
   fetching?: boolean
@@ -57,9 +53,9 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
     }
   }
 
-  console.log({
-    refetchInterval,
-  })
+  // console.log({
+  //   refetchInterval,
+  // })
 
   const queries = chatConnections
     .filter((conn) => conn.channel !== '')
@@ -91,73 +87,59 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
   const alreadyReconnecting = useRef<Set<string>>(new Set())
   const results = useQueries({ queries })
 
-  const lastTsList = results.map(
-    ({ error, isLoading, data: chatData }, index) => {
-      const queryKey = queries[index].queryKey as [
-        string,
-        ChatServerType,
-        string,
-        number,
-      ]
+  const lastTsList = results.map(({ error, isLoading, data: chatData }, index) => {
+    const queryKey = queries[index].queryKey as [string, ChatServerType, string, number]
 
-      if (error) {
-        if (
-          error instanceof ApiError &&
-          error.body.error === 'channel not found'
-        ) {
-          if (lastErrorAt === null || Date.now() - lastErrorAt > 1000) {
-            setLastErrorAt(Date.now())
-          }
-          if (errorsStartedAt === null) {
-            setErrorsStartedAt(Date.now())
-          }
-          // console.log('updating connection set')
-          alreadyReconnecting.current.add(`${queryKey[1]}/${queryKey[2]}`)
+    if (error) {
+      if (error instanceof ApiError && error.body.error === 'channel not found') {
+        if (lastErrorAt === null || Date.now() - lastErrorAt > 1000) {
+          setLastErrorAt(Date.now())
         }
-        return 'error'
+        if (errorsStartedAt === null) {
+          setErrorsStartedAt(Date.now())
+        }
+        // console.log('updating connection set')
+        alreadyReconnecting.current.add(`${queryKey[1]}/${queryKey[2]}`)
       }
+      return 'error'
+    }
 
-      if (!error && !isLoading && !isEmpty(chatData?.chat_messages)) {
-        // todo remove duplicates votes for same user id
-        // use only the latest one
+    if (!error && !isLoading && !isEmpty(chatData?.chat_messages)) {
+      // todo remove duplicates votes for same user id
+      // use only the latest one
 
-        const sourceServer = queryKey[1]
-        const sourceChannel = queryKey[2]
+      const sourceServer = queryKey[1]
+      const sourceChannel = queryKey[2]
 
-        const dataMessages = chatData?.chat_messages ?? []
-        const updatedMessages = dataMessages.map((msg) => {
-          return {
-            ...msg,
-            key: `${sourceServer}-${sourceChannel}-${msg.id}`,
-            source: {
-              server: sourceServer,
-              channel: sourceChannel,
-            },
-          }
-        })
-
-        const currentMessagesIds = messages.map((msg) => msg.id)
-
-        const newDataMessages = updatedMessages.filter(
-          (msg) => !currentMessagesIds.includes(msg.id)
-        )
-
-        if (!isEmpty(newDataMessages)) {
-          const tsSorted = newDataMessages.map((msg) => msg.ts).sort()
-          const lastVoteTs = tsSorted[tsSorted.length - 1]
-
-          const sortedTotal = [...messages, ...newDataMessages].sort(
-            (a, b) => a.ts - b.ts
-          )
-
-          setNewMessages(newDataMessages)
-          setMessages(sortedTotal)
-          return lastVoteTs
-          // setLastTs(lastVoteTs)
+      const dataMessages = chatData?.chat_messages ?? []
+      const updatedMessages = dataMessages.map((msg) => {
+        return {
+          ...msg,
+          key: `${sourceServer}-${sourceChannel}-${msg.id}`,
+          source: {
+            server: sourceServer,
+            channel: sourceChannel,
+          },
         }
+      })
+
+      const currentMessagesIds = messages.map((msg) => msg.id)
+
+      const newDataMessages = updatedMessages.filter((msg) => !currentMessagesIds.includes(msg.id))
+
+      if (!isEmpty(newDataMessages)) {
+        const tsSorted = newDataMessages.map((msg) => msg.ts).sort()
+        const lastVoteTs = tsSorted[tsSorted.length - 1]
+
+        const sortedTotal = [...messages, ...newDataMessages].sort((a, b) => a.ts - b.ts)
+
+        setNewMessages(newDataMessages)
+        setMessages(sortedTotal)
+        return lastVoteTs
+        // setLastTs(lastVoteTs)
       }
     }
-  )
+  })
 
   useEffect(() => {
     for (const conn of alreadyReconnecting.current) {
@@ -184,11 +166,7 @@ export default function useChatMessages({ fetching, debug = true }: Props) {
   const lastTsChanges: { [key: string]: number } = {}
   lastTsList.forEach((ts, index) => {
     if (ts !== undefined && ts !== 'error') {
-      const queryKey = queries[index].queryKey as [
-        string,
-        ChatConnection,
-        number,
-      ]
+      const queryKey = queries[index].queryKey as [string, ChatConnection, number]
       const source = queryKey[1]
       lastTsChanges[connectionToStream(source)] = ts
     }

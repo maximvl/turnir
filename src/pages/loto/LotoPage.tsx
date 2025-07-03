@@ -46,6 +46,7 @@ import {
   formatSecondsZero,
   generateSuperGameValues,
   genTicket,
+  isModerator,
   isUserSubscriber,
   NumberToFancyName,
   randomTicketColor,
@@ -239,6 +240,24 @@ export default function LotoPage() {
       // if (Object.keys(newUsersById).length > 0) {
       //   setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
       // }
+    }
+
+    if (lotoConfig.allow_mods_to_input_numbers && lotoConfig.manual_draw_enabled) {
+      const regex = /^\+\d{1,2}$/
+      const moderMessages = newChatMessages.filter((msg) => isModerator(msg.user))
+      let moderNumber = null
+      moderMessages.forEach((msg) => {
+        const trimmed = msg.message.trim()
+        if (regex.test(trimmed)) {
+          const number = trimmed.slice(1).padStart(2, '0')
+          if (drawNumbersPool.includes(number)) {
+            moderNumber = number
+          }
+        }
+      })
+      if (moderNumber !== null && nextNumber !== moderNumber) {
+        setNextNumber(moderNumber)
+      }
     }
 
     const lotoMessages = newChatMessages.filter((msg) =>
