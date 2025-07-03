@@ -17,6 +17,7 @@ import {
   MusicType,
   VkMention,
   ChatUser,
+  ChatServerType,
 } from '@/pages/turnir/types'
 import { PlayCircleFilled } from '@mui/icons-material'
 import {
@@ -48,6 +49,7 @@ import {
   isUserSubscriber,
   NumberToFancyName,
   randomTicketColor,
+  ServerIcons,
 } from './utils'
 import WinnersList from './WinnersList'
 import ConfigurationButton, { defaultConfig } from './ConfigurationButton'
@@ -81,9 +83,7 @@ export default function LotoPage() {
     .map((c) => `${c.server}/${c.channel}`)
 
   const customVkRewardsEnabled: { [stream: string]: {} } = {}
-  for (const [key, value] of Object.entries(
-    lotoConfigLoaded.super_game_vk_rewards ?? {}
-  )) {
+  for (const [key, value] of Object.entries(lotoConfigLoaded.super_game_vk_rewards ?? {})) {
     if (vkStreams.includes(key)) {
       customVkRewardsEnabled[key] = value
     }
@@ -99,9 +99,7 @@ export default function LotoPage() {
   const drawNumberLimit = lotoConfig.limit_to_90 ? 90 : 99
 
   const [drawNumbersPool, setDrawNumbersPool] = useState<string[]>(() =>
-    Array.from({ length: drawNumberLimit }, (_, i) =>
-      (i + 1).toString().padStart(2, '0')
-    )
+    Array.from({ length: drawNumberLimit }, (_, i) => (i + 1).toString().padStart(2, '0'))
   )
 
   const drawNumber = (next: string) => {
@@ -115,29 +113,24 @@ export default function LotoPage() {
   const [ticketsFromChat, setTicketsFromChat] = useState<Ticket[]>([])
   const [ticketsFromPoints, setTicketsFromPoints] = useState<Ticket[]>([])
 
-  const [superGameValues, setSuperGameValues] = useState<SuperGameResultItem[]>(
-    () =>
-      generateSuperGameValues({
-        amount: lotoConfig.super_game_options_amount,
-        smallPrizes: lotoConfig.super_game_1_pointers,
-        mediumPrizes: lotoConfig.super_game_2_pointers,
-        bigPrizes: lotoConfig.super_game_3_pointers,
-        customPrizes: customVkRewardsEnabled,
-      })
+  const [superGameValues, setSuperGameValues] = useState<SuperGameResultItem[]>(() =>
+    generateSuperGameValues({
+      amount: lotoConfig.super_game_options_amount,
+      smallPrizes: lotoConfig.super_game_1_pointers,
+      mediumPrizes: lotoConfig.super_game_2_pointers,
+      bigPrizes: lotoConfig.super_game_3_pointers,
+      customPrizes: customVkRewardsEnabled,
+    })
   )
 
   const [superGameGuesses, setSuperGameGuesses] = useState<SuperGameGuess[]>([])
   const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
-  const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>(
-    {}
-  )
+  const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>({})
   const [drawnNumbers, setDrawnNumbers] = useState<string[]>([])
 
   const [nextNumber, setNextNumber] = useState<string>('')
-  const [nextDigitState, setNextDigitState] = useState<
-    'idle' | 'roll_start' | 'rolling'
-  >('idle')
+  const [nextDigitState, setNextDigitState] = useState<'idle' | 'roll_start' | 'rolling'>('idle')
 
   const [openChats, setOpenChats] = useState<Set<string>>(new Set())
   const nextNumberRef = useRef(nextNumber)
@@ -214,10 +207,9 @@ export default function LotoPage() {
     })
     .map((user) => user.id)
 
-  const { newMessages: newChatMessages, messages: allChatMessages } =
-    useChatMessages({
-      fetching: true,
-    })
+  const { newMessages: newChatMessages, messages: allChatMessages } = useChatMessages({
+    fetching: true,
+  })
 
   let hasUpdatedTickets = false
 
@@ -284,9 +276,7 @@ export default function LotoPage() {
           const messageFromUser = lotoMessagesFromUsers.find(
             (msg) => msg.user_id === ticket.owner_id
           )
-          return (
-            messageFromUser && messageFromUser.created_at !== ticket.created_at
-          )
+          return messageFromUser && messageFromUser.created_at !== ticket.created_at
         })
       }
 
@@ -303,10 +293,7 @@ export default function LotoPage() {
               const messageFromUser = lotoMessagesFromUsers.find(
                 (msg) => msg.user_id === ticket.owner_id
               )
-              if (
-                messageFromUser &&
-                messageFromUser.created_at !== ticket.created_at
-              ) {
+              if (messageFromUser && messageFromUser.created_at !== ticket.created_at) {
                 console.log('changing ticket for', messageFromUser, ticket)
                 return genTicket({
                   ownerId: ticket.owner_id,
@@ -328,9 +315,7 @@ export default function LotoPage() {
 
       const lotoMessagesFromBotRaw = lotoMessages.filter(
         (msg) =>
-          msg.user.username === CHAT_BOT_NAME &&
-          msg.vk_fields &&
-          msg.vk_fields.mentions.length > 0
+          msg.user.username === CHAT_BOT_NAME && msg.vk_fields && msg.vk_fields.mentions.length > 0
       )
 
       lotoMessagesFromBotRaw.reduce((acc, msg) => {
@@ -420,11 +405,21 @@ export default function LotoPage() {
     totalTickets = [...totalTickets, ...ticketsFromPoints]
   }
 
-  totalTickets = totalTickets.filter((ticket) =>
-    participatingUserIds.includes(ticket.owner_id)
-  )
+  totalTickets = totalTickets.filter((ticket) => participatingUserIds.includes(ticket.owner_id))
 
   const totalParticiants = uniqBy(totalTickets, (t) => t.owner_id).length
+  const ticketsAmountPerServer = totalTickets.reduce(
+    (acc, ticket) => {
+      const amount = acc[ticket.source.server] ?? 0
+      acc[ticket.source.server] = amount + 1
+      return acc
+    },
+    {} as { [key in ChatServerType]: number }
+  )
+  const ticketsAmountPerServerSorted = Object.entries(ticketsAmountPerServer).sort(
+    (a, b) => b[1] - a[1]
+  )
+  const hasOnly1Server = Object.keys(ticketsAmountPerServer).length === 1
 
   useEffect(() => {
     document.title = `Лото - ${totalTickets.length} билетов`
@@ -443,9 +438,7 @@ export default function LotoPage() {
     if (drawnNumbers.length > 0) {
       // for each ticket find matches with drawn numbers
       for (const ticket of totalTickets) {
-        const matches = ticket.value.map((number) =>
-          drawnNumbers.includes(number) ? 1 : 0
-        )
+        const matches = ticket.value.map((number) => (drawnNumbers.includes(number) ? 1 : 0))
 
         let minNeeded = lotoConfig.win_matches_amount
         let windowSum = 0
@@ -512,9 +505,7 @@ export default function LotoPage() {
   }, [drawnNumbers, totalTickets.length, state, hasUpdatedTickets])
 
   const lowestMatchesToWin =
-    orderedTickets.length > 0
-      ? ticketStatsMap[orderedTickets[0].id].minNeeded
-      : 0
+    orderedTickets.length > 0 ? ticketStatsMap[orderedTickets[0].id].minNeeded : 0
 
   const ticketsWithLowestToWin = orderedTickets.filter(
     (ticket) => ticketStatsMap[ticket.id].minNeeded === lowestMatchesToWin
@@ -546,9 +537,7 @@ export default function LotoPage() {
   //   highestMatchesAmount,
   // })
 
-  const hostNicknames = new Set(
-    uniq(chatConnections.map((c) => c.channel.toLowerCase()))
-  )
+  const hostNicknames = new Set(uniq(chatConnections.map((c) => c.channel.toLowerCase())))
   const hostTickets = totalTickets.filter((ticket) =>
     hostNicknames.has(ticket.owner_name.toLowerCase())
   )
@@ -558,8 +547,7 @@ export default function LotoPage() {
 
   const showWinnerTicketTime = winnersByMatchesIds.length > 1
 
-  const winnerFound =
-    state === 'playing' && winnerCandidate && lowestMatchesToWin <= 0
+  const winnerFound = state === 'playing' && winnerCandidate && lowestMatchesToWin <= 0
 
   const winner = winnerFound ? winnerCandidate : undefined
 
@@ -611,8 +599,7 @@ export default function LotoPage() {
   } = {}
 
   const isInSuperGame =
-    winner !== undefined &&
-    superGameGuesses.some((guess) => guess.owner_id === winner.owner_id)
+    winner !== undefined && superGameGuesses.some((guess) => guess.owner_id === winner.owner_id)
 
   const superGameBonusGuesses: { [k: string]: number } = {}
 
@@ -623,9 +610,7 @@ export default function LotoPage() {
       )
       superGameResultMap[guess.id] = result
       if (lotoConfig.super_game_bonus_guesses_enabled) {
-        superGameBonusGuesses[guess.id] = result.filter(
-          (r) => r !== null && r !== 'empty'
-        ).length
+        superGameBonusGuesses[guess.id] = result.filter((r) => r !== null && r !== 'empty').length
       } else {
         superGameBonusGuesses[guess.id] = 0
       }
@@ -651,16 +636,12 @@ export default function LotoPage() {
             .filter((n) => !superGameRevealedIds.includes(n))
         )
 
-        const messageFromSameUser = superGameGuesses.find(
-          (guess) => guess.owner_id === msg.user.id
-        )
+        const messageFromSameUser = superGameGuesses.find((guess) => guess.owner_id === msg.user.id)
 
         if (messageFromSameUser) {
-          const bonusGuessesAmount =
-            superGameBonusGuesses[messageFromSameUser.id]
+          const bonusGuessesAmount = superGameBonusGuesses[messageFromSameUser.id]
           const totalGuessesAmount = bonusGuessesAmount + superGameGuessesAmount
-          const remaining =
-            totalGuessesAmount - messageFromSameUser.value.length
+          const remaining = totalGuessesAmount - messageFromSameUser.value.length
 
           const previousGuessFiltered = currentGuess.filter(
             (n) => !messageFromSameUser.value.includes(n)
@@ -689,9 +670,7 @@ export default function LotoPage() {
     }
   }, [newMessagesFromWinner])
 
-  const superGameSelectedIds = uniq(
-    flatten(superGameGuesses.map((guess) => guess.value))
-  )
+  const superGameSelectedIds = uniq(flatten(superGameGuesses.map((guess) => guess.value)))
 
   const allSuperGuessesRevealed = Object.keys(superGameResultMap).every(
     (key) =>
@@ -745,9 +724,7 @@ export default function LotoPage() {
 
   const deleteTicket = (ticket: Ticket) => {
     const newTicketsFromChat = ticketsFromChat.filter((t) => t.id !== ticket.id)
-    const newTicketsFromPoints = ticketsFromPoints.filter(
-      (t) => t.id !== ticket.id
-    )
+    const newTicketsFromPoints = ticketsFromPoints.filter((t) => t.id !== ticket.id)
     setTicketsFromChat(newTicketsFromChat)
     setTicketsFromPoints(newTicketsFromPoints)
 
@@ -769,12 +746,7 @@ export default function LotoPage() {
   return (
     <Box onClick={startMusic} className="loto-page">
       {mainMenuMemo}
-      <Box
-        display="flex"
-        justifyContent={'center'}
-        paddingLeft={'100px'}
-        paddingRight={'100px'}
-      >
+      <Box display="flex" justifyContent={'center'} paddingLeft={'100px'} paddingRight={'100px'}>
         <Box marginBottom={'200px'} width={'100%'}>
           <Box position="absolute" left="20px">
             <ConfigurationButton streamsRewards={streamsInfo} state={state} />
@@ -861,35 +833,66 @@ export default function LotoPage() {
           </Box>
           {state === 'registration' && (
             <>
-              <Box
-                display={'flex'}
-                justifyContent={'center'}
-                marginBottom={'20px'}
-              >
+              <Box display={'flex'} justifyContent={'center'} marginBottom={'20px'}>
                 <InfoPanel>
                   {!music.musicPlaying && <p>Кликни чтобы запустить музыку</p>}
                   <p>
                     Пишите в чат <strong>+лото</strong> чтобы получить билет
                   </p>
                   <p>
-                    Можно писать свои числа:{' '}
-                    <strong>+лото 4 8 15 23 42 14 89</strong>
+                    Можно писать свои числа: <strong>+лото 4 8 15 23 42 14 89</strong>
                   </p>
                 </InfoPanel>
               </Box>
 
               <Box
-                fontSize={'32px'}
-                textAlign={'center'}
+                fontSize="32px"
+                textAlign="center"
                 // marginTop={'40px'}
-                marginBottom={'20px'}
+                marginBottom="20px"
               >
-                Участников: {totalParticiants}
-                {totalParticiants !== totalTickets.length && (
-                  <span style={{ marginLeft: '20px' }}>
-                    Билетов: {totalTickets.length}
-                  </span>
-                )}
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '10px',
+                    position: 'relative',
+                  }}
+                >
+                  <div style={{ position: 'relative' }}>
+                    <div>Всего: {totalParticiants}</div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '10px',
+                        position: 'absolute',
+                        left: '100%',
+                        marginLeft: '30px',
+                        top: '30%',
+                      }}
+                    >
+                      {!hasOnly1Server &&
+                        ticketsAmountPerServerSorted.map(([server, amount]) => {
+                          const icon = ServerIcons[server as ChatServerType]
+                          return (
+                            <div
+                              key={server}
+                              style={{
+                                fontSize: '20px',
+                                display: 'flex',
+                                height: '20px',
+                                alignItems: 'center',
+                                gap: '5px',
+                              }}
+                            >
+                              <img src={icon} width="20px" /> {amount}
+                            </div>
+                          )
+                        })}
+                    </div>
+                  </div>
+                </div>
                 <Box
                   marginTop="15px"
                   display={'flex'}
@@ -930,11 +933,9 @@ export default function LotoPage() {
               <Box>
                 <Box display={'flex'} justifyContent={'center'}>
                   <InfoPanel>
-                    Побеждает тот кто соберет {lotoConfig.win_matches_amount}{' '}
-                    или больше чисел в ряд
+                    Побеждает тот кто соберет {lotoConfig.win_matches_amount} или больше чисел в ряд
                     <br />
-                    При равном количестве чисел побеждает тот у кого больше
-                    совпадений
+                    При равном количестве чисел побеждает тот у кого больше совпадений
                     <br />В случае равенства - тот кто раньше получил билет
                   </InfoPanel>
                 </Box>
@@ -977,9 +978,7 @@ export default function LotoPage() {
                                 type="text"
                                 value={nextNumber}
                                 onChange={(e) => {
-                                  const value = e.target.value
-                                    .replace(/[^0-9]/g, '')
-                                    .slice(0, 2)
+                                  const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 2)
                                   setNextNumber(value)
                                 }}
                                 sx={{
@@ -1005,9 +1004,7 @@ export default function LotoPage() {
                               <AnimatedNumber value={nextNumber} height={68} />
                             </DrawnNumber>
                           )}
-                          {nextNumber.length === 0 && (
-                            <Box marginTop={'40px'}></Box>
-                          )}
+                          {nextNumber.length === 0 && <Box marginTop={'40px'}></Box>}
                         </>
                       )}
                     </Box>
@@ -1017,9 +1014,7 @@ export default function LotoPage() {
                       <Box fontSize="18px">&nbsp;</Box>
                     )}
                     {nextDigitState === 'idle' && nextNumber ? (
-                      <Box marginTop="5px">
-                        Билетов с числом: {currentNumberMatchesAmount}
-                      </Box>
+                      <Box marginTop="5px">Билетов с числом: {currentNumberMatchesAmount}</Box>
                     ) : (
                       <Box marginTop="5px">&nbsp;</Box>
                     )}
@@ -1050,11 +1045,7 @@ export default function LotoPage() {
                       <img src={BingoImage} alt="bingo" width={'200px'} />
                     )}
 
-                    <Box
-                      textAlign="center"
-                      display="flex"
-                      justifyContent="center"
-                    >
+                    <Box textAlign="center" display="flex" justifyContent="center">
                       <InfoPanel>
                         <h3>
                           Чтобы сыграть в СУПЕР-ИГРУ напиши в чат
@@ -1097,15 +1088,9 @@ export default function LotoPage() {
                     Каждое угаданное число дает дополнительный ролл
                   </InfoPanel>
                 </Box>
-                <Box
-                  fontSize={'48px'}
-                  marginBottom={'20px'}
-                  textAlign={'center'}
-                >
+                <Box fontSize={'48px'} marginBottom={'20px'} textAlign={'center'}>
                   Супер Игра с{' '}
-                  {superGameGuesses
-                    .map((t) => allUsersById[t.owner_id].username)
-                    .join(', ')}
+                  {superGameGuesses.map((t) => allUsersById[t.owner_id].username).join(', ')}
                 </Box>
                 <Box display="flex" justifyContent="center">
                   <SuperGameBox
@@ -1151,10 +1136,7 @@ export default function LotoPage() {
                           <SuperGamePlayerStats
                             guess={guess}
                             result={superGameResultMap[guess.id]}
-                            guessesAmount={
-                              superGameBonusGuesses[guess.id] +
-                              superGameGuessesAmount
-                            }
+                            guessesAmount={superGameBonusGuesses[guess.id] + superGameGuessesAmount}
                             maxWinScore={
                               lotoConfig.super_game_1_pointers +
                               lotoConfig.super_game_2_pointers * 2 +
@@ -1210,9 +1192,7 @@ export default function LotoPage() {
             <AnimatePresence>
               {nonHostOrderedTickets.map((ticket) => {
                 const isWinner = ticket.id === winner?.id
-                const isWinnerCandidate = winnersByMatchesIds.includes(
-                  ticket.id
-                )
+                const isWinnerCandidate = winnersByMatchesIds.includes(ticket.id)
                 const showChatMessages = openChats.has(ticket.owner_id)
                 const chatMessages = allChatMessages.filter(
                   (msg) => msg.user.id === ticket.owner_id
@@ -1229,11 +1209,7 @@ export default function LotoPage() {
                       matches={ticketStatsMap[ticket.id].matches}
                       isWinner={isWinner}
                       owner={allUsersById[ticket.owner_id]}
-                      showTime={
-                        isWinnerCandidate &&
-                        showWinnerTicketTime &&
-                        Boolean(winner)
-                      }
+                      showTime={isWinnerCandidate && showWinnerTicketTime && Boolean(winner)}
                       lastDrawnNumber={drawnNumbers[drawnNumbers.length - 1]}
                     />
                     {winner && (
@@ -1265,16 +1241,12 @@ export default function LotoPage() {
                                 disabled={deletionTimerRef.current > 0}
                                 onClick={() => deleteTicket(ticket)}
                               >
-                                {deletionTimerRef.current > 0 &&
-                                  deletionTimerRef.current}{' '}
-                                Удалить
+                                {deletionTimerRef.current > 0 && deletionTimerRef.current} Удалить
                               </Button>
                             </Box>
                           </Tooltip>
                         </Box>
-                        {showChatMessages && (
-                          <ChatBox messages={chatMessages} />
-                        )}
+                        {showChatMessages && <ChatBox messages={chatMessages} />}
                       </Box>
                     )}
                   </TicketsContainer>
@@ -1318,9 +1290,7 @@ function getNewTickets({
 }: getTicketsParams) {
   const currentOwners = currentTickets.map((ticket) => `${ticket.owner_id}`)
 
-  let newOwners: UserInfo[] = newMessages.filter(
-    (owner) => !currentOwners.includes(owner.user_id)
-  )
+  let newOwners: UserInfo[] = newMessages.filter((owner) => !currentOwners.includes(owner.user_id))
   newOwners = uniqBy(newOwners, (owner) => owner.user_id)
 
   if (newOwners.length > 0) {
