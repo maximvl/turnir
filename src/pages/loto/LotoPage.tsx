@@ -881,6 +881,8 @@ export default function LotoPage() {
                     alignItems: 'center',
                     gap: '10px',
                     position: 'relative',
+                    width: '100%',
+                    pointerEvents: 'none',
                   }}
                 >
                   <div style={{ position: 'relative' }}>
