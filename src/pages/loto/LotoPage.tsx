@@ -124,7 +124,7 @@ export default function LotoPage() {
     })
   )
 
-  const [superGameGuesses, setSuperGameGuesses] = useState<SuperGameGuess[]>([])
+  const [superGameGuess, setSuperGameGuess] = useState<SuperGameGuess | null>(null)
   const [superGameRevealedIds, setSuperGameRevealedIds] = useState<number[]>([])
 
   const [allUsersById, setAllUsersById] = useState<{ [key: string]: ChatUser }>({})
@@ -613,29 +613,23 @@ export default function LotoPage() {
         customPrizes: customVkRewardsEnabled,
       })
     )
-    setSuperGameGuesses([])
+    setSuperGameGuess(null)
     setSuperGameRevealedIds([])
   }, [winner, lotoConfig])
 
-  const superGameResultMap: {
-    [k: string]: (SuperGameResultItem | null)[]
-  } = {}
+  const superGameResult: (SuperGameResultItem | null)[] = []
 
-  const isInSuperGame =
-    winner !== undefined && superGameGuesses.some((guess) => guess.owner_id === winner.owner_id)
+  const isInSuperGame = Boolean(
+    superGameGuess !== null && winner !== undefined && superGameGuess.owner_id === winner.owner_id
+  )
 
-  const superGameBonusGuesses: { [k: string]: number } = {}
+  let superGameBonusGuesses = 0
 
-  if (isInSuperGame) {
-    superGameGuesses.forEach((guess) => {
-      const result = guess.value.map((n) =>
-        superGameRevealedIds.includes(n) ? superGameValues[n] : null
-      )
-      superGameResultMap[guess.id] = result
+  if (isInSuperGame && superGameGuess) {
+    superGameGuess.value.forEach((n) => {
+      superGameResult.push(superGameRevealedIds.includes(n) ? superGameValues[n] : null)
       if (lotoConfig.super_game_bonus_guesses_enabled) {
-        superGameBonusGuesses[guess.id] = result.filter((r) => r !== null && r !== 'empty').length
-      } else {
-        superGameBonusGuesses[guess.id] = 0
+        superGameBonusGuesses = superGameResult.filter((r) => r !== null && r !== 'empty').length
       }
     })
   }
@@ -659,22 +653,21 @@ export default function LotoPage() {
             .filter((n) => !superGameRevealedIds.includes(n))
         )
 
-        const messageFromSameUser = superGameGuesses.find((guess) => guess.owner_id === msg.user.id)
+        const messageFromSameUser = superGameGuess?.owner_id === msg.user.id
 
         if (messageFromSameUser) {
-          const bonusGuessesAmount = superGameBonusGuesses[messageFromSameUser.id]
-          const totalGuessesAmount = bonusGuessesAmount + superGameGuessesAmount
-          const remaining = totalGuessesAmount - messageFromSameUser.value.length
+          const totalGuessesAmount = superGameBonusGuesses + superGameGuessesAmount
+          const remaining = totalGuessesAmount - superGameGuess.value.length
 
           const previousGuessFiltered = currentGuess.filter(
-            (n) => !messageFromSameUser.value.includes(n)
+            (n) => !superGameGuess.value.includes(n)
           )
 
           const limitedGuess = previousGuessFiltered.slice(0, remaining)
-          const newValue = uniq([...messageFromSameUser.value, ...limitedGuess])
-          if (messageFromSameUser.value.length !== newValue.length) {
-            messageFromSameUser.value = newValue
-            setSuperGameGuesses([...superGameGuesses])
+          const newValue = uniq([...superGameGuess.value, ...limitedGuess])
+          if (superGameGuess.value.length !== newValue.length) {
+            superGameGuess.value = newValue
+            setSuperGameGuess({ ...superGameGuess })
           }
         } else {
           const limitedGuess = currentGuess.slice(0, superGameGuessesAmount)
@@ -686,57 +679,39 @@ export default function LotoPage() {
             value: limitedGuess,
           }
 
-          setSuperGameGuesses((prev) => [...prev, guess])
+          setSuperGameGuess(guess)
           window.scrollTo(0, 200)
         }
       }
     }
   }, [newMessagesFromWinner])
 
-  const superGameSelectedIds = uniq(flatten(superGameGuesses.map((guess) => guess.value)))
+  const superGameSelectedIds = uniq(superGameGuess?.value || [])
 
-  const allSuperGuessesRevealed = Object.keys(superGameResultMap).every(
-    (key) =>
-      superGameResultMap[key].filter((v) => v !== null).length ===
-      superGameGuessesAmount + superGameBonusGuesses[key]
-  )
+  const allSuperGuessesRevealed =
+    superGameResult.filter((v) => v !== null).length ===
+    superGameGuessesAmount + superGameBonusGuesses
 
   const superGameFinished = isInSuperGame && allSuperGuessesRevealed
 
   useEffect(() => {
-    const superGameWinnersIds = superGameGuesses
-      .filter((guess) => {
-        const result = superGameResultMap[guess.id]
-        return result.some((r) => r !== 'empty')
+    if (!superGameGuess) {
+      return
+    }
+    const isSuperGameLost = superGameResult.every((v) => v === 'empty')
+
+    const user = allUsersById[superGameGuess.owner_id]
+    const winnerId = savedWinnersIds[user.username]
+    const status = isSuperGameLost ? 'lose' : 'win'
+
+    if (winnerId && status) {
+      updateWinner({
+        id: winnerId,
+        super_game_status: status,
+        server: user.source.server,
+        channel: user.source.channel,
       })
-      .map((guess) => guess.id)
-
-    const superGameLosersIds = superGameGuesses
-      .filter((guess) => {
-        const result = superGameResultMap[guess.id]
-        return result.every((r) => r === 'empty')
-      })
-      .map((guess) => guess.id)
-
-    superGameGuesses.forEach((guess) => {
-      const user = allUsersById[guess.owner_id]
-      const winnerId = savedWinnersIds[user.username]
-      let status: 'win' | 'lose' | null = null
-      if (superGameWinnersIds.includes(guess.id)) {
-        status = 'win'
-      } else if (superGameLosersIds.includes(guess.id)) {
-        status = 'lose'
-      }
-
-      if (winnerId && status) {
-        updateWinner({
-          id: winnerId,
-          super_game_status: status,
-          server: user.source.server,
-          channel: user.source.channel,
-        })
-      }
-    })
+    }
   }, [superGameFinished])
 
   const nextNumberText = NumberToFancyName[nextNumber]
@@ -751,10 +726,7 @@ export default function LotoPage() {
     setTicketsFromChat(newTicketsFromChat)
     setTicketsFromPoints(newTicketsFromPoints)
 
-    const newSuperGameGuesses = superGameGuesses.filter(
-      (guess) => guess.owner_id !== ticket.owner_id
-    )
-    setSuperGameGuesses(newSuperGameGuesses)
+    setSuperGameGuess(null)
     setState('playing')
     window.scrollTo(0, 0)
   }
@@ -1102,7 +1074,7 @@ export default function LotoPage() {
             </Box>
           )}
 
-          {isInSuperGame && (
+          {isInSuperGame && superGameGuess && (
             <Box display="flex" justifyContent="center">
               <Box>
                 <Box textAlign="center" display="flex" justifyContent="center">
@@ -1114,8 +1086,7 @@ export default function LotoPage() {
                   </InfoPanel>
                 </Box>
                 <Box fontSize={'48px'} marginBottom={'20px'} textAlign={'center'}>
-                  Супер Игра с{' '}
-                  {superGameGuesses.map((t) => allUsersById[t.owner_id].username).join(', ')}
+                  Супер Игра с {allUsersById[superGameGuess.owner_id].username}
                 </Box>
                 <Box display="flex" justifyContent="center">
                   <SuperGameBox
@@ -1148,29 +1119,26 @@ export default function LotoPage() {
                     justifyContent="center"
                     alignItems="center"
                   >
-                    {superGameGuesses.map((guess, index) => {
-                      return (
-                        <Box
-                          marginBottom="20px"
-                          key={index}
-                          style={{ backgroundColor: randomTicketColor(index) }}
-                          borderRadius="10px"
-                          paddingLeft="20px"
-                          paddingRight="20px"
-                        >
-                          <SuperGamePlayerStats
-                            guess={guess}
-                            result={superGameResultMap[guess.id]}
-                            guessesAmount={superGameBonusGuesses[guess.id] + superGameGuessesAmount}
-                            maxWinScore={
-                              lotoConfig.super_game_1_pointers +
-                              lotoConfig.super_game_2_pointers * 2 +
-                              lotoConfig.super_game_3_pointers * 3
-                            }
-                          />
-                        </Box>
-                      )
-                    })}
+                    <Box
+                      marginBottom="20px"
+                      style={{
+                        backgroundColor: randomTicketColor(superGameGuess?.owner_name.length),
+                      }}
+                      borderRadius="10px"
+                      paddingLeft="20px"
+                      paddingRight="20px"
+                    >
+                      <SuperGamePlayerStats
+                        guess={superGameGuess}
+                        result={superGameResult}
+                        guessesAmount={superGameBonusGuesses + superGameGuessesAmount}
+                        maxWinScore={
+                          lotoConfig.super_game_1_pointers +
+                          lotoConfig.super_game_2_pointers * 2 +
+                          lotoConfig.super_game_3_pointers * 3
+                        }
+                      />
+                    </Box>
                   </Box>
                 </motion.div>
               </Box>
