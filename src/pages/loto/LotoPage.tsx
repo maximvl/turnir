@@ -60,10 +60,10 @@ const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
 
 const BingoImage = sample([
-  'https://s3.gifyu.com/images/b2PmQ.gif',
-  'https://s3.gifyu.com/images/b2Pmn.gif',
-  'https://s3.gifyu.com/images/b2PqT.gif',
-  'https://s3.gifyu.com/images/b2Pmf.gif',
+  'https://mapcar.alwaysdat.com/static/img/bingo1-small.gif',
+  'https://mapcar.alwaysdat.com/static/img/bingo2-small.gif',
+  'https://mapcar.alwaysdat.com/static/img/bingo3-small.webp',
+  'https://mapcar.alwaysdat.com/static/img/bingo4.webp',
 ])
 
 export default function LotoPage() {

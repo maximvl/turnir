@@ -1,18 +1,9 @@
 import { Box, Tooltip, useTheme } from '@mui/material'
 import { Fragment } from 'react'
 import { Ticket } from './types'
-import TicketImg1 from '@/assets/ticket1.svg'
-import TicketImg2 from '@/assets/ticket2.svg'
-import TicketImg3 from '@/assets/ticket3.svg'
-import TicketImg4 from '@/assets/ticket4.svg'
-import AnimeBackground from '@/assets/sakura1.webp'
-import {
-  formatMsToTime,
-  isBrightColor,
-  ServerIcons,
-  VkColorsMap,
-} from './utils'
+import { formatMsToTime, isBrightColor, ServerIcons, VkColorsMap } from './utils'
 import { ChatUser } from '@/pages/turnir/types'
+import { ANIME_BACKGROUND_IMG } from '../turnir/consts'
 
 type MatchRange = {
   start: number
@@ -75,8 +66,7 @@ export default function TicketBox({
     )
   }
 
-  const doSuperHighlight =
-    superHighlight && matches.every((match) => match === 1)
+  const doSuperHighlight = superHighlight && matches.every((match) => match === 1)
 
   const highlightColor = theme.palette.error.main
   const winnerColor = theme.palette.warning.main
@@ -93,8 +83,7 @@ export default function TicketBox({
   const darkTextHighlight = '#800000'
   const darkTextWin = '#3C0753'
 
-  const userColor =
-    VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
+  const userColor = VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
 
   const isUserColorBright = isBrightColor(userColor)
   const nickBackgroundColor = isUserColorBright ? '#191970' : '#B2AC88'
@@ -115,11 +104,10 @@ export default function TicketBox({
     ticketBackground = gradients[ticket.variant]
   }
   if (isAnime) {
-    ticketBackground = `url(${AnimeBackground})`
+    ticketBackground = `url(${ANIME_BACKGROUND_IMG})`
   }
   if (ticket.isLatecomer) {
-    ticketBackground =
-      'radial-gradient(circle, rgba(50,0,0,1) 0%, rgba(0,0,0,1) 100%)'
+    ticketBackground = 'radial-gradient(circle, rgba(50,0,0,1) 0%, rgba(0,0,0,1) 100%)'
   }
 
   const itemSize = big ? '36px' : '24px'
@@ -132,13 +120,11 @@ export default function TicketBox({
       <Box
         style={{
           backgroundColor: ticket.color,
-          backgroundImage: isAnime ? `url(${AnimeBackground})` : 'none',
+          backgroundImage: isAnime ? `url(${ANIME_BACKGROUND_IMG})` : 'none',
           backgroundSize: 'cover',
           background: ticketBackground,
         }}
-        border={
-          isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`
-        }
+        border={isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`}
         borderRadius={'10px'}
         paddingTop={'5px'}
         paddingBottom={'5px'}
@@ -169,12 +155,7 @@ export default function TicketBox({
                   style={{ marginRight: '5px' }}
                   key={index}
                 >
-                  <img
-                    key={index}
-                    src={badge.largeUrl}
-                    width={itemSize}
-                    alt={'badge'}
-                  />
+                  <img key={index} src={badge.largeUrl} width={itemSize} alt={'badge'} />
                 </Tooltip>
               )
             })}
@@ -186,12 +167,7 @@ export default function TicketBox({
                   style={{ marginRight: '5px' }}
                   key={index}
                 >
-                  <img
-                    key={index}
-                    src={role.largeUrl}
-                    width={itemSize}
-                    alt={'role'}
-                  />
+                  <img key={index} src={role.largeUrl} width={itemSize} alt={'role'} />
                 </Tooltip>
               )
             })}
@@ -219,11 +195,7 @@ export default function TicketBox({
             position="absolute"
             right={'0px'}
             top={'0px'}
-            style={
-              ticket.source.server === 'goodgame'
-                ? { backgroundColor: 'black' }
-                : {}
-            }
+            style={ticket.source.server === 'goodgame' ? { backgroundColor: 'black' } : {}}
           >
             <Tooltip title={channelName} placement="top">
               <img src={iconLink} width={itemSize} height={itemSize} alt={''} />
@@ -252,12 +224,7 @@ export default function TicketBox({
                 style.color = darkTextHighlight
               }
             }
-            if (
-              isWinner &&
-              maxRange &&
-              maxRange.start <= index &&
-              index <= maxRange.end
-            ) {
+            if (isWinner && maxRange && maxRange.start <= index && index <= maxRange.end) {
               style = { color: winnerColor, textDecoration: 'line-through' }
               if (isAnime) {
                 style.color = darkTextWin
@@ -295,9 +262,7 @@ export default function TicketBox({
           })}
         </Box>
         {showTime && (
-          <div style={{ marginTop: '5px' }}>
-            выдан {formatMsToTime(ticket.created_at)}
-          </div>
+          <div style={{ marginTop: '5px' }}>выдан {formatMsToTime(ticket.created_at)}</div>
         )}
       </Box>
     </Box>

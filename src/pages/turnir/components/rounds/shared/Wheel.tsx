@@ -15,7 +15,6 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { MusicContext } from '@/common/hooks/MusicContext'
 import { Item, MusicType } from '@/pages/turnir/types'
 import ItemTitle from '../../ItemTitle'
-import CatDance from '@/assets/cat_dance.webp'
 import { random } from 'lodash'
 
 enum WheelState {
@@ -29,9 +28,7 @@ enum WheelState {
 type Props = {
   items: Item[]
   onItemWinning: (index: string) => void
-  ButtonComponent?: (
-    props: React.ComponentProps<typeof Button>
-  ) => React.JSX.Element
+  ButtonComponent?: (props: React.ComponentProps<typeof Button>) => React.JSX.Element
   buttonGenerator?: (
     item: Item
   ) => (props: React.ComponentProps<typeof Button>) => React.JSX.Element
@@ -54,9 +51,7 @@ export default function Wheel({
   const speedRef = useRef<number>(0)
   const wheelState = useRef<WheelState>(WheelState.Start)
   const [isFinished, setIsFinished] = useState<boolean>(false)
-  const [hasBacktrack, setHasBacktrack] = useState<boolean>(
-    () => Math.random() > 0.5
-  )
+  const [hasBacktrack, setHasBacktrack] = useState<boolean>(() => Math.random() > 0.5)
   const [initialAngle, setInitialAngle] = useState<number>(() => random(0, 360))
 
   const { setMusicPlaying } = useContext(MusicContext)
@@ -221,8 +216,7 @@ export default function Wheel({
             speedRef.current += acceleration
             if (speedRef.current >= fastestSpeed) {
               wheelState.current = WheelState.ConstantSpeed
-              const randomTime =
-                Math.random() * 1500 + Math.random() * 1000 + 1500
+              const randomTime = Math.random() * 1500 + Math.random() * 1000 + 1500
               setTimeout(() => {
                 wheelState.current = WheelState.Deceleration
               }, randomTime)
@@ -336,9 +330,7 @@ export default function Wheel({
     FinalButton = ButtonComponent
   }
 
-  const displayCenterImage = ![WheelState.Start, WheelState.Stop].includes(
-    wheelState.current
-  )
+  const displayCenterImage = ![WheelState.Start, WheelState.Stop].includes(wheelState.current)
 
   return (
     <Box justifyContent={'center'}>

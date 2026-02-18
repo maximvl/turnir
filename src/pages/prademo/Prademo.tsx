@@ -7,7 +7,6 @@ import { BOARD_SIZE, INITIAL_PLAYERS } from './constants'
 import './Prademo.css' // Main layout CSS
 import { sample } from 'lodash'
 import { Box, Button } from '@mui/material'
-import SettingsButton, { DefaultSettings } from './components/SettingsButton'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
 
 function Prademo() {
@@ -42,9 +41,7 @@ function Prademo() {
     if (!player) return // Should not happen
 
     // create array of dicesToRoll size
-    const diceRolls = Array.from({ length: settings.dicesToRoll }, () =>
-      rollDie()
-    )
+    const diceRolls = Array.from({ length: settings.dicesToRoll }, () => rollDie())
     const totalRoll = diceRolls.reduce((acc, die) => acc + die, 0)
 
     // Calculate new position (1-based index, wraps around)
@@ -89,14 +86,9 @@ function Prademo() {
       bonus: p.cellsOwned[newPosition],
     }))
 
-    const bonusesText = cellOwnersBonuses
-      .map((p) => `${p.name} (${p.bonus} очков)`)
-      .join(', ')
+    const bonusesText = cellOwnersBonuses.map((p) => `${p.name} (${p.bonus} очков)`).join(', ')
 
-    const bonusesLine =
-      cellOwnersBonuses.length > 0
-        ? ` и заплатил владельцам: ${bonusesText}`
-        : ''
+    const bonusesLine = cellOwnersBonuses.length > 0 ? ` и заплатил владельцам: ${bonusesText}` : ''
 
     const rollText = diceRolls.map((die) => die.toString()).join('+')
 
@@ -114,9 +106,7 @@ function Prademo() {
           gameScore: p.gameScore + gameInfo.score,
         }
       }
-      const ownerBonus = cellOwnersBonuses.find(
-        (bonus) => bonus.name === p.name
-      )
+      const ownerBonus = cellOwnersBonuses.find((bonus) => bonus.name === p.name)
       if (ownerBonus && p.id !== player.id) {
         return { ...p, ownerScore: p.ownerScore + ownerBonus.bonus }
       }
@@ -164,9 +154,7 @@ function Prademo() {
   return (
     <div className="app-container">
       <h1 style={{ color: 'white' }}>Simple Praden Game</h1>
-      <Box display="flex" justifyContent="center">
-        <SettingsButton />
-      </Box>
+      <Box display="flex" justifyContent="center"></Box>
       <div className="main-layout">
         <div className="board-section">
           <Board players={players} />

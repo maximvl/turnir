@@ -9,8 +9,7 @@ export function createItem(index: string, title: string = ''): Item {
 const URL_PREFIX = '/v2'
 // const URL_PREFIX = 'http://127.0.0.1:8080/v2'
 
-const MOCK_API =
-  import.meta.env.MODE === 'development' && !URL_PREFIX.includes('127.0.0.1')
+const MOCK_API = import.meta.env.MODE === 'development' && !URL_PREFIX.includes('127.0.0.1')
 
 export type ChatMessagesResponse = {
   chat_messages: null | ChatMessage[]
@@ -34,11 +33,7 @@ declare global {
 }
 
 if (MOCK_API) {
-  window.debugSendChat = function (
-    user_id: string,
-    message: string,
-    server?: string
-  ) {
+  window.debugSendChat = function (user_id: string, message: string, server?: string) {
     if (!server) {
       server = 'vkvideo'
     }
@@ -285,10 +280,7 @@ export async function createLotoWinners({
   if (MOCK_API) {
     console.log(`POST ${url}`, body)
     return {
-      ids: winners.reduce(
-        (acc, winner) => ({ ...acc, [winner.username]: random(1, 10000) }),
-        {}
-      ),
+      ids: winners.reduce((acc, winner) => ({ ...acc, [winner.username]: random(1, 10000) }), {}),
     }
   }
   return fetch(url, {
@@ -360,11 +352,7 @@ export async function fetchLotoWinners(
         username: `user-${id}-very-very-long-name`,
         super_game_status: sample(['win', 'lose', 'skip']) as SuperGameStatus,
         created_at: Date.now() / 1000,
-        stream_channel: sample([
-          'twitch/lasqa',
-          'vkvideo/lasqa',
-          'goodgame/lasqa',
-        ]),
+        stream_channel: sample(['twitch/lasqa', 'vkvideo/lasqa', 'goodgame/lasqa']),
       }
     }
 
@@ -416,10 +404,7 @@ type VkRolesResponse = {
   }
 }
 
-export function fetchStreamInfo(
-  server: ChatServerType,
-  channel: string
-): Promise<VkRolesResponse> {
+export function fetchStreamInfo(server: ChatServerType, channel: string): Promise<VkRolesResponse> {
   const params = new URLSearchParams()
   params.set('platform', server)
   params.set('channel', channel)

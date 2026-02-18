@@ -5,9 +5,9 @@ import { Box, Button } from '@mui/material'
 import Icon from '@mdi/react'
 import { mdiCross } from '@mdi/js'
 import { useContext, useEffect, useState } from 'react'
-import PrayImage from '@/assets/pray.webp'
 import ResurrectionVoting from './ResurrectionVoting'
 import { MusicContext } from '@/common/hooks/MusicContext'
+import { PRAY_IMG } from '@/pages/turnir/consts'
 
 type Props = {
   activeItems: Item[]
@@ -43,11 +43,7 @@ export default function ResurrectionRound({
             </InfoPanel>
           </Box>
           <Box marginTop={2}>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={() => setState('random')}
-            >
+            <Button variant="contained" color="success" onClick={() => setState('random')}>
               Случайное
             </Button>
             <Button
@@ -67,7 +63,7 @@ export default function ResurrectionRound({
             items={eliminatedItems}
             onItemWinning={onItemResurrection}
             ButtonComponent={ResurrectButton}
-            centerImage={PrayImage}
+            centerImage={PRAY_IMG}
             music={MusicType.Nightsong}
           />
         </Box>
@@ -92,11 +88,7 @@ const ResurrectButton = ({
   return (
     <Button {...props} color="success">
       Воскресить{' '}
-      <Icon
-        path={mdiCross}
-        style={{ width: 24, height: 24, marginLeft: 10 }}
-        color="white"
-      />
+      <Icon path={mdiCross} style={{ width: 24, height: 24, marginLeft: 10 }} color="white" />
     </Button>
   )
 }
