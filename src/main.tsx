@@ -10,7 +10,6 @@ import LotoPage from '@/pages/loto/LotoPage'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import GamePage from '@/pages/game/GamePage'
 import ChatOptionsPage from '@/pages/chatOptions/ChatOptionsPage'
-import Prademo from '@/pages/prademo/Prademo'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -46,10 +45,6 @@ const router = createBrowserRouter([
   {
     path: '/chatOptions',
     element: <ChatOptionsPage />,
-  },
-  {
-    path: '/prademo',
-    element: <Prademo />,
   },
 ])
 
