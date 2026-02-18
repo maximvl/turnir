@@ -16,6 +16,7 @@ import { MusicContext } from '@/common/hooks/MusicContext'
 import { Item, MusicType } from '@/pages/turnir/types'
 import ItemTitle from '../../ItemTitle'
 import { random } from 'lodash'
+import { CAT_DANCE_IMG } from '@/pages/turnir/consts'
 
 enum WheelState {
   Start,
@@ -417,7 +418,7 @@ export default function Wheel({
           )}
 
           <img
-            src={centerImage || CatDance}
+            src={centerImage || CAT_DANCE_IMG}
             alt=""
             style={{
               position: 'absolute',
