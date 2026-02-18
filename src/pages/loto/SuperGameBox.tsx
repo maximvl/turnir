@@ -4,6 +4,7 @@ import Flipper from './Flipper'
 import { SuperGameResultItem } from './types'
 import { VkRole } from '../turnir/api'
 import { useEffect, useState } from 'react'
+import { POG_IMG } from '../turnir/consts'
 
 type Props = {
   options: SuperGameResultItem[]
@@ -67,18 +68,12 @@ export default function SuperGameBox({
     >
       {options.map((option, index) => {
         const revealed = revealedOptionsIds.includes(index)
-        let displayItem = (
-          <DisplayItem item={option} streamsRewards={streamsRewards} />
-        )
+        let displayItem = <DisplayItem item={option} streamsRewards={streamsRewards} />
         if (revealAll && !revealed) {
-          displayItem = (
-            <Box style={{ filter: 'brightness(40%)' }}>{displayItem}</Box>
-          )
+          displayItem = <Box style={{ filter: 'brightness(40%)' }}>{displayItem}</Box>
         }
 
-        const hiddenValue = revealAll
-          ? displayItem
-          : (index + 1).toString().padStart(2, '0')
+        const hiddenValue = revealAll ? displayItem : (index + 1).toString().padStart(2, '0')
 
         const isSelected = selected.includes(index)
 
@@ -100,14 +95,11 @@ export default function SuperGameBox({
         // + row
         const cellPos = indexInRow + row
         const animatedCell =
-          animationIndex % spaceBetweenPlusAnimated ===
-          cellPos % spaceBetweenPlusAnimated
+          animationIndex % spaceBetweenPlusAnimated === cellPos % spaceBetweenPlusAnimated
 
         const colorIndex = animationIndex - cellPos
         const colorId =
-          colorIndex < 0
-            ? colors.length + (colorIndex % colors.length)
-            : colorIndex % colors.length
+          colorIndex < 0 ? colors.length + (colorIndex % colors.length) : colorIndex % colors.length
 
         let animationColor = animatedCell ? colors[colorId] : undefined
 
@@ -135,10 +127,7 @@ export default function SuperGameBox({
                 </DrawnNumber>
               }
               backSide={
-                <DrawnNumber
-                  variant={option === 'empty' ? 'empty' : 'match'}
-                  selected={isSelected}
-                >
+                <DrawnNumber variant={option === 'empty' ? 'empty' : 'match'} selected={isSelected}>
                   {displayItem}
                 </DrawnNumber>
               }
@@ -161,13 +150,7 @@ function DisplayItem({ item, streamsRewards }: DisplayProps) {
   if (item === 'x1') {
     return (
       <Tooltip title="1 очко">
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
+        <Box width="100%" height="100%" display="flex" justifyContent="center" alignItems="center">
           <img
             src="https://images.live.vkvideo.ru/smile/2ec232fd-bb31-4122-b3d1-4c8e7b721561/icon/size/medium"
             width="30px"
@@ -182,13 +165,7 @@ function DisplayItem({ item, streamsRewards }: DisplayProps) {
   if (item === 'x2') {
     return (
       <Tooltip title="2 очка">
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
+        <Box width="100%" height="100%" display="flex" justifyContent="center" alignItems="center">
           <img
             src="https://images.live.vkvideo.ru/smile/c78b5408-e42c-4aeb-b6f5-9ca21d73c0f1/icon/size/medium"
             width="30px"
@@ -203,19 +180,8 @@ function DisplayItem({ item, streamsRewards }: DisplayProps) {
   if (item === 'x3') {
     return (
       <Tooltip title="3 очка">
-        <Box
-          width="100%"
-          height="100%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <img
-            src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
-            width="40px"
-            height="40px"
-            alt="option"
-          />
+        <Box width="100%" height="100%" display="flex" justifyContent="center" alignItems="center">
+          <img src={POG_IMG} width="40px" height="40px" alt="option" />
         </Box>
       </Tooltip>
     )
@@ -233,12 +199,7 @@ function DisplayItem({ item, streamsRewards }: DisplayProps) {
               justifyContent="center"
               alignItems="center"
             >
-              <img
-                src={role.largeUrl}
-                width="30px"
-                height="30px"
-                alt="option"
-              />
+              <img src={role.largeUrl} width="30px" height="30px" alt="option" />
             </Box>
           </Tooltip>
         )

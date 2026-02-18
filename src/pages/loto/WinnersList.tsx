@@ -4,6 +4,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import { fetchLotoWinners, LotoWinner } from '../turnir/api'
 import useLocalStorage from '@/common/hooks/useLocalStorage'
 import { ChatConnection, ChatServerType } from '../turnir/types'
+import { EZ_SMILE_IMG, GAGA_SMILE_IMG } from '../turnir/consts'
 
 export default function WinnersList() {
   const { value: chatConnections } = useLocalStorage<ChatConnection[]>({
@@ -34,22 +35,14 @@ export default function WinnersList() {
   pastLotoWinners.sort((a, b) => b.created_at - a.created_at)
 
   return (
-    <Box
-      marginTop="20px"
-      padding="10px"
-      borderRadius="5px"
-      style={{ backgroundColor: '#654b3c' }}
-    >
+    <Box marginTop="20px" padding="10px" borderRadius="5px" style={{ backgroundColor: '#654b3c' }}>
       Прошлые победители:
       {pastLotoWinners.map((winner, i) => {
         let icon = null
         if (winner.super_game_status === 'win') {
           icon = (
             <Tooltip title="Победил в супер-игре" placement="top">
-              <img
-                src="https://cdn.7tv.app/emote/01F9FS6EEG0006XXD6DX0K9Y04/3x.avif"
-                width="25px"
-              />
+              <img src={EZ_SMILE_IMG} width="25px" />
             </Tooltip>
           )
         }
@@ -57,10 +50,7 @@ export default function WinnersList() {
         if (winner.super_game_status === 'lose') {
           icon = (
             <Tooltip title="Проиграл в супер-игре" placement="top">
-              <img
-                src="https://cdn.7tv.app/emote/01H96150H00003CY09NFH3G999/3x.avif"
-                height="25px"
-              />
+              <img src={GAGA_SMILE_IMG} height="25px" />
             </Tooltip>
           )
         }
@@ -68,8 +58,7 @@ export default function WinnersList() {
         const server = winner.stream_channel.split('/')[0] as ChatServerType
 
         const iconLink =
-          ServerIcons[server] ??
-          'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
+          ServerIcons[server] ?? 'https://cdn-icons-png.flaticon.com/512/7261/7261483.png'
 
         return (
           <Box key={i} display="flex" alignItems="center" whiteSpace="nowrap">

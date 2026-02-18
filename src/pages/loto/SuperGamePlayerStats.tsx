@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material'
 import { SuperGameGuess, SuperGameResultItem } from './types'
+import { POG_IMG } from '../turnir/consts'
 
 type Props = {
   result: (SuperGameResultItem | null)[]
@@ -8,18 +9,12 @@ type Props = {
   maxWinScore: number
 }
 
-export default function SuperGamePlayerStats({
-  result,
-  guess,
-  guessesAmount,
-  maxWinScore,
-}: Props) {
+export default function SuperGamePlayerStats({ result, guess, guessesAmount, maxWinScore }: Props) {
   const theme = useTheme()
 
   const guessed = guess.value.map((val) => val + 1)
   const remainingAmount = guessesAmount - guessed.length
-  const isFinished =
-    remainingAmount === 0 && result.every((val) => val !== null)
+  const isFinished = remainingAmount === 0 && result.every((val) => val !== null)
 
   const score =
     result.reduce((acc, val) => {
@@ -49,13 +44,10 @@ export default function SuperGamePlayerStats({
   if (isFinished && score > 0) {
     scoreHeader = (
       <Box display="flex" justifyContent="center" alignItems="center">
-        <img
-          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
-          style={{ width: '64px', marginRight: '15px' }}
-        />
+        <img src={POG_IMG} style={{ width: '64px', marginRight: '15px' }} />
         {guess.owner_name} очки: {score}
         <img
-          src="https://freepngimg.com/download/mouth/92712-ear-head-twitch-pogchamp-emote-free-download-png-hq.png"
+          src={POG_IMG}
           style={{
             width: '64px',
             marginLeft: '15px',
