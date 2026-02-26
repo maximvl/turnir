@@ -55,15 +55,16 @@ import {
 import WinnersList from './WinnersList'
 import ConfigurationButton, { defaultConfig } from './ConfigurationButton'
 import AnimatedNumber from './AnimatedNumber'
+import { IMG_ROOT } from '../turnir/consts'
 
 const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
 
 const BingoImage = sample([
-  'https://mapcar.alwaysdat.com/static/img/bingo1-small.gif',
-  'https://mapcar.alwaysdat.com/static/img/bingo2-small.gif',
-  'https://mapcar.alwaysdat.com/static/img/bingo3-small.webp',
-  'https://mapcar.alwaysdat.com/static/img/bingo4.webp',
+  `${IMG_ROOT}/bingo1-small.gif`,
+  `${IMG_ROOT}/bingo2-small.gif`,
+  `${IMG_ROOT}/bingo3-small.webp`,
+  `${IMG_ROOT}/bingo4.webp`,
 ])
 
 export default function LotoPage() {
