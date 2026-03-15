@@ -1,5 +1,5 @@
 import { Box, Tooltip, useTheme } from '@mui/material'
-import { Fragment } from 'react'
+import { Fragment, memo } from 'react'
 import { Ticket } from './types'
 import { formatMsToTime, isBrightColor, ServerIcons, VkColorsMap } from './utils'
 import { ChatUser } from '@/pages/turnir/types'
@@ -21,17 +21,21 @@ type Props = {
   lastDrawnNumber?: string
 }
 
-export default function TicketBox({
-  ticket,
-  matches,
-  owner,
-  isWinner,
-  big,
-  superHighlight,
-  showTime = false,
-  lastDrawnNumber,
-}: Props) {
-  const theme = useTheme()
+export default memo(
+  function TicketBox({
+    ticket,
+    matches,
+    owner,
+    isWinner,
+    big,
+    superHighlight,
+    showTime = false,
+    lastDrawnNumber,
+  }: Props) {
+    // ... rest of the component
+    const theme = useTheme()
+    // ...
+
 
   // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
   //   ticket.variant - 1
@@ -267,4 +271,20 @@ export default function TicketBox({
       </Box>
     </Box>
   )
-}
+}, (prev, next) => {
+  if (prev.ticket !== next.ticket) return false
+  if (prev.owner !== next.owner) return false
+  if (prev.isWinner !== next.isWinner) return false
+  if (prev.big !== next.big) return false
+  if (prev.superHighlight !== next.superHighlight) return false
+  if (prev.showTime !== next.showTime) return false
+  if (prev.lastDrawnNumber !== next.lastDrawnNumber) return false
+
+  // Compare matches array
+  if (prev.matches.length !== next.matches.length) return false
+  for (let i = 0; i < prev.matches.length; i++) {
+    if (prev.matches[i] !== next.matches[i]) return false
+  }
+
+  return true
+})

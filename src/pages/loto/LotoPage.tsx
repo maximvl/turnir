@@ -105,8 +105,13 @@ export default function LotoPage() {
   )
 
   const drawNumber = (next: string) => {
-    drawNumbersPool.splice(drawNumbersPool.indexOf(next), 1)
-    setDrawNumbersPool([...drawNumbersPool])
+    setDrawNumbersPool((prev) => {
+      const idx = prev.indexOf(next)
+      if (idx === -1) return prev
+      const nextPool = [...prev]
+      nextPool.splice(idx, 1)
+      return nextPool
+    })
     return next
   }
 
@@ -169,8 +174,10 @@ export default function LotoPage() {
     mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
   })
 
-  const showHappyBirthday =
-    chatConnections.some((c) => c.channel.toLowerCase() === 'praden') && false
+  const showHappyBirthday = chatConnections.some(
+    (c) =>
+      c.channel.toLowerCase().startsWith('archie') || c.channel.toLowerCase().startsWith('segall')
+  )
 
   const infoQueries = chatConnections.map((connection) => ({
     queryKey: ['streamInfo', connection.server, connection.channel],
@@ -421,29 +428,48 @@ export default function LotoPage() {
     }
   }, [nextDigitState, nextNumber, state])
 
-  let totalTickets: Ticket[] = []
-  if (enableChatTickets) {
-    totalTickets = [...totalTickets, ...ticketsFromChat]
-  }
-  if (enablePointsTickets) {
-    totalTickets = [...totalTickets, ...ticketsFromPoints]
-  }
+  const totalTickets = useMemo(() => {
+    let tickets: Ticket[] = []
+    if (enableChatTickets) {
+      tickets = [...tickets, ...ticketsFromChat]
+    }
+    if (enablePointsTickets) {
+      tickets = [...tickets, ...ticketsFromPoints]
+    }
 
-  totalTickets = totalTickets.filter((ticket) => participatingUserIds.includes(ticket.owner_id))
+    return tickets.filter((ticket) => participatingUserIds.includes(ticket.owner_id))
+  }, [
+    enableChatTickets,
+    enablePointsTickets,
+    ticketsFromChat,
+    ticketsFromPoints,
+    participatingUserIds,
+  ])
 
-  const totalParticiants = uniqBy(totalTickets, (t) => t.owner_id).length
-  const ticketsAmountPerServer = totalTickets.reduce(
-    (acc, ticket) => {
-      const amount = acc[ticket.source.server] ?? 0
-      acc[ticket.source.server] = amount + 1
-      return acc
-    },
-    {} as { [key in ChatServerType]: number }
+  const totalParticiants = useMemo(
+    () => uniqBy(totalTickets, (t) => t.owner_id).length,
+    [totalTickets]
   )
-  const ticketsAmountPerServerSorted = Object.entries(ticketsAmountPerServer).sort(
-    (a, b) => b[1] - a[1]
+  const ticketsAmountPerServer = useMemo(
+    () =>
+      totalTickets.reduce(
+        (acc, ticket) => {
+          const amount = acc[ticket.source.server] ?? 0
+          acc[ticket.source.server] = amount + 1
+          return acc
+        },
+        {} as { [key in ChatServerType]: number }
+      ),
+    [totalTickets]
   )
-  const hasOnly1Server = Object.keys(ticketsAmountPerServer).length === 1
+  const ticketsAmountPerServerSorted = useMemo(
+    () => Object.entries(ticketsAmountPerServer).sort((a, b) => b[1] - a[1]),
+    [ticketsAmountPerServer]
+  )
+  const hasOnly1Server = useMemo(
+    () => Object.keys(ticketsAmountPerServer).length === 1,
+    [ticketsAmountPerServer]
+  )
 
   useEffect(() => {
     document.title = `Лото - ${totalTickets.length} билетов`
@@ -460,9 +486,10 @@ export default function LotoPage() {
     } = {}
 
     if (drawnNumbers.length > 0) {
+      const drawnNumbersSet = new Set(drawnNumbers)
       // for each ticket find matches with drawn numbers
       for (const ticket of totalTickets) {
-        const matches = ticket.value.map((number) => (drawnNumbers.includes(number) ? 1 : 0))
+        const matches = ticket.value.map((number) => (drawnNumbersSet.has(number) ? 1 : 0))
 
         let minNeeded = lotoConfig.win_matches_amount
         let windowSum = 0
@@ -475,7 +502,7 @@ export default function LotoPage() {
 
         // Slide window
         for (let i = lotoConfig.win_matches_amount; i < matches.length; i++) {
-          windowSum += matches[i] - matches[i - lotoConfig.win_matches_amount]
+          windowSum += matches[i] - (matches[i - lotoConfig.win_matches_amount] || 0)
           const needed = lotoConfig.win_matches_amount - windowSum
           if (needed < minNeeded) {
             minNeeded = needed
@@ -499,7 +526,18 @@ export default function LotoPage() {
       }
     }
     return result
-  }, [totalTickets.length, drawnNumbers, hasUpdatedTickets])
+  }, [totalTickets, drawnNumbers, lotoConfig.win_matches_amount])
+
+  const chatMessagesByUserId = useMemo(() => {
+    const grouped: Record<string, ChatMessage[]> = {}
+    for (const msg of allChatMessages) {
+      if (!grouped[msg.user.id]) {
+        grouped[msg.user.id] = []
+      }
+      grouped[msg.user.id].push(msg)
+    }
+    return grouped
+  }, [allChatMessages])
 
   // order tickets by consequent matches then by total matches
   const orderedTickets = useMemo(() => {
@@ -562,11 +600,15 @@ export default function LotoPage() {
   // })
 
   const hostNicknames = new Set(uniq(chatConnections.map((c) => c.channel.toLowerCase())))
-  const hostTickets = totalTickets.filter((ticket) =>
-    hostNicknames.has(ticket.owner_name.toLowerCase())
+  const hostTickets = useMemo(
+    () =>
+      totalTickets.filter((ticket) => hostNicknames.has(ticket.owner_name.toLowerCase())),
+    [totalTickets, hostNicknames]
   )
-  const nonHostOrderedTickets = orderedTickets.filter(
-    (ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())
+  const nonHostOrderedTickets = useMemo(
+    () =>
+      orderedTickets.filter((ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())),
+    [orderedTickets, hostNicknames]
   )
 
   const showWinnerTicketTime = winnersByMatchesIds.length > 1
@@ -733,7 +775,6 @@ export default function LotoPage() {
   }
 
   const animate = state === 'playing' || state === 'registration'
-  const TicketsContainer = animate ? motion.div : 'div'
 
   const mainMenuMemo = useMemo(() => {
     return <MainMenu title={'Лото 2.0 с чатом'} />
@@ -1183,20 +1224,21 @@ export default function LotoPage() {
             }}
             // paddingLeft="200px"
           >
-            <AnimatePresence>
-              {nonHostOrderedTickets.map((ticket) => {
+            <AnimatePresence initial={false}>
+              {nonHostOrderedTickets.map((ticket, index) => {
                 const isWinner = ticket.id === winner?.id
                 const isWinnerCandidate = winnersByMatchesIds.includes(ticket.id)
                 const showChatMessages = openChats.has(ticket.owner_id)
-                const chatMessages = allChatMessages.filter(
-                  (msg) => msg.user.id === ticket.owner_id
-                )
+                const chatMessages = chatMessagesByUserId[ticket.owner_id] || []
+
+                const isAnimated = animate && index < 50
+                const Container = isAnimated ? motion.div : 'div'
 
                 return (
-                  <TicketsContainer
+                  <Container
                     key={ticket.id}
-                    layout
-                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                    layout={isAnimated ? 'position' : undefined}
+                    transition={isAnimated ? { type: 'spring', stiffness: 100, damping: 20 } : undefined}
                   >
                     <TicketBox
                       ticket={ticket}
@@ -1243,7 +1285,7 @@ export default function LotoPage() {
                         {showChatMessages && <ChatBox messages={chatMessages} />}
                       </Box>
                     )}
-                  </TicketsContainer>
+                  </Container>
                 )
               })}
             </AnimatePresence>

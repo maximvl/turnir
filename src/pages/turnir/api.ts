@@ -404,7 +404,10 @@ type VkRolesResponse = {
   }
 }
 
-export function fetchStreamInfo(server: ChatServerType, channel: string): Promise<VkRolesResponse> {
+export async function fetchStreamInfo(
+  server: ChatServerType,
+  channel: string
+): Promise<VkRolesResponse> {
   const params = new URLSearchParams()
   params.set('platform', server)
   params.set('channel', channel)
