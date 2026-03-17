@@ -5,7 +5,7 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react(), svgr()],
-  base: '/',
+  base: '/turnir',
   server: {
     open: true, // Automatically open the app in the browser
   },

@@ -18,6 +18,7 @@ import {
   VkMention,
   ChatUser,
   ChatServerType,
+  ChatMessage,
 } from '@/pages/turnir/types'
 import { PlayCircleFilled } from '@mui/icons-material'
 import {
@@ -601,13 +602,11 @@ export default function LotoPage() {
 
   const hostNicknames = new Set(uniq(chatConnections.map((c) => c.channel.toLowerCase())))
   const hostTickets = useMemo(
-    () =>
-      totalTickets.filter((ticket) => hostNicknames.has(ticket.owner_name.toLowerCase())),
+    () => totalTickets.filter((ticket) => hostNicknames.has(ticket.owner_name.toLowerCase())),
     [totalTickets, hostNicknames]
   )
   const nonHostOrderedTickets = useMemo(
-    () =>
-      orderedTickets.filter((ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())),
+    () => orderedTickets.filter((ticket) => !hostNicknames.has(ticket.owner_name.toLowerCase())),
     [orderedTickets, hostNicknames]
   )
 
@@ -1238,7 +1237,9 @@ export default function LotoPage() {
                   <Container
                     key={ticket.id}
                     layout={isAnimated ? 'position' : undefined}
-                    transition={isAnimated ? { type: 'spring', stiffness: 100, damping: 20 } : undefined}
+                    transition={
+                      isAnimated ? { type: 'spring', stiffness: 100, damping: 20 } : undefined
+                    }
                   >
                     <TicketBox
                       ticket={ticket}

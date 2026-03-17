@@ -1,6 +1,7 @@
 import { Box } from '@mui/material'
 import { Item } from '@/pages/turnir/types'
 import { useEffect, useState } from 'react'
+import { FIREWORKS_IMG } from '../consts'
 
 type Props = {
   winner: Item
@@ -27,14 +28,8 @@ export default function Victory({ winner }: Props) {
             width={'100%'}
             className="raising"
           >
-            <div
-              className="neon"
-              style={{ textAlign: 'center', backgroundColor: 'black' }}
-            >
-              <span
-                className="text"
-                data-text={winner.title.toLocaleUpperCase()}
-              >
+            <div className="neon" style={{ textAlign: 'center', backgroundColor: 'black' }}>
+              <span className="text" data-text={winner.title.toLocaleUpperCase()}>
                 {winner.title.toLocaleUpperCase()}
               </span>
               <span className="gradient"></span>
@@ -43,7 +38,7 @@ export default function Victory({ winner }: Props) {
           </Box>
         </Box>
         <img
-          src="https://s13.gifyu.com/images/b2N3F.gif"
+          src={FIREWORKS_IMG}
           alt=""
           width={'100%'}
           style={{ zIndex: 10, position: 'relative' }}
