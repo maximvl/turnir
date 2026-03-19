@@ -23,3 +23,5 @@ export type SuperGameGuess = {
 }
 
 export type SuperGameResultItem = 'empty' | 'x1' | 'x2' | 'x3' | string
+
+export const CHAT_BOT_NAME = 'ChatBot'

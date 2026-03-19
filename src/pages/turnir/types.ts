@@ -76,8 +76,7 @@ export const RoundTypeNames = {
 }
 
 export const RoundTypeTooltip: { [key: string]: string } = {
-  [RoundType.Protection]:
-    'Один раз за турнир случайный вариант получает разовую защиту от вылета',
+  [RoundType.Protection]: 'Один раз за турнир случайный вариант получает разовую защиту от вылета',
   [RoundType.StreamerVsRandom]: 'Стример выбирает кто вылетит не видя варианты',
   [RoundType.RandomElimination]: 'Выбывает случайный вариант',
   [RoundType.StreamerChoice]: 'Стример выбирает кто вылетит',
@@ -118,13 +117,7 @@ export const MusicTypeIds = {
   [MusicType.Loto]: 'loto-music',
 }
 
-export type ChatServerType =
-  | 'twitch'
-  | 'vkvideo'
-  | 'nuum'
-  | 'goodgame'
-  | 'kick'
-  | 'youtube'
+export type ChatServerType = 'twitch' | 'vkvideo' | 'nuum' | 'goodgame' | 'kick' | 'youtube'
 
 export type ChatConnection = {
   server: ChatServerType
@@ -169,6 +162,7 @@ type TwitchBadge = {
 type TwitchUserFields = {
   color?: string
   badges: TwitchBadge[]
+  highlighted?: boolean
 }
 
 export type ChatUser = {

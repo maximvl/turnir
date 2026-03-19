@@ -1,6 +1,6 @@
 import { sample, sampleSize, shuffle, uniq } from 'lodash'
-import { SuperGameResultItem, Ticket, TicketId } from './types'
-import { ChatConnection, ChatServerType, ChatUser } from '../turnir/types'
+import { CHAT_BOT_NAME, SuperGameResultItem, Ticket, TicketId } from './types'
+import { ChatConnection, ChatMessage, ChatServerType, ChatUser } from '../turnir/types'
 import { VkRewards } from './ConfigurationButton'
 
 type Props = {
@@ -342,4 +342,24 @@ export function isModerator(user: ChatUser): boolean {
     return true
   }
   return false
+}
+
+function isMessageFromVkBot(msg: ChatMessage) {
+  return msg.user.username === CHAT_BOT_NAME
+}
+
+function isMessageHighlightedOnTwitch(msg: ChatMessage) {
+  return Boolean(msg.user.twitch_fields?.highlighted)
+}
+
+export function getRegularMessages(msgs: ChatMessage[]) {
+  return msgs.filter((m) => !isMessageFromVkBot(m) && !isMessageHighlightedOnTwitch(m))
+}
+
+export function getMessagesFromVkBot(msgs: ChatMessage[]) {
+  return msgs.filter(isMessageFromVkBot)
+}
+
+export function getMessagesHighlightedOnTwitch(msgs: ChatMessage[]) {
+  return msgs.filter(isMessageHighlightedOnTwitch)
 }

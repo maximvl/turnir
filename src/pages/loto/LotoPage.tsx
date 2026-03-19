@@ -41,12 +41,14 @@ import './styles.css'
 import SuperGameBox from './SuperGameBox'
 import SuperGamePlayerStats from './SuperGamePlayerStats'
 import TicketBox from './TicketBox'
-import { SuperGameGuess, SuperGameResultItem, Ticket, TicketId } from './types'
+import { CHAT_BOT_NAME, SuperGameGuess, SuperGameResultItem, Ticket, TicketId } from './types'
 import {
   formatSeconds,
   formatSecondsZero,
   generateSuperGameValues,
   genTicket,
+  getMessagesHighlightedOnTwitch,
+  getRegularMessages,
   isModerator,
   isUserSubscriber,
   NumberToFancyName,
@@ -58,7 +60,6 @@ import ConfigurationButton, { defaultConfig } from './ConfigurationButton'
 import AnimatedNumber from './AnimatedNumber'
 import { IMG_ROOT } from '../turnir/consts'
 
-const CHAT_BOT_NAME = 'ChatBot'
 const LOTO_MATCH = 'лото'
 
 const BingoImage = sample([
@@ -278,23 +279,21 @@ export default function LotoPage() {
     )
 
     if (lotoMessages.length > 0) {
-      const lotoMessagesFromUsers = lotoMessages
-        .filter((msg) => msg.user.username !== CHAT_BOT_NAME)
-        .map((msg) => {
-          return {
-            user_id: msg.user.id,
-            username: msg.user.username,
-            text: msg.message,
-            source: msg.source,
-            created_at: msg.ts,
-          } as UserInfo
-        })
+      const regularLotoMessages = getRegularMessages(lotoMessages).map((msg) => {
+        return {
+          user_id: msg.user.id,
+          username: msg.user.username,
+          text: msg.message,
+          source: msg.source,
+          created_at: msg.ts,
+        } as UserInfo
+      })
 
       const isLatecomer = state === 'playing'
 
-      const newTicketsFromChat = getNewTickets({
+      const newRegularTickets = getNewTickets({
         currentTickets: ticketsFromChat,
-        newMessages: lotoMessagesFromUsers,
+        newMessages: regularLotoMessages,
         type: 'chat',
         isLatecomer,
         drawOptions: drawNumbersPool,
@@ -305,28 +304,26 @@ export default function LotoPage() {
 
       if (state === 'registration') {
         hasUpdatedTickets = ticketsFromChat.some((ticket) => {
-          const messageFromUser = lotoMessagesFromUsers.find(
-            (msg) => msg.user_id === ticket.owner_id
-          )
+          const messageFromUser = regularLotoMessages.find((msg) => msg.user_id === ticket.owner_id)
           return messageFromUser && messageFromUser.created_at !== ticket.created_at
         })
       }
 
-      const hasUpdate = newTicketsFromChat.length > 0 || hasUpdatedTickets
+      const hasUpdate = newRegularTickets.length > 0 || hasUpdatedTickets
 
       if (hasUpdate) {
         setTicketsFromChat((current) => {
           const update = [
-            ...newTicketsFromChat,
+            ...newRegularTickets,
             ...current.map((ticket) => {
               if (!hasUpdatedTickets) {
                 return ticket
               }
-              const messageFromUser = lotoMessagesFromUsers.find(
+              const messageFromUser = regularLotoMessages.find(
                 (msg) => msg.user_id === ticket.owner_id
               )
               if (messageFromUser && messageFromUser.created_at !== ticket.created_at) {
-                console.log('changing ticket for', messageFromUser, ticket)
+                // console.log('changing ticket for', messageFromUser, ticket)
                 return genTicket({
                   ownerId: ticket.owner_id,
                   ownerName: ticket.owner_name,
@@ -345,12 +342,12 @@ export default function LotoPage() {
         })
       }
 
-      const lotoMessagesFromBotRaw = lotoMessages.filter(
+      const lotoMessagesFromVkBotRaw = lotoMessages.filter(
         (msg) =>
           msg.user.username === CHAT_BOT_NAME && msg.vk_fields && msg.vk_fields.mentions.length > 0
       )
 
-      lotoMessagesFromBotRaw.reduce((acc, msg) => {
+      lotoMessagesFromVkBotRaw.reduce((acc, msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
         if (!acc[mention.id] && !allUsersById[mention.id]) {
           acc[mention.id] = {
@@ -367,7 +364,7 @@ export default function LotoPage() {
         setAllUsersById((prev) => ({ ...prev, ...newUsersById }))
       }
 
-      const lotoMessagesFromBot = lotoMessagesFromBotRaw.map((msg) => {
+      const lotoMessagesFromVkBot = lotoMessagesFromVkBotRaw.map((msg) => {
         const mention = msg.vk_fields?.mentions[0] as VkMention
         return {
           user_id: `${mention.id}`,
@@ -377,15 +374,34 @@ export default function LotoPage() {
         } as UserInfo
       })
 
-      const newTicketsFromPoints = getNewTickets({
+      const newTicketsFromVkPoints = getNewTickets({
         currentTickets: ticketsFromPoints,
-        newMessages: lotoMessagesFromBot,
+        newMessages: lotoMessagesFromVkBot,
         type: 'points',
         isLatecomer,
         drawOptions: drawNumbersPool,
       })
-      if (newTicketsFromPoints.length > 0) {
-        setTicketsFromPoints((current) => [...newTicketsFromPoints, ...current])
+      if (newTicketsFromVkPoints.length > 0) {
+        setTicketsFromPoints((current) => [...newTicketsFromVkPoints, ...current])
+      }
+
+      const messagesFromTwitchPoints = getMessagesHighlightedOnTwitch(lotoMessages)
+      const twitchPointsMessages: UserInfo[] = messagesFromTwitchPoints.map((msg) => ({
+        user_id: msg.user.id,
+        username: msg.user.username,
+        text: msg.message,
+        source: msg.source,
+        created_at: msg.ts,
+      }))
+      const newTicketsFromTwitchPoints = getNewTickets({
+        currentTickets: ticketsFromPoints,
+        newMessages: twitchPointsMessages,
+        type: 'points',
+        isLatecomer,
+        drawOptions: drawNumbersPool,
+      })
+      if (newTicketsFromTwitchPoints.length > 0) {
+        setTicketsFromPoints((current) => [...newTicketsFromTwitchPoints, ...current])
       }
     }
   }
