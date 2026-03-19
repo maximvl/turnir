@@ -36,255 +36,256 @@ export default memo(
     const theme = useTheme()
     // ...
 
+    // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
+    //   ticket.variant - 1
+    // ]
 
-  // const Ticket = [TicketImg1, TicketImg2, TicketImg3, TicketImg4][
-  //   ticket.variant - 1
-  // ]
-
-  let maxRange: MatchRange | null = null
-  const matchRanges: MatchRange[] = []
-  const hasMatches = matches.some((match) => match === 1)
-  if (isWinner || hasMatches) {
-    // fill match ranges
-    let currentRange: MatchRange | null = null
-    for (let i = 0; i < matches.length; i++) {
-      if (matches[i] === 1) {
-        if (currentRange === null) {
-          currentRange = { start: i, end: i }
+    let maxRange: MatchRange | null = null
+    const matchRanges: MatchRange[] = []
+    const hasMatches = matches.some((match) => match === 1)
+    if (isWinner || hasMatches) {
+      // fill match ranges
+      let currentRange: MatchRange | null = null
+      for (let i = 0; i < matches.length; i++) {
+        if (matches[i] === 1) {
+          if (currentRange === null) {
+            currentRange = { start: i, end: i }
+          } else {
+            currentRange.end = i
+          }
         } else {
-          currentRange.end = i
-        }
-      } else {
-        if (currentRange !== null) {
-          matchRanges.push(currentRange)
-          currentRange = null
+          if (currentRange !== null) {
+            matchRanges.push(currentRange)
+            currentRange = null
+          }
         }
       }
+      if (currentRange !== null) {
+        matchRanges.push(currentRange)
+      }
+
+      maxRange = matchRanges.reduce((prev, current) =>
+        prev.end - prev.start > current.end - current.start ? prev : current
+      )
     }
-    if (currentRange !== null) {
-      matchRanges.push(currentRange)
+
+    const doSuperHighlight = superHighlight && matches.every((match) => match === 1)
+
+    const highlightColor = theme.palette.error.main
+    const winnerColor = theme.palette.warning.main
+
+    const vkBadges = owner?.vk_fields?.badges || []
+    const vkRoles = owner?.vk_fields?.roles || []
+
+    const isAnime = vkRoles.some((role) => role.name === 'Анимеёб')
+
+    const twitchColor = owner?.twitch_fields?.color
+    const twitchBadges = owner?.twitch_fields?.badges || []
+
+    const darkTextColor = '#1E3E62'
+    const darkTextHighlight = '#800000'
+    const darkTextWin = '#3C0753'
+
+    const userColor = VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
+
+    const isUserColorBright = isBrightColor(userColor)
+    const nickBackgroundColor = isUserColorBright ? '#191970' : '#B2AC88'
+
+    const gradients = [
+      'radial-gradient(circle, rgba(0,128,128,1) 0%, rgba(0,64,128,1) 100%)',
+      'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(255,165,0,1) 100%)',
+      'radial-gradient(circle, rgba(56,173,169,1) 0%, rgba(54,54,206,1) 100%)',
+      'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(70,130,180,1) 100%)',
+      'radial-gradient(circle, rgba(32,74,112,1) 0%, rgba(20,34,74,1) 100%)',
+      'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(128,0,128,1) 100%)',
+      'radial-gradient(circle, rgba(102,126,234,1) 0%, rgba(118,75,162,1) 100%)',
+      'radial-gradient(circle, rgba(75,0,130,1) 0%, rgba(0,139,139,1) 100%)',
+    ]
+
+    let ticketBackground = ticket.color
+    if (ticket.type === 'points') {
+      ticketBackground = gradients[ticket.variant]
+    }
+    if (isAnime) {
+      ticketBackground = `url(${ANIME_BACKGROUND_IMG})`
+    }
+    if (ticket.isLatecomer) {
+      ticketBackground = 'radial-gradient(circle, rgba(50,0,0,1) 0%, rgba(0,0,0,1) 100%)'
     }
 
-    maxRange = matchRanges.reduce((prev, current) =>
-      prev.end - prev.start > current.end - current.start ? prev : current
-    )
-  }
+    const itemSize = big ? '36px' : '24px'
 
-  const doSuperHighlight = superHighlight && matches.every((match) => match === 1)
+    const channelName = `${ticket.source.server}/${ticket.source.channel}`
+    const iconLink = ServerIcons[ticket.source.server]
 
-  const highlightColor = theme.palette.error.main
-  const winnerColor = theme.palette.warning.main
-
-  const vkBadges = owner?.vk_fields?.badges || []
-  const vkRoles = owner?.vk_fields?.roles || []
-
-  const isAnime = vkRoles.some((role) => role.name === 'Анимеёб')
-
-  const twitchColor = owner?.twitch_fields?.color
-  const twitchBadges = owner?.twitch_fields?.badges || []
-
-  const darkTextColor = '#1E3E62'
-  const darkTextHighlight = '#800000'
-  const darkTextWin = '#3C0753'
-
-  const userColor = VkColorsMap[owner?.vk_fields?.nickColor ?? -1] || twitchColor || '#FFFFFF'
-
-  const isUserColorBright = isBrightColor(userColor)
-  const nickBackgroundColor = isUserColorBright ? '#191970' : '#B2AC88'
-
-  const gradients = [
-    'radial-gradient(circle, rgba(0,128,128,1) 0%, rgba(0,64,128,1) 100%)',
-    'radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(255,165,0,1) 100%)',
-    'radial-gradient(circle, rgba(56,173,169,1) 0%, rgba(54,54,206,1) 100%)',
-    'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(70,130,180,1) 100%)',
-    'radial-gradient(circle, rgba(32,74,112,1) 0%, rgba(20,34,74,1) 100%)',
-    'radial-gradient(circle, rgba(25,25,112,1) 0%, rgba(128,0,128,1) 100%)',
-    'radial-gradient(circle, rgba(102,126,234,1) 0%, rgba(118,75,162,1) 100%)',
-    'radial-gradient(circle, rgba(75,0,130,1) 0%, rgba(0,139,139,1) 100%)',
-  ]
-
-  let ticketBackground = ticket.color
-  if (ticket.type === 'points' || twitchBadges.length > 0 || true) {
-    ticketBackground = gradients[ticket.variant]
-  }
-  if (isAnime) {
-    ticketBackground = `url(${ANIME_BACKGROUND_IMG})`
-  }
-  if (ticket.isLatecomer) {
-    ticketBackground = 'radial-gradient(circle, rgba(50,0,0,1) 0%, rgba(0,0,0,1) 100%)'
-  }
-
-  const itemSize = big ? '36px' : '24px'
-
-  const channelName = `${ticket.source.server}/${ticket.source.channel}`
-  const iconLink = ServerIcons[ticket.source.server]
-
-  return (
-    <Box position="relative">
-      <Box
-        style={{
-          backgroundColor: ticket.color,
-          backgroundImage: isAnime ? `url(${ANIME_BACKGROUND_IMG})` : 'none',
-          backgroundSize: 'cover',
-          background: ticketBackground,
-        }}
-        border={isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`}
-        borderRadius={'10px'}
-        paddingTop={'5px'}
-        paddingBottom={'5px'}
-        paddingLeft={'10px'}
-        paddingRight={'10px'}
-        lineHeight={'1.0'}
-      >
+    return (
+      <Box position="relative">
         <Box
-          display={'flex'}
-          justifyContent={'center'}
-          textAlign={'center'}
-          alignItems={'center'}
-          fontSize={itemSize}
-          position="relative"
+          style={{
+            backgroundColor: ticket.color,
+            backgroundImage: isAnime ? `url(${ANIME_BACKGROUND_IMG})` : 'none',
+            backgroundSize: 'cover',
+            background: ticketBackground,
+          }}
+          border={isWinner ? `2px solid ${winnerColor}` : `2px solid ${userColor}`}
+          borderRadius={'10px'}
+          paddingTop={'5px'}
+          paddingBottom={'5px'}
+          paddingLeft={'10px'}
+          paddingRight={'10px'}
+          lineHeight={'1.0'}
         >
           <Box
-            display="flex"
-            width={'fit-content'}
-            style={{
-              backgroundColor: nickBackgroundColor,
-            }}
+            display={'flex'}
+            justifyContent={'center'}
+            textAlign={'center'}
+            alignItems={'center'}
+            fontSize={itemSize}
+            position="relative"
           >
-            {vkBadges.map((badge, index) => {
-              return (
-                <Tooltip
-                  title={badge.name}
-                  placement="top"
-                  style={{ marginRight: '5px' }}
-                  key={index}
-                >
-                  <img key={index} src={badge.largeUrl} width={itemSize} alt={'badge'} />
-                </Tooltip>
-              )
-            })}
-            {vkRoles.map((role, index) => {
-              return (
-                <Tooltip
-                  title={role.name}
-                  placement="top"
-                  style={{ marginRight: '5px' }}
-                  key={index}
-                >
-                  <img key={index} src={role.largeUrl} width={itemSize} alt={'role'} />
-                </Tooltip>
-              )
-            })}
-            {twitchBadges.map((badge, index) => {
-              return (
-                <Tooltip
-                  title={badge.title}
-                  placement="top"
-                  style={{ marginRight: '5px' }}
-                  key={index}
-                >
-                  <img
+            <Box
+              display="flex"
+              width={'fit-content'}
+              style={{
+                backgroundColor: nickBackgroundColor,
+              }}
+            >
+              {vkBadges.map((badge, index) => {
+                return (
+                  <Tooltip
+                    title={badge.name}
+                    placement="top"
+                    style={{ marginRight: '5px' }}
                     key={index}
-                    src={badge.image_url_4x}
-                    width={itemSize}
-                    height={itemSize}
-                    alt={'badge'}
-                  />
-                </Tooltip>
-              )
-            })}
-            <span style={{ color: userColor }}>{ticket.owner_name}</span>
+                  >
+                    <img key={index} src={badge.largeUrl} width={itemSize} alt={'badge'} />
+                  </Tooltip>
+                )
+              })}
+              {vkRoles.map((role, index) => {
+                return (
+                  <Tooltip
+                    title={role.name}
+                    placement="top"
+                    style={{ marginRight: '5px' }}
+                    key={index}
+                  >
+                    <img key={index} src={role.largeUrl} width={itemSize} alt={'role'} />
+                  </Tooltip>
+                )
+              })}
+              {twitchBadges.map((badge, index) => {
+                return (
+                  <Tooltip
+                    title={badge.title}
+                    placement="top"
+                    style={{ marginRight: '5px' }}
+                    key={index}
+                  >
+                    <img
+                      key={index}
+                      src={badge.image_url_4x}
+                      width={itemSize}
+                      height={itemSize}
+                      alt={'badge'}
+                    />
+                  </Tooltip>
+                )
+              })}
+              <span style={{ color: userColor }}>{ticket.owner_name}</span>
+            </Box>
+            <Box
+              position="absolute"
+              right={'0px'}
+              top={'0px'}
+              style={ticket.source.server === 'goodgame' ? { backgroundColor: 'black' } : {}}
+            >
+              <Tooltip title={channelName} placement="top">
+                <img src={iconLink} width={itemSize} height={itemSize} alt={''} />
+              </Tooltip>
+            </Box>
           </Box>
           <Box
-            position="absolute"
-            right={'0px'}
-            top={'0px'}
-            style={ticket.source.server === 'goodgame' ? { backgroundColor: 'black' } : {}}
+            fontSize={itemSize}
+            marginTop={'5px'}
+            fontFamily="monospace"
+            display={'flex'}
+            justifyContent={'center'}
+            width={'100%'}
+            className={doSuperHighlight ? 'color-animation' : ''}
           >
-            <Tooltip title={channelName} placement="top">
-              <img src={iconLink} width={itemSize} height={itemSize} alt={''} />
-            </Tooltip>
+            {ticket.value.map((value, index) => {
+              const addSpace = index !== 0
+              let style: { [k: string]: string } = {}
+              if (isAnime) {
+                style = { color: darkTextColor }
+              }
+
+              if (matches[index]) {
+                style = { color: highlightColor, textDecoration: 'line-through' }
+                if (isAnime) {
+                  style.color = darkTextHighlight
+                }
+              }
+              if (isWinner && maxRange && maxRange.start <= index && index <= maxRange.end) {
+                style = { color: winnerColor, textDecoration: 'line-through' }
+                if (isAnime) {
+                  style.color = darkTextWin
+                }
+              }
+
+              const isWithinRange = matchRanges.some(
+                (range) => range.start < index && index <= range.end
+              )
+
+              if (doSuperHighlight) {
+                delete style.color
+              }
+
+              if (lastDrawnNumber === value) {
+                style.border = `1px solid white`
+                style.borderRadius = '5px'
+              }
+
+              return (
+                <Fragment key={index}>
+                  {addSpace && (
+                    <span
+                      style={{
+                        color: style.color,
+                        textDecoration: isWithinRange ? 'line-through' : '',
+                      }}
+                    >
+                      &nbsp;
+                    </span>
+                  )}
+                  <span style={style}>{value}</span>
+                </Fragment>
+              )
+            })}
           </Box>
+          {showTime && (
+            <div style={{ marginTop: '5px' }}>выдан {formatMsToTime(ticket.created_at)}</div>
+          )}
         </Box>
-        <Box
-          fontSize={itemSize}
-          marginTop={'5px'}
-          fontFamily="monospace"
-          display={'flex'}
-          justifyContent={'center'}
-          width={'100%'}
-          className={doSuperHighlight ? 'color-animation' : ''}
-        >
-          {ticket.value.map((value, index) => {
-            const addSpace = index !== 0
-            let style: { [k: string]: string } = {}
-            if (isAnime) {
-              style = { color: darkTextColor }
-            }
-
-            if (matches[index]) {
-              style = { color: highlightColor, textDecoration: 'line-through' }
-              if (isAnime) {
-                style.color = darkTextHighlight
-              }
-            }
-            if (isWinner && maxRange && maxRange.start <= index && index <= maxRange.end) {
-              style = { color: winnerColor, textDecoration: 'line-through' }
-              if (isAnime) {
-                style.color = darkTextWin
-              }
-            }
-
-            const isWithinRange = matchRanges.some(
-              (range) => range.start < index && index <= range.end
-            )
-
-            if (doSuperHighlight) {
-              delete style.color
-            }
-
-            if (lastDrawnNumber === value) {
-              style.border = `1px solid white`
-              style.borderRadius = '5px'
-            }
-
-            return (
-              <Fragment key={index}>
-                {addSpace && (
-                  <span
-                    style={{
-                      color: style.color,
-                      textDecoration: isWithinRange ? 'line-through' : '',
-                    }}
-                  >
-                    &nbsp;
-                  </span>
-                )}
-                <span style={style}>{value}</span>
-              </Fragment>
-            )
-          })}
-        </Box>
-        {showTime && (
-          <div style={{ marginTop: '5px' }}>выдан {formatMsToTime(ticket.created_at)}</div>
-        )}
       </Box>
-    </Box>
-  )
-}, (prev, next) => {
-  if (prev.ticket !== next.ticket) return false
-  if (prev.owner !== next.owner) return false
-  if (prev.isWinner !== next.isWinner) return false
-  if (prev.big !== next.big) return false
-  if (prev.superHighlight !== next.superHighlight) return false
-  if (prev.showTime !== next.showTime) return false
-  if (prev.lastDrawnNumber !== next.lastDrawnNumber) return false
+    )
+  },
+  (prev, next) => {
+    if (prev.ticket !== next.ticket) return false
+    if (prev.owner !== next.owner) return false
+    if (prev.isWinner !== next.isWinner) return false
+    if (prev.big !== next.big) return false
+    if (prev.superHighlight !== next.superHighlight) return false
+    if (prev.showTime !== next.showTime) return false
+    if (prev.lastDrawnNumber !== next.lastDrawnNumber) return false
 
-  // Compare matches array
-  if (prev.matches.length !== next.matches.length) return false
-  for (let i = 0; i < prev.matches.length; i++) {
-    if (prev.matches[i] !== next.matches[i]) return false
+    // Compare matches array
+    if (prev.matches.length !== next.matches.length) return false
+    for (let i = 0; i < prev.matches.length; i++) {
+      if (prev.matches[i] !== next.matches[i]) return false
+    }
+
+    return true
   }
-
-  return true
-})
+)
