@@ -9,6 +9,8 @@ import {
   DialogTitle,
   Divider,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   MenuItem,
   Select,
   Tooltip,
@@ -25,6 +27,9 @@ type Props = {
 
 export type VkRewards = { [stream: string]: { [roleId: string]: number } }
 type ConfigType = {
+  enable_chat_tickets: boolean
+  enable_points_tickets: boolean
+  only_subscribers: boolean
   win_matches_amount: number
   manual_draw_enabled: boolean
   limit_to_90: boolean
@@ -39,6 +44,9 @@ type ConfigType = {
 }
 
 export const defaultConfig: ConfigType = {
+  enable_chat_tickets: true,
+  enable_points_tickets: true,
+  only_subscribers: false,
   win_matches_amount: 3,
   limit_to_90: false,
   allow_mods_to_input_numbers: false,
@@ -107,6 +115,40 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)}>
         <DialogTitle>Параметры лото и супер игры</DialogTitle>
         <DialogContent>
+          <Box sx={{ fontWeight: 700 }}>Билеты</Box>
+          <FormGroup>
+            <FormControlLabel
+              label="Билеты с чата"
+              control={
+                <Checkbox
+                  checked={config.enable_chat_tickets}
+                  onChange={(e) => setField('enable_chat_tickets', e.target.checked)}
+                  color="primary"
+                />
+              }
+            />
+            <FormControlLabel
+              label="Билеты с поинтов"
+              control={
+                <Checkbox
+                  checked={config.enable_points_tickets}
+                  onChange={(e) => setField('enable_points_tickets', e.target.checked)}
+                  color="primary"
+                />
+              }
+            />
+            <FormControlLabel
+              label="Только для САБОВ"
+              control={
+                <Checkbox
+                  checked={config.only_subscribers}
+                  onChange={(e) => setField('only_subscribers', e.target.checked)}
+                  color="primary"
+                />
+              }
+            />
+          </FormGroup>
+          <Divider sx={{ marginTop: '10px', marginBottom: '10px' }} />
           <Box sx={{ fontWeight: 700 }}>Лото</Box>
           <Box display="flex" alignItems="center">
             <Box marginRight="10px">Количество совпадений подряд для победы</Box>

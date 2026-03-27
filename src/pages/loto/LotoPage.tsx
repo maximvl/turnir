@@ -24,9 +24,6 @@ import { PlayCircleFilled } from '@mui/icons-material'
 import {
   Box,
   Button,
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
   Slider,
   TextField,
   Tooltip,
@@ -144,10 +141,6 @@ export default function LotoPage() {
   const [openChats, setOpenChats] = useState<Set<string>>(new Set())
   const nextNumberRef = useRef(nextNumber)
 
-  const [enableChatTickets, setEnableChatTickets] = useState(true)
-  const [enablePointsTickets, setEnablePointsTickets] = useState(true)
-  const [onlySubscribers, setOnlySubscribers] = useState(false)
-
   const [startTime, setStartTime] = useState(60 * 3)
   const {
     value: timerRef,
@@ -176,9 +169,13 @@ export default function LotoPage() {
     mutationFn: (params: LotoWinnerUpdate) => updateLotoWinner(params),
   })
 
+  const birthdays = {
+    archiedos: 'march 4',
+    segall: 'march 6',
+  }
+
   const showHappyBirthday = chatConnections.some(
-    (c) =>
-      c.channel.toLowerCase().startsWith('archie') || c.channel.toLowerCase().startsWith('segall')
+    (c) => c.channel.toLowerCase().startsWith('') && false
   )
 
   const infoQueries = chatConnections.map((connection) => ({
@@ -211,7 +208,7 @@ export default function LotoPage() {
 
   const participatingUserIds = Object.values(allUsersById)
     .filter((user) => {
-      if (onlySubscribers) {
+      if (lotoConfig.only_subscribers) {
         return isUserSubscriber(user)
       }
       return true
@@ -447,17 +444,17 @@ export default function LotoPage() {
 
   const totalTickets = useMemo(() => {
     let tickets: Ticket[] = []
-    if (enableChatTickets) {
+    if (lotoConfig.enable_chat_tickets) {
       tickets = [...tickets, ...ticketsFromChat]
     }
-    if (enablePointsTickets) {
+    if (lotoConfig.enable_points_tickets) {
       tickets = [...tickets, ...ticketsFromPoints]
     }
 
     return tickets.filter((ticket) => participatingUserIds.includes(ticket.owner_id))
   }, [
-    enableChatTickets,
-    enablePointsTickets,
+    lotoConfig.enable_chat_tickets,
+    lotoConfig.enable_points_tickets,
     ticketsFromChat,
     ticketsFromPoints,
     participatingUserIds,
@@ -804,42 +801,6 @@ export default function LotoPage() {
             <ConfigurationButton streamsRewards={streamsInfo} state={state} />
             {state === 'registration' && (
               <>
-                <FormGroup>
-                  <FormControlLabel
-                    label="Билеты с чата"
-                    control={
-                      <Checkbox
-                        checked={enableChatTickets}
-                        onChange={() => setEnableChatTickets((val) => !val)}
-                        color="primary"
-                      />
-                    }
-                  />
-                  <Tooltip title="Пока только для ВК">
-                    <FormControlLabel
-                      label="Билеты с поинтов"
-                      control={
-                        <Checkbox
-                          checked={enablePointsTickets}
-                          onChange={() => setEnablePointsTickets((val) => !val)}
-                          color="primary"
-                        />
-                      }
-                    />
-                  </Tooltip>
-                  <Tooltip title="Пока только для ВК">
-                    <FormControlLabel
-                      label="Только для САБОВ"
-                      control={
-                        <Checkbox
-                          checked={onlySubscribers}
-                          onChange={() => setOnlySubscribers((val) => !val)}
-                          color="primary"
-                        />
-                      }
-                    />
-                  </Tooltip>
-                </FormGroup>
                 <Box display="flex" alignItems="center">
                   <Slider
                     value={startTime}
