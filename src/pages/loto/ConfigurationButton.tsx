@@ -138,7 +138,7 @@ export default function ConfigurationButton({ streamsRewards, state }: Props) {
               }
             />
             <FormControlLabel
-              label="Только для САБОВ"
+              label="Только для САБОВ (только для vk)"
               control={
                 <Checkbox
                   checked={config.only_subscribers}
