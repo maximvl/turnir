@@ -801,7 +801,7 @@ export default function LotoPage() {
             <ConfigurationButton streamsRewards={streamsInfo} state={state} />
             {state === 'registration' && (
               <>
-                <Box display="flex" alignItems="center">
+                <Box display="flex" alignItems="center" marginTop={3}>
                   <Slider
                     value={startTime}
                     onChange={(_, value) => {
